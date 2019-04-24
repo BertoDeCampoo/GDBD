@@ -5,9 +5,13 @@ import gdbd.ConnectMSSQLServer;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import dataaccess.uneatlantico.es.MSSQLServerDatabase;
+
 import java.awt.BorderLayout;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.awt.event.ActionEvent;
 
 public class Application {
@@ -15,6 +19,7 @@ public class Application {
 	private JFrame frame;
 	private JPanel panel;
 	private JButton btnConnect;
+	private JButton btnConnectInterface;
 
 	/**
 	 * Launch the application.
@@ -53,6 +58,7 @@ public class Application {
 		if (panel == null) {
 			panel = new JPanel();
 			panel.add(getBtnConnect());
+			panel.add(getBtnConnectInterface());
 		}
 		return panel;
 	}
@@ -68,5 +74,30 @@ public class Application {
 			});
 		}
 		return btnConnect;
+	}
+	private JButton getBtnConnectInterface() {
+		if (btnConnectInterface == null) {
+			btnConnectInterface = new JButton("Conexion con interfaz");
+			btnConnectInterface.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					List<String> tablas, columnas;
+					
+					MSSQLServerDatabase db = new MSSQLServerDatabase();
+					
+					db.getConnection("jdbc:sqlserver://DESKTOP-M9PG788\\SQLEXPRESS", "sa", "1234");
+					tablas = db.getTableNames();
+					for(int i=0; i<tablas.size();i++)
+					{
+						System.out.print(tablas.get(i) + ": ");
+						columnas = db.getTableColumnNames(tablas.get(i));
+						for (String columna : columnas) {
+							System.out.print(columna + ", ");
+						}
+						System.out.println();
+					}
+				}
+			});
+		}
+		return btnConnectInterface;
 	}
 }
