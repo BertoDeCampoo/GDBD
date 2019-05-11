@@ -2,6 +2,7 @@ package gdbd;
 
 import java.awt.EventQueue;
 import gdbd.ConnectMSSQLServer;
+import persistence.uneatlantico.es.SQLiteManager;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -24,6 +25,8 @@ public class Application {
 	private JButton btnConnect;
 	private JButton btnConnectInterface;
 	private JButton btnConexinConMysql;
+	private JPanel panel_1;
+	private JButton btnCreateSqliteDatabase;
 
 	/**
 	 * Launch the application.
@@ -56,6 +59,7 @@ public class Application {
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().add(getPanel(), BorderLayout.SOUTH);
+		frame.getContentPane().add(getPanel_1(), BorderLayout.CENTER);
 	}
 
 	private JPanel getPanel() {
@@ -155,5 +159,24 @@ public class Application {
 			});
 		}
 		return btnConexinConMysql;
+	}
+	private JPanel getPanel_1() {
+		if (panel_1 == null) {
+			panel_1 = new JPanel();
+			panel_1.add(getBtnCreateSqliteDatabase());
+		}
+		return panel_1;
+	}
+	private JButton getBtnCreateSqliteDatabase() {
+		if (btnCreateSqliteDatabase == null) {
+			btnCreateSqliteDatabase = new JButton("Create SQLite Database");
+			btnCreateSqliteDatabase.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					SQLiteManager mgr = new SQLiteManager("sqlite");
+					mgr.createDatabase();
+				}
+			});
+		}
+		return btnCreateSqliteDatabase;
 	}
 }
