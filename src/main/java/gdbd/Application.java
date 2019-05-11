@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 import dataaccess.uneatlantico.es.MSSQLServerDatabase;
 import dataaccess.uneatlantico.es.MySQLDatabase;
+import entities.uneatlantico.es.Database;
 import entities.uneatlantico.es.Table;
 
 import java.awt.BorderLayout;
@@ -24,11 +25,12 @@ public class Application {
 	private JFrame frame;
 	private JPanel panel;
 	private JButton btnConnect;
-	private JButton btnConnectInterface;
 	private JButton btnConexinConMysql;
 	private JPanel panel_1;
 	private JButton btnCreateSqliteDatabase;
 	private JButton btnObtenerTablasnueva;
+	private JButton btnMostrarultimoindicebbdd;
+	private JButton btnGetnextfreeid;
 
 	/**
 	 * Launch the application.
@@ -169,6 +171,8 @@ public class Application {
 			panel_1 = new JPanel();
 			panel_1.add(getBtnCreateSqliteDatabase());
 			panel_1.add(getBtnObtenerTablasnueva());
+			panel_1.add(getBtnMostrarultimoindicebbdd());
+			panel_1.add(getBtnGetnextfreeid());
 		}
 		return panel_1;
 	}
@@ -178,7 +182,7 @@ public class Application {
 			btnCreateSqliteDatabase.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					SQLiteManager mgr = new SQLiteManager("sqlite");
-					mgr.createDatabase();
+					mgr.initializeDatabase();
 				}
 			});
 		}
@@ -208,5 +212,46 @@ public class Application {
 			});
 		}
 		return btnObtenerTablasnueva;
+	}
+	private JButton getBtnMostrarultimoindicebbdd() {
+		if (btnMostrarultimoindicebbdd == null) {
+			btnMostrarultimoindicebbdd = new JButton("Guardar bbdd en SQLite");
+			btnMostrarultimoindicebbdd.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					
+					char[] pass = new char[4];
+					
+					pass[0] = '1';
+					pass[1] = '2';
+					pass[2] = '3';
+					pass[3] = '4';
+					
+					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788", "SQLEXPRESS", "sa", pass);
+					Database database = db.getDatabaseInformation();
+					
+					SQLiteManager mgr = new SQLiteManager("sqlite");
+					mgr.addNewDatabase(database);
+				}
+			});
+		}
+		return btnMostrarultimoindicebbdd;
+	}
+	private JButton getBtnGetnextfreeid() {
+		if (btnGetnextfreeid == null) {
+			btnGetnextfreeid = new JButton("GetNextFreeID");
+			btnGetnextfreeid.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					SQLiteManager mgr = new SQLiteManager("sqlite");
+					int next;
+					next = mgr.getNextAvailableID("BBDD");
+					System.out.println("Siguiente ID libre en BBDD : " + next);
+					next = mgr.getNextAvailableID("TABLAS");
+					System.out.println("Siguiente ID libre en TABLAS : " + next);
+					next = mgr.getNextAvailableID("COLUMNAS");
+					System.out.println("Siguiente ID libre en COLUMNAS : " + next);
+				}
+			});
+		}
+		return btnGetnextfreeid;
 	}
 }
