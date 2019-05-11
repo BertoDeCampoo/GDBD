@@ -10,8 +10,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
+import entities.uneatlantico.es.Column;
+import entities.uneatlantico.es.Table;
 /**
+ * Implementation of MySQL database driver
  * @author Alberto Gutiérrez Arroyo
  *
  */
@@ -97,12 +100,14 @@ public class MySQLDatabase implements IDatabase {
 		return tableNames;
 	}
 
-	public List<String> getTableColumnNames(String tableName) {
+	@Override
+	public List<Table> getTables() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Map<String, Map<String, String>> getTableAndColumnNames() {
+	@Override
+	public List<Column> getColumns(String tableName) {
 		// TODO Auto-generated method stub
 		return null;
 	}

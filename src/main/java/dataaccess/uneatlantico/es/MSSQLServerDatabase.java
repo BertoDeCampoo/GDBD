@@ -11,7 +11,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
+import entities.uneatlantico.es.Column;
+import entities.uneatlantico.es.Database;
+import entities.uneatlantico.es.Table;
 
 /**
  *  Check: <br> <a href="https://www.databasejournal.com/features/mssql/article.php/3587906/System-Tables-and-Catalog-Views.htm">databasejournal.com</a>
@@ -88,7 +91,7 @@ public class MSSQLServerDatabase implements IDatabase {
 		return null;
 	}
 	
-	public List<String> getTableNames() {
+/*	public List<String> getTableNames() {
 		List<String> tableNames = new ArrayList<String>();
 		Statement statement;
 		try {
@@ -102,9 +105,9 @@ public class MSSQLServerDatabase implements IDatabase {
 			e.printStackTrace();
 		}
 		return tableNames;
-	}
+	}*/
 
-	public List<String> getTableColumnNames(String tableName) {
+	/*public List<String> getTableColumnNames(String tableName) {
 		DatabaseMetaData metadata;
 		List<String> tableNames = new ArrayList<String>();
 		
@@ -123,11 +126,74 @@ public class MSSQLServerDatabase implements IDatabase {
 			e.printStackTrace();
 		}
 		return tableNames;
+	}*/
+	
+	/**
+	 * Obtains the columns of the given table
+	 * @param tableName  name of the table to retrieve columns
+	 * @return  a list with the columns of the table
+	 */
+	public List<Column> getColumns(String tableName) {
+		String nombre, tipo_dato;
+		int tam_dato;
+		DatabaseMetaData metadata;
+		Connection connection;
+		Column column;
+		List<Column> columns = new ArrayList<Column>();
+		
+		try {
+			connection = getConnection();
+			metadata = connection.getMetaData();
+			ResultSet resultSet = metadata.getColumns(null, null, tableName, null);
+		    while (resultSet.next()) {
+		    	nombre = resultSet.getString("COLUMN_NAME");
+		    	tipo_dato = resultSet.getString("TYPE_NAME");
+		    	tam_dato = resultSet.getInt("COLUMN_SIZE");
+
+		      column = new Column(nombre, tipo_dato, tam_dato);
+		     // System.out.println("Column name: [" + nombre + "]; type: [" + tipo_dato + "]; size: [" + tam_dato + "]");
+		      columns.add(column);
+		    }
+		    connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return columns;
 	}
 
-	public Map<String, Map<String, String>> getTableAndColumnNames() {
-		// TODO Auto-generated method stub
-		return null;
+	@Override
+	public List<Table> getTables() {
+		List<Table> tables = new ArrayList<Table>();
+		List<Column> columns;
+		Table table;
+		String tableName;
+		
+		Statement tablesStatement;
+		Connection connection;
+		try {
+			connection = getConnection();
+			tablesStatement = connection.createStatement();
+			String queryString = "select * from sysobjects where type='u'";
+	        ResultSet rs = tablesStatement.executeQuery(queryString);
+	        while (rs.next()) {
+	        	tableName = rs.getString(1);
+	        	columns = getColumns(tableName);
+	        	
+	        	table = new Table(tableName, columns);
+	        	tables.add(table);
+	        }
+	        connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return tables;
+	}
+	
+	public Database getDatabaseInformation()
+	{
+		List<Table> tables = getTables();
+		Database db = new Database(server, database, tables);
+		return db;
 	}
 
 	

@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import entities.uneatlantico.es.Database;
 import util.uneatlantico.es.PathResolver;
 
 public class SQLiteManager {
@@ -69,19 +70,20 @@ public class SQLiteManager {
 
                 StringBuilder sql = new StringBuilder();
                 sql.append ("CREATE TABLE IF NOT EXISTS BBDD (");
-                sql.append ("  ID          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
+                sql.append ("  ID          INTEGER NOT NULL PRIMARY KEY, ");
                 sql.append ("  NOMBRE      varchar(255) NOT NULL, ");
-                sql.append ("  DESCRIPCION varchar(255));");
-                
+                sql.append ("  DESCRIPCION varchar(255), ");
+                sql.append ("  SERVIDOR    varchar(255));");
+
                 sql.append ("CREATE TABLE TABLAS (");
-                sql.append ("  ID          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
+                sql.append ("  ID          INTEGER NOT NULL PRIMARY KEY, ");
                 sql.append ("  NOMBRE      varchar(255) NOT NULL, ");
                 sql.append ("  DESCRIPCION varchar(255), ");
                 sql.append ("  ID_BBDD     integer(10) NOT NULL, ");
                 sql.append ("  FOREIGN KEY(ID_BBDD) REFERENCES BBDD(ID));");
                 
                 sql.append ("CREATE TABLE COLUMNAS (");
-                sql.append ("  ID          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
+                sql.append ("  ID          INTEGER NOT NULL PRIMARY KEY, ");
                 sql.append ("  NOMBRE      varchar(255) NOT NULL, ");
                 sql.append ("  TIPO_DATO   varchar(255) NOT NULL, ");
                 sql.append ("  TAM_DATO    integer(10) NOT NULL, ");
@@ -101,5 +103,10 @@ public class SQLiteManager {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+	}
+	
+	public void SaveToDatabase(Database db)
+	{
+		
 	}
 }

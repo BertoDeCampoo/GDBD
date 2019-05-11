@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 import dataaccess.uneatlantico.es.MSSQLServerDatabase;
 import dataaccess.uneatlantico.es.MySQLDatabase;
+import entities.uneatlantico.es.Table;
 
 import java.awt.BorderLayout;
 import javax.swing.JButton;
@@ -27,6 +28,7 @@ public class Application {
 	private JButton btnConexinConMysql;
 	private JPanel panel_1;
 	private JButton btnCreateSqliteDatabase;
+	private JButton btnObtenerTablasnueva;
 
 	/**
 	 * Launch the application.
@@ -66,7 +68,7 @@ public class Application {
 		if (panel == null) {
 			panel = new JPanel();
 			panel.add(getBtnConnect());
-			panel.add(getBtnConnectInterface());
+			//panel.add(getBtnConnectInterface());
 			panel.add(getBtnConexinConMysql());
 		}
 		return panel;
@@ -85,6 +87,7 @@ public class Application {
 		}
 		return btnConnect;
 	}
+	/*
 	private JButton getBtnConnectInterface() {
 		if (btnConnectInterface == null) {
 			btnConnectInterface = new JButton("Conexion con SQL Server");
@@ -122,6 +125,7 @@ public class Application {
 		}
 		return btnConnectInterface;
 	}
+	*/
 	private JButton getBtnConexinConMysql() {
 		if (btnConexinConMysql == null) {
 			btnConexinConMysql = new JButton("Conexi\u00F3n con MySQL");
@@ -164,6 +168,7 @@ public class Application {
 		if (panel_1 == null) {
 			panel_1 = new JPanel();
 			panel_1.add(getBtnCreateSqliteDatabase());
+			panel_1.add(getBtnObtenerTablasnueva());
 		}
 		return panel_1;
 	}
@@ -178,5 +183,30 @@ public class Application {
 			});
 		}
 		return btnCreateSqliteDatabase;
+	}
+	private JButton getBtnObtenerTablasnueva() {
+		if (btnObtenerTablasnueva == null) {
+			btnObtenerTablasnueva = new JButton("Obtener tablas (Nueva)");
+			btnObtenerTablasnueva.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					List<Table> tablas;
+					char[] pass = new char[4];
+					
+					pass[0] = '1';
+					pass[1] = '2';
+					pass[2] = '3';
+					pass[3] = '4';
+					
+					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788", "SQLEXPRESS", "sa", pass);
+					
+					tablas = db.getTables();
+					for (Table tabla : tablas)
+					{
+						System.out.println(tabla);
+					}
+				}
+			});
+		}
+		return btnObtenerTablasnueva;
 	}
 }
