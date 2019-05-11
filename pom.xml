@@ -21,7 +21,7 @@
 		                <archive>
 		                <manifest>
 		                    <mainClass>
-		                        gdbd.Application
+		                        gui.uneatlantico.es.Application
 		                    </mainClass>
 		                </manifest>
 		                </archive>

@@ -23,26 +23,76 @@ import java.util.Map;
  */
 public class MSSQLServerDatabase implements IDatabase {
 	
-	private Connection connection;
-
-	public void getConnection(String connection, String username, String password) {
+	/**
+	 * JDBC Microsoft SQL Server/SQL Server Express subprotocol to create JDBC connections
+	 */
+	private final static String Subprotocol = "jdbc:sqlserver://";
+	/**
+	 * JDBC driver class
+	 */
+	private final static String Driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+	/**
+	 * Default MySQL port
+	 */
+	private final static int Default_Port = 1433;	
+	private String server, database, username;
+	private int port;
+	private char[] password;
+	
+	/**
+	 * Constructor of Microsoft SQL Server/SQL Server Express Database Connector
+	 * @param server  server address. It can be a DNS, an IP Address or a localhost (127.0.0.1 for local PC)
+	 * @param database  instance name of the database
+	 * @param username  user name to login on the database server
+	 * @param password  password for the given username
+	 */
+	public MSSQLServerDatabase(String server, String database, String username, char[] password)
+	{
+		this (server, -1, database, username, password);
+	}
+	
+	/**
+	 * Constructor of Microsoft SQL Server/SQL Server Express Database Connector (It admits a custom port)
+	 * @param server  server address. It can be a DNS, an IP Address or a localhost (127.0.0.1 for local PC)
+	 * @param port  port used to stablish connection with the server
+	 * @param database  instance name of the database
+	 * @param username  user name to login on the database server
+	 * @param password  password for the given username
+	 */
+	public MSSQLServerDatabase(String server, int port, String database, String username, char[] password)
+	{
+		this.server = server.trim();
+		if (port >= 65535)
+			this.port = Default_Port;
+		else if (port > 0 && port < 65535)
+			this.port = port;
+		this.database = database.trim();
+		this.username = username.trim();
+		this.password = password;
+	}
+	
+	public Connection getConnection() throws SQLException {
+		//MSSQLServerDatabase("jdbc:sqlserver://DESKTOP-M9PG788\\SQLEXPRESS", "sa", pass);
+		String url;
 		try {
-			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-			this.connection = DriverManager.getConnection(connection, username, password);
-		} catch(SQLException sqle) {
-			System.err.println("Error SQL");
-			sqle.printStackTrace();
+			Class.forName(Driver);
+			url = Subprotocol + server;
+			if (port > 0)
+				url += ":" + Integer.toString(port);
+			if (database != "")
+				url += "\\" + database;
+			return DriverManager.getConnection(url, username, new String (password));
 		} catch (ClassNotFoundException e) {
-			System.err.println("Error de driver");
-			e.printStackTrace();
+			System.err.println("Driver error");
 		}
+		return null;
 	}
 	
 	public List<String> getTableNames() {
 		List<String> tableNames = new ArrayList<String>();
 		Statement statement;
 		try {
-			statement = this.connection.createStatement();
+			statement = getConnection().createStatement();
 			String queryString = "select * from sysobjects where type='u'";
 	        ResultSet rs = statement.executeQuery(queryString);
 	        while (rs.next()) {
@@ -59,12 +109,12 @@ public class MSSQLServerDatabase implements IDatabase {
 		List<String> tableNames = new ArrayList<String>();
 		
 		try {
-			metadata = connection.getMetaData();
+			metadata = getConnection().getMetaData();
 			ResultSet resultSet = metadata.getColumns(null, null, tableName, null);
 		    while (resultSet.next()) {
 		      String name = resultSet.getString("COLUMN_NAME");
-		      String type = resultSet.getString("TYPE_NAME");
-		      int size = resultSet.getInt("COLUMN_SIZE");
+//		      String type = resultSet.getString("TYPE_NAME");
+//		      int size = resultSet.getInt("COLUMN_SIZE");
 
 //		      System.out.println("Column name: [" + name + "]; type: [" + type + "]; size: [" + size + "]");
 		      tableNames.add(name);

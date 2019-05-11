@@ -4,6 +4,7 @@
 package dataaccess.uneatlantico.es;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -14,12 +15,11 @@ import java.util.Map;
 public interface IDatabase {
 		
 	/**
-	 * Connects to the database
-	 * @param connection
-	 * @param username
-	 * @param password
+	 * Obtains the connection to the database
+	 * @return  the connection to the database
+	 * @throws SQLException  if the database can't be reached
 	 */
-	public void getConnection(String connection, String username, String password);
+	public Connection getConnection() throws SQLException;
 	
 	/**
 	 * Obtains the name of the tables of the selected database
