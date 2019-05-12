@@ -4,6 +4,7 @@
 package dataaccess.uneatlantico.es;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import entities.uneatlantico.es.Column;
+import entities.uneatlantico.es.Database;
 import entities.uneatlantico.es.Table;
 /**
  * Implementation of MySQL database driver
@@ -71,7 +73,6 @@ public class MySQLDatabase implements IDatabase {
 	}
 	
 	public Connection getConnection() throws SQLException {
-		// Connection example: "jdbc:mysql://localhost:3306/personal_mysql"
 		String url;
 		try {
 			Class.forName(Driver);
@@ -88,8 +89,7 @@ public class MySQLDatabase implements IDatabase {
 		Statement statement;
 		try {
 			statement = getConnection().createStatement();
-//			String queryString = "SELECT table_name FROM information_schema.tables WHERE table_type = 'base table'";
-			String queryString = "SELECT table_name FROM information_schema.tables where table_schema='personal_mysql'";
+			String queryString = "SELECT table_name FROM information_schema.tables where table_schema='" + database + "'";
 	        ResultSet rs = statement.executeQuery(queryString);
 	        while (rs.next()) {
 	        	tableNames.add(rs.getString(1));
@@ -102,14 +102,65 @@ public class MySQLDatabase implements IDatabase {
 
 	@Override
 	public List<Table> getTables() {
-		// TODO Auto-generated method stub
-		return null;
+		List<Table> tables = new ArrayList<Table>();
+		List<Column> columns;
+		Table table;
+		String tableName;
+		
+		Statement tablesStatement;
+		Connection connection;
+		try {
+			connection = getConnection();
+			tablesStatement = connection.createStatement();
+			String queryString = "SELECT table_name FROM information_schema.tables where table_schema='" + database + "'";
+	        ResultSet rs = tablesStatement.executeQuery(queryString);
+	        while (rs.next()) {
+	        	tableName = rs.getString(1);
+	        	columns = getColumns(tableName);
+	        	
+	        	table = new Table(tableName, columns);
+	        	tables.add(table);
+	        }
+	        connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return tables;
 	}
 
 	@Override
 	public List<Column> getColumns(String tableName) {
-		// TODO Auto-generated method stub
-		return null;
+		String nombre, tipo_dato;
+		int tam_dato;
+		DatabaseMetaData metadata;
+		Connection connection;
+		Column column;
+		List<Column> columns = new ArrayList<Column>();
+		
+		try {
+			connection = getConnection();
+			metadata = connection.getMetaData();
+			ResultSet resultSet = metadata.getColumns(null, null, tableName, null);
+		    while (resultSet.next()) {
+		    	nombre = resultSet.getString("COLUMN_NAME");
+		    	tipo_dato = resultSet.getString("TYPE_NAME");
+		    	tam_dato = resultSet.getInt("COLUMN_SIZE");
+
+		      column = new Column(nombre, tipo_dato, tam_dato);
+		      columns.add(column);
+		    }
+		    connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return columns;
+	}
+
+	@Override
+	public Database getDatabaseInformation() {
+		List<Table> tables = getTables();
+		Database db = new Database(server, database, "MySQL", tables);
+		return db;
 	}
 
 }

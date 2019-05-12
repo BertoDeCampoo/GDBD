@@ -74,6 +74,7 @@ public class MSSQLServerDatabase implements IDatabase {
 		this.password = password;
 	}
 	
+	@Override
 	public Connection getConnection() throws SQLException {
 		//MSSQLServerDatabase("jdbc:sqlserver://DESKTOP-M9PG788\\SQLEXPRESS", "sa", pass);
 		String url;
@@ -91,76 +92,6 @@ public class MSSQLServerDatabase implements IDatabase {
 		return null;
 	}
 	
-/*	public List<String> getTableNames() {
-		List<String> tableNames = new ArrayList<String>();
-		Statement statement;
-		try {
-			statement = getConnection().createStatement();
-			String queryString = "select * from sysobjects where type='u'";
-	        ResultSet rs = statement.executeQuery(queryString);
-	        while (rs.next()) {
-	        	tableNames.add(rs.getString(1));
-	        }
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return tableNames;
-	}*/
-
-	/*public List<String> getTableColumnNames(String tableName) {
-		DatabaseMetaData metadata;
-		List<String> tableNames = new ArrayList<String>();
-		
-		try {
-			metadata = getConnection().getMetaData();
-			ResultSet resultSet = metadata.getColumns(null, null, tableName, null);
-		    while (resultSet.next()) {
-		      String name = resultSet.getString("COLUMN_NAME");
-//		      String type = resultSet.getString("TYPE_NAME");
-//		      int size = resultSet.getInt("COLUMN_SIZE");
-
-//		      System.out.println("Column name: [" + name + "]; type: [" + type + "]; size: [" + size + "]");
-		      tableNames.add(name);
-		    }
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return tableNames;
-	}*/
-	
-	/**
-	 * Obtains the columns of the given table
-	 * @param tableName  name of the table to retrieve columns
-	 * @return  a list with the columns of the table
-	 */
-	public List<Column> getColumns(String tableName) {
-		String nombre, tipo_dato;
-		int tam_dato;
-		DatabaseMetaData metadata;
-		Connection connection;
-		Column column;
-		List<Column> columns = new ArrayList<Column>();
-		
-		try {
-			connection = getConnection();
-			metadata = connection.getMetaData();
-			ResultSet resultSet = metadata.getColumns(null, null, tableName, null);
-		    while (resultSet.next()) {
-		    	nombre = resultSet.getString("COLUMN_NAME");
-		    	tipo_dato = resultSet.getString("TYPE_NAME");
-		    	tam_dato = resultSet.getInt("COLUMN_SIZE");
-
-		      column = new Column(nombre, tipo_dato, tam_dato);
-		     // System.out.println("Column name: [" + nombre + "]; type: [" + tipo_dato + "]; size: [" + tam_dato + "]");
-		      columns.add(column);
-		    }
-		    connection.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return columns;
-	}
-
 	@Override
 	public List<Table> getTables() {
 		List<Table> tables = new ArrayList<Table>();
@@ -189,15 +120,39 @@ public class MSSQLServerDatabase implements IDatabase {
 		return tables;
 	}
 	
+	@Override
+	public List<Column> getColumns(String tableName) {
+		String nombre, tipo_dato;
+		int tam_dato;
+		DatabaseMetaData metadata;
+		Connection connection;
+		Column column;
+		List<Column> columns = new ArrayList<Column>();
+		
+		try {
+			connection = getConnection();
+			metadata = connection.getMetaData();
+			ResultSet resultSet = metadata.getColumns(null, null, tableName, null);
+		    while (resultSet.next()) {
+		    	nombre = resultSet.getString("COLUMN_NAME");
+		    	tipo_dato = resultSet.getString("TYPE_NAME");
+		    	tam_dato = resultSet.getInt("COLUMN_SIZE");
+
+		      column = new Column(nombre, tipo_dato, tam_dato);
+		     // System.out.println("Column name: [" + nombre + "]; type: [" + tipo_dato + "]; size: [" + tam_dato + "]");
+		      columns.add(column);
+		    }
+		    connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return columns;
+	}
+
 	public Database getDatabaseInformation()
 	{
 		List<Table> tables = getTables();
-		Database db = new Database(server, database, tables);
+		Database db = new Database(server, database, "Microsoft SQL Server", tables);
 		return db;
 	}
-
-	
-
-	
-
 }
