@@ -7,11 +7,19 @@ package dataaccess.uneatlantico.es;
  */
 public enum DBMS {
 	/**
+	 * Microsoft SQL Server or SQL Express Database
+	 */
+	MSSQL,
+	/**
 	 * MySQL Database
 	 */
 	MySQL,
 	/**
-	 * Microsoft SQL Server or SQL Express Database
+	 * Postgre SQL
 	 */
-	MSSQL
+	Postgre,
+	/**
+	 * Oracle
+	 */
+	Oracle
 }
