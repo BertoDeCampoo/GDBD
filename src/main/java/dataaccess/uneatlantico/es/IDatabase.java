@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import entities.uneatlantico.es.Column;
+import entities.uneatlantico.es.Database;
 import entities.uneatlantico.es.Table;
 
 /**
@@ -24,6 +25,12 @@ public interface IDatabase {
 	public Connection getConnection() throws SQLException;
 	
 	/**
+	 * Obtains the name of the tables on the given database
+	 * @return the name of the tables of the database
+	 */
+	public List<Table> getTables();
+	
+	/**
 	 * Obtains the columns of the given table
 	 * @param tableName  name of the table from which to retrieve the columns
 	 * @return a list with the names of the columns of the selected database
@@ -31,15 +38,8 @@ public interface IDatabase {
 	public List<Column> getColumns(String tableName);
 	
 	/**
-	 * Obtains the name of the columns on the given table of the selected database
-	 * @return the name of the tables of the database
-	 */
-	public List<Table> getTables();
-	
-	/**
 	 * Obtains the name of the tables and the columns of each table
-	 * @return a map containing a String with the name of the table and another map with the name and type of the column
+	 * @return  a Database entity with all the information of the current database
 	 */
-	//public Map<String, Map<String,String>> getTableAndColumnNames();
-
+	public Database getDatabaseInformation();
 }
