@@ -1,7 +1,5 @@
 package util.uneatlantico.es;
 
-import java.net.URISyntaxException;
-
 public class PathResolver {
 	
 	/**
@@ -10,12 +8,8 @@ public class PathResolver {
 	 */
 	public static String getCurrentDirectory()
 	{
-		try {
-			return (PathResolver.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
-		} catch (URISyntaxException e) {
-			System.err.println("Impossible to obtain directory path");
-		}
-		return "";
+		return System.getProperty("user.dir") + System.getProperty("file.separator");
+//	return (PathResolver.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
 	}
 
 }

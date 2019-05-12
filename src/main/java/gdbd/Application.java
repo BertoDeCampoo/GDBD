@@ -30,7 +30,6 @@ public class Application {
 	private JButton btnCreateSqliteDatabase;
 	private JButton btnObtenerTablasnueva;
 	private JButton btnMostrarultimoindicebbdd;
-	private JButton btnGetnextfreeid;
 	private JButton btnListserverdbs;
 
 	/**
@@ -173,7 +172,6 @@ public class Application {
 			panel_1.add(getBtnCreateSqliteDatabase());
 			panel_1.add(getBtnObtenerTablasnueva());
 			panel_1.add(getBtnMostrarultimoindicebbdd());
-			panel_1.add(getBtnGetnextfreeid());
 			panel_1.add(getBtnListserverdbs());
 		}
 		return panel_1;
@@ -238,24 +236,7 @@ public class Application {
 		}
 		return btnMostrarultimoindicebbdd;
 	}
-	private JButton getBtnGetnextfreeid() {
-		if (btnGetnextfreeid == null) {
-			btnGetnextfreeid = new JButton("GetNextFreeID");
-			btnGetnextfreeid.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					SQLiteManager mgr = new SQLiteManager("sqlite");
-					int next;
-					next = mgr.getNextAvailableID("BBDD");
-					System.out.println("Siguiente ID libre en BBDD : " + next);
-					next = mgr.getNextAvailableID("TABLAS");
-					System.out.println("Siguiente ID libre en TABLAS : " + next);
-					next = mgr.getNextAvailableID("COLUMNAS");
-					System.out.println("Siguiente ID libre en COLUMNAS : " + next);
-				}
-			});
-		}
-		return btnGetnextfreeid;
-	}
+	
 	private JButton getBtnListserverdbs() {
 		if (btnListserverdbs == null) {
 			btnListserverdbs = new JButton("ListServerDBs");
@@ -269,7 +250,6 @@ public class Application {
 					pass[3] = '4';
 					
 					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788\\SQLEXPRESS", "sa", pass);
-					List<String> list = db.getDatabases();
 					db.getTables("DesarrolloBD");
 				}
 			});

@@ -16,6 +16,7 @@ import util.uneatlantico.es.StringDotsRemover;
 
 public class SQLiteManager {
 	
+	private final static String Driver = "org.sqlite.JDBC";
 	/**
 	 * Default name for the SQLite Database the application will use
 	 */
@@ -55,7 +56,13 @@ public class SQLiteManager {
 	 */
 	public Connection getConnection() throws SQLException
 	{
-		return DriverManager.getConnection(getDatabaseUrl());
+		try {
+			Class.forName(Driver);
+			return DriverManager.getConnection(getDatabaseUrl());
+		} catch (ClassNotFoundException e) {
+			System.err.println(e.getLocalizedMessage());
+		}
+		return null;
 	}
 	
 	/**
@@ -66,7 +73,7 @@ public class SQLiteManager {
 		Connection conn = null;
 		Statement stmt = null;
         try  {
-        	conn = DriverManager.getConnection(getDatabaseUrl());
+        	conn = getConnection();
             if (conn != null) {
                 DatabaseMetaData meta = conn.getMetaData();
                 System.out.println("The driver name is " + meta.getDriverName());
@@ -237,7 +244,7 @@ public class SQLiteManager {
 	 * @param tableName  table to obtain the available ID
 	 * @return  next free ID on the given table
 	 */
-	public int getNextAvailableID(String tableName)
+	private int getNextAvailableID(String tableName)
 	{
 		Connection connection;
 		Statement stmt;
