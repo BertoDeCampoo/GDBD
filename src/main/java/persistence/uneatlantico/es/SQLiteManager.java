@@ -12,6 +12,7 @@ import entities.uneatlantico.es.Column;
 import entities.uneatlantico.es.Database;
 import entities.uneatlantico.es.Table;
 import util.uneatlantico.es.PathResolver;
+import util.uneatlantico.es.StringDotsRemover;
 
 public class SQLiteManager {
 	
@@ -29,8 +30,10 @@ public class SQLiteManager {
 		}
 		if (!(filename.endsWith(".db") || filename.endsWith(".sqlite")))
 		{
-			this.filename = filename + ".db";
+			filename = StringDotsRemover.cleanString(filename);
+			filename += ".db";
 		}
+		this.filename = filename;
 	}
 	
 	/**
@@ -67,7 +70,6 @@ public class SQLiteManager {
             if (conn != null) {
                 DatabaseMetaData meta = conn.getMetaData();
                 System.out.println("The driver name is " + meta.getDriverName());
-                System.out.println("A new database has been created.");
                 
                 System.out.println(getDatabaseUrl());
                 stmt = conn.createStatement();
@@ -77,16 +79,17 @@ public class SQLiteManager {
                 sql.append ("  ID          INTEGER NOT NULL PRIMARY KEY, ");
                 sql.append ("  NOMBRE      varchar(255) NOT NULL, ");
                 sql.append ("  DESCRIPCION varchar(255), ");
-                sql.append ("  SERVIDOR    varchar(255));");
+                sql.append ("  SERVIDOR    varchar(255), ");
+                sql.append ("  TIPO        varchar(255) NOT NULL);");
 
-                sql.append ("CREATE TABLE TABLAS (");
+                sql.append ("CREATE TABLE IF NOT EXISTS TABLAS (");
                 sql.append ("  ID          INTEGER NOT NULL PRIMARY KEY, ");
                 sql.append ("  NOMBRE      varchar(255) NOT NULL, ");
                 sql.append ("  DESCRIPCION varchar(255), ");
                 sql.append ("  ID_BBDD     integer(10) NOT NULL, ");
                 sql.append ("  FOREIGN KEY(ID_BBDD) REFERENCES BBDD(ID));");
                 
-                sql.append ("CREATE TABLE COLUMNAS (");
+                sql.append ("CREATE TABLE IF NOT EXISTS COLUMNAS (");
                 sql.append ("  ID          INTEGER NOT NULL PRIMARY KEY, ");
                 sql.append ("  NOMBRE      varchar(255) NOT NULL, ");
                 sql.append ("  TIPO_DATO   varchar(255) NOT NULL, ");
@@ -95,17 +98,18 @@ public class SQLiteManager {
                 sql.append ("  ID_TABLA    integer(10) NOT NULL, ");
                 sql.append ("  FOREIGN KEY(ID_TABLA) REFERENCES TABLAS(ID));");
                 
-                sql.append ("CREATE UNIQUE INDEX BBDD_ID ");
+                sql.append ("CREATE UNIQUE INDEX IF NOT EXISTS BBDD_ID ");
                 sql.append ("  ON BBDD (ID);");
-
+                	
                 stmt.executeUpdate(sql.toString());
-
+                
                 stmt.close();
+                System.out.println("SQLite database created successfully!");
 
                 conn.close();
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
 	}
 	
@@ -134,13 +138,14 @@ public class SQLiteManager {
         	// Obtain next free ID for BBDD
         	nextAvailableID = getNextAvailableID("BBDD");
         	
-        	String sql = "INSERT INTO BBDD (id,nombre,servidor) VALUES(?,?,?)";
+        	String sql = "INSERT INTO BBDD (ID,NOMBRE,SERVIDOR,TIPO) VALUES(?,?,?,?)";
         	
             PreparedStatement pstmt = connection.prepareStatement(sql);
             
             pstmt.setInt(1, nextAvailableID);
             pstmt.setString(2, db.getNombre());
             pstmt.setString(3, db.getServidor());
+            pstmt.setString(4, db.getTipo());
             pstmt.executeUpdate();
             
             pstmt.close();
@@ -193,6 +198,11 @@ public class SQLiteManager {
         }
 	}
 	
+	/**
+	 * Auxiliar function to add a new column entity on the SQLite database 
+	 * @param column  column to add
+	 * @param ID_TABLA  ID of the parent table of this column
+	 */
 	private void createColumn(Column column, int ID_TABLA)
 	{
 		Connection connection;
