@@ -31,8 +31,12 @@ public class Table {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Table [");
 		builder.append(nombre);
-		builder.append(", columns:\n\t");
-		builder.append(columns);
+		builder.append("\n\t\tColumns:");
+		for (Column column : getColumns())
+		{
+			builder.append("\n\t\t");
+			builder.append(column.toString());
+		}
 		builder.append("]");
 		return builder.toString();
 	}
