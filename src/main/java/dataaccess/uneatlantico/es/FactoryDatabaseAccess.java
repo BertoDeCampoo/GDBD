@@ -16,12 +16,12 @@ public class FactoryDatabaseAccess {
 	 * @param password  password for the given username authentication
 	 * @return  The database instance
 	 */
-	public static IDatabase GetDatabaseAccess(DBMS databaseType, String server, int port, String database, String username, char[] password)
+	public static IDatabase getDatabaseAccess(DBMS databaseType, String server, int port, String username, char[] password)
 	{
 		if (databaseType == DBMS.MSSQL)
-			return new MSSQLServerDatabase(server, port, database, username, password);
+			return new MSSQLServerDatabase(server, port, username, password);
 		if (databaseType == DBMS.MySQL)
-			return new MySQLDatabase (server, port, database, username, password);
+			return new MySQLDatabase(server, port, username, password);
 		return null;
 	}
 

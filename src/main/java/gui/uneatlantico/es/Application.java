@@ -10,14 +10,19 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.UIManager;
 
+import entities.uneatlantico.es.Database;
+import persistence.uneatlantico.es.SQLiteManager;
+
 public class Application {
 
+	private SQLiteManager sqliteManager;
 	private JFrame frmGdbd;
 	private JMenuBar menuBar;
 	private JMenu mnFile;
 	private JMenu mnDocumentation;
 	private JMenu mnHelp;
 	private JMenuItem mntmNewDatabase;
+	
 
 	/**
 	 * Launch the application.
@@ -56,6 +61,8 @@ public class Application {
 		frmGdbd.setBounds(100, 100, 450, 300);
 		frmGdbd.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmGdbd.setJMenuBar(getMenuBar());
+		sqliteManager = new SQLiteManager("sqlite.db");
+		sqliteManager.initializeDatabase();
 	}
 
 	private JMenuBar getMenuBar() {
@@ -91,13 +98,16 @@ public class Application {
 			mntmNewDatabase = new JMenuItem("A\u00F1adir base de datos");
 			mntmNewDatabase.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg) {
-					LoginDialog dg = new LoginDialog(frmGdbd);
+					LoginDialog databaseLogin = new LoginDialog(frmGdbd);
 					//dg.setModal(true);
-					dg.setVisible(true);
+					databaseLogin.setVisible(true);
 					
-					dg.getSelectedDatabase();
+					String dbName = databaseLogin.getLogonDatabase().getSelectedDatabase();
+					Database database = databaseLogin.getLogonDatabase().getDatabaseInformation(dbName);
 					
-					System.out.println(dg.getSelectedDatabase());
+					sqliteManager.addNewDatabase(database);
+					
+					System.out.println(database);
 				}
 			});
 		}

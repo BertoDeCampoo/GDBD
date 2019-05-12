@@ -31,6 +31,7 @@ public class Application {
 	private JButton btnObtenerTablasnueva;
 	private JButton btnMostrarultimoindicebbdd;
 	private JButton btnGetnextfreeid;
+	private JButton btnListserverdbs;
 
 	/**
 	 * Launch the application.
@@ -173,6 +174,7 @@ public class Application {
 			panel_1.add(getBtnObtenerTablasnueva());
 			panel_1.add(getBtnMostrarultimoindicebbdd());
 			panel_1.add(getBtnGetnextfreeid());
+			panel_1.add(getBtnListserverdbs());
 		}
 		return panel_1;
 	}
@@ -201,9 +203,9 @@ public class Application {
 					pass[2] = '3';
 					pass[3] = '4';
 					
-					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788", "SQLEXPRESS", "sa", pass);
+					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788\\SQLEXPRESS", "sa", pass);
 					
-					tablas = db.getTables();
+					tablas = db.getTables("DesarrolloBD");
 					for (Table tabla : tablas)
 					{
 						System.out.println(tabla);
@@ -226,8 +228,8 @@ public class Application {
 					pass[2] = '3';
 					pass[3] = '4';
 					
-					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788", "SQLEXPRESS", "sa", pass);
-					Database database = db.getDatabaseInformation();
+					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788\\SQLEXPRESS", "sa", pass);
+					Database database = db.getDatabaseInformation("DesarrolloBD");
 					
 					SQLiteManager mgr = new SQLiteManager("sqlite");
 					mgr.addNewDatabase(database);
@@ -253,5 +255,25 @@ public class Application {
 			});
 		}
 		return btnGetnextfreeid;
+	}
+	private JButton getBtnListserverdbs() {
+		if (btnListserverdbs == null) {
+			btnListserverdbs = new JButton("ListServerDBs");
+			btnListserverdbs.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					char[] pass = new char[4];
+					
+					pass[0] = '1';
+					pass[1] = '2';
+					pass[2] = '3';
+					pass[3] = '4';
+					
+					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788\\SQLEXPRESS", "sa", pass);
+					List<String> list = db.getDatabases();
+					db.getTables("DesarrolloBD");
+				}
+			});
+		}
+		return btnListserverdbs;
 	}
 }

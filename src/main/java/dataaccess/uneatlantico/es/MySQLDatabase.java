@@ -15,6 +15,7 @@ import java.util.List;
 import entities.uneatlantico.es.Column;
 import entities.uneatlantico.es.Database;
 import entities.uneatlantico.es.Table;
+
 /**
  * Implementation of MySQL database driver
  * @author Alberto Gutiérrez Arroyo
@@ -34,10 +35,9 @@ public class MySQLDatabase implements IDatabase {
 	 * Default MySQL port
 	 */
 	private final static int Default_Port = 3306;
-	private String server, database, username;
+	private String server, selectedDatabase, username;
 	private int port;
 	private char[] password;	
-
 
 	/**
 	 * Default constructor of MySQL Database Connector. As the port is not defined, it will use the default
@@ -49,25 +49,23 @@ public class MySQLDatabase implements IDatabase {
 	 */
 	public MySQLDatabase(String server, String database, String username, char[] password)
 	{
-		this (server, Default_Port, database, username, password);
+		this (server, Default_Port, username, password);
 	}
 	
 	/**
 	 * Constructor of MySQL Database Connector (It admits a custom port)
 	 * @param server  database server address
 	 * @param port  port the connection will use
-	 * @param database  name of the database on the server
 	 * @param username  user name to login on the database server
 	 * @param password  password for the given username
 	 */
-	public MySQLDatabase(String server, int port, String database, String username, char[] password)
+	public MySQLDatabase(String server, int port, String username, char[] password)
 	{
 		this.server = server.trim();
 		if (port <= 0 || port >= 65535)
 			this.port = Default_Port;
 		else
 			this.port = port;
-		this.database = database.trim();
 		this.username = username.trim();
 		this.password = password;
 	}
@@ -76,7 +74,7 @@ public class MySQLDatabase implements IDatabase {
 		String url;
 		try {
 			Class.forName(Driver);
-			url = Subprotocol + server + ":" + Integer.toString(port) + "/" + database;
+			url = Subprotocol + server + ":" + Integer.toString(port);// + "/" + selectedDatabase;
 			return DriverManager.getConnection(url, username, new String (password));
 		} catch (ClassNotFoundException e) {
 			System.err.println("Driver error");
@@ -89,7 +87,7 @@ public class MySQLDatabase implements IDatabase {
 		Statement statement;
 		try {
 			statement = getConnection().createStatement();
-			String queryString = "SELECT table_name FROM information_schema.tables where table_schema='" + database + "'";
+			String queryString = "SELECT table_name FROM information_schema.tables where table_schema='" + selectedDatabase + "'";
 	        ResultSet rs = statement.executeQuery(queryString);
 	        while (rs.next()) {
 	        	tableNames.add(rs.getString(1));
@@ -101,7 +99,7 @@ public class MySQLDatabase implements IDatabase {
 	}
 
 	@Override
-	public List<Table> getTables() {
+	public List<Table> getTables(String databaseName) {
 		List<Table> tables = new ArrayList<Table>();
 		List<Column> columns;
 		Table table;
@@ -112,7 +110,7 @@ public class MySQLDatabase implements IDatabase {
 		try {
 			connection = getConnection();
 			tablesStatement = connection.createStatement();
-			String queryString = "SELECT table_name FROM information_schema.tables where table_schema='" + database + "'";
+			String queryString = "SELECT table_name FROM information_schema.tables where table_schema='" + databaseName + "'";
 	        ResultSet rs = tablesStatement.executeQuery(queryString);
 	        while (rs.next()) {
 	        	tableName = rs.getString(1);
@@ -121,6 +119,7 @@ public class MySQLDatabase implements IDatabase {
 	        	table = new Table(tableName, columns);
 	        	tables.add(table);
 	        }
+	        tablesStatement.close();
 	        connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -140,7 +139,7 @@ public class MySQLDatabase implements IDatabase {
 		try {
 			connection = getConnection();
 			metadata = connection.getMetaData();
-			ResultSet resultSet = metadata.getColumns(null, null, tableName, null);
+			ResultSet resultSet = metadata.getColumns(selectedDatabase, null, tableName, null);
 		    while (resultSet.next()) {
 		    	nombre = resultSet.getString("COLUMN_NAME");
 		    	tipo_dato = resultSet.getString("TYPE_NAME");
@@ -149,6 +148,7 @@ public class MySQLDatabase implements IDatabase {
 		      column = new Column(nombre, tipo_dato, tam_dato);
 		      columns.add(column);
 		    }
+		    resultSet.close();
 		    connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -157,10 +157,50 @@ public class MySQLDatabase implements IDatabase {
 	}
 
 	@Override
-	public Database getDatabaseInformation() {
-		List<Table> tables = getTables();
-		Database db = new Database(server, database, "MySQL", tables);
+	public Database getDatabaseInformation(String databaseName) {
+		List<Table> tables = getTables(databaseName);
+		Database db = new Database(selectedDatabase, server, "MySQL", tables);
 		return db;
+	}
+
+	@Override
+	public boolean selectDatabase(String database)
+	{
+		List<String> databases = getDatabases();
+		for (String currentDatabase : databases)
+		{
+			if (currentDatabase.equals(database))
+			{
+				this.selectedDatabase = database;
+				return true;
+			}
+		}
+		return false;	
+	}
+
+	@Override
+	public String getSelectedDatabase() {
+		return this.selectedDatabase;
+	}
+
+	@Override
+	public List<String> getDatabases() {
+		List<String> databases = new ArrayList<String>();
+		
+		Connection con = null;
+	    try {
+    		con = getConnection();
+			DatabaseMetaData meta = con.getMetaData();
+			ResultSet rs = meta.getCatalogs();
+			while (rs.next()) {
+				databases.add(rs.getString("TABLE_CAT"));
+			}
+			rs.close();
+			con.close();
+		} catch (Exception e) {
+			return new ArrayList<String>();
+		}
+		return databases;
 	}
 
 }

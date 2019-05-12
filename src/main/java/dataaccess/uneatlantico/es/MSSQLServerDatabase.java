@@ -38,40 +38,58 @@ public class MSSQLServerDatabase implements IDatabase {
 	 * Default MySQL port
 	 */
 	private final static int Default_Port = 1433;	
-	private String server, database, username;
+	private String server, selectedDatabase, username;
 	private int port;
 	private char[] password;
 	
 	/**
 	 * Constructor of Microsoft SQL Server/SQL Server Express Database Connector
 	 * @param server  server address. It can be a DNS, an IP Address or a localhost (127.0.0.1 for local PC)
-	 * @param database  instance name of the database
 	 * @param username  user name to login on the database server
 	 * @param password  password for the given username
 	 */
-	public MSSQLServerDatabase(String server, String database, String username, char[] password)
+	public MSSQLServerDatabase(String server, String username, char[] password)
 	{
-		this (server, -1, database, username, password);
+		this (server, -1, username, password);
 	}
 	
 	/**
 	 * Constructor of Microsoft SQL Server/SQL Server Express Database Connector (It admits a custom port)
 	 * @param server  server address. It can be a DNS, an IP Address or a localhost (127.0.0.1 for local PC)
 	 * @param port  port used to stablish connection with the server
-	 * @param database  instance name of the database
 	 * @param username  user name to login on the database server
 	 * @param password  password for the given username
 	 */
-	public MSSQLServerDatabase(String server, int port, String database, String username, char[] password)
+	public MSSQLServerDatabase(String server, int port, String username, char[] password)
 	{
 		this.server = server.trim();
 		if (port >= 65535)
 			this.port = Default_Port;
 		else if (port > 0 && port < 65535)
 			this.port = port;
-		this.database = database.trim();
 		this.username = username.trim();
 		this.password = password;
+	}
+	
+	@Override
+	public boolean selectDatabase(String database)
+	{
+		List<String> databases = getDatabases();
+		for (String currentDatabase : databases)
+		{
+			if (currentDatabase.equals(database))
+			{
+				this.selectedDatabase = database;
+				return true;
+			}
+		}
+		return false;	
+	}
+	
+	@Override
+	public String getSelectedDatabase()
+	{
+		return this.selectedDatabase;
 	}
 	
 	@Override
@@ -83,8 +101,6 @@ public class MSSQLServerDatabase implements IDatabase {
 			url = Subprotocol + server;
 			if (port > 0)
 				url += ":" + Integer.toString(port);
-			if (database != "")
-				url += "\\" + database;
 			return DriverManager.getConnection(url, username, new String (password));
 		} catch (ClassNotFoundException e) {
 			System.err.println("Driver error");
@@ -93,7 +109,8 @@ public class MSSQLServerDatabase implements IDatabase {
 	}
 	
 	@Override
-	public List<Table> getTables() {
+	public List<Table> getTables(String databaseName)
+	{
 		List<Table> tables = new ArrayList<Table>();
 		List<Column> columns;
 		Table table;
@@ -104,7 +121,9 @@ public class MSSQLServerDatabase implements IDatabase {
 		try {
 			connection = getConnection();
 			tablesStatement = connection.createStatement();
-			String queryString = "select * from sysobjects where type='u'";
+			String queryString = "SELECT TABLE_NAME " + 
+					"FROM INFORMATION_SCHEMA.TABLES " + 
+					"WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_CATALOG='" + databaseName + "'";
 	        ResultSet rs = tablesStatement.executeQuery(queryString);
 	        while (rs.next()) {
 	        	tableName = rs.getString(1);
@@ -113,9 +132,38 @@ public class MSSQLServerDatabase implements IDatabase {
 	        	table = new Table(tableName, columns);
 	        	tables.add(table);
 	        }
+	        tablesStatement.close();
 	        connection.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			return new ArrayList<Table>();
+		}
+		return tables;
+	}
+	
+	public List<Table> getTablesOld() {
+		List<Table> tables = new ArrayList<Table>();
+		List<Column> columns;
+		Table table;
+		String tableName;
+		
+		Statement tablesStatement;
+		Connection connection;
+		try {
+			connection = getConnection();
+			tablesStatement = connection.createStatement();
+			String queryString = "SELECT * FROM SYSOBJECTS WHERE TYPE='u'";
+	        ResultSet rs = tablesStatement.executeQuery(queryString);
+	        while (rs.next()) {
+	        	tableName = rs.getString(1);
+	        	columns = getColumns(tableName);
+	        	
+	        	table = new Table(tableName, columns);
+	        	tables.add(table);
+	        }
+	        tablesStatement.close();
+	        connection.close();
+		} catch (SQLException e) {
+			return new ArrayList<Table>();
 		}
 		return tables;
 	}
@@ -139,20 +187,39 @@ public class MSSQLServerDatabase implements IDatabase {
 		    	tam_dato = resultSet.getInt("COLUMN_SIZE");
 
 		      column = new Column(nombre, tipo_dato, tam_dato);
-		     // System.out.println("Column name: [" + nombre + "]; type: [" + tipo_dato + "]; size: [" + tam_dato + "]");
 		      columns.add(column);
 		    }
 		    connection.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			return new ArrayList<Column>();
 		}
 		return columns;
 	}
 
-	public Database getDatabaseInformation()
+	public Database getDatabaseInformation(String databaseName)
 	{
-		List<Table> tables = getTables();
-		Database db = new Database(server, database, "Microsoft SQL Server", tables);
+		List<Table> tables = getTables(databaseName);
+		Database db = new Database(selectedDatabase, server, "Microsoft SQL Server", tables);
 		return db;
+	}
+	
+	public List<String> getDatabases()
+	{
+		List<String> databases = new ArrayList<String>();
+		
+		Connection con = null;
+	    try {
+    		con = getConnection();
+			DatabaseMetaData meta = con.getMetaData();
+			ResultSet rs = meta.getCatalogs();
+			while (rs.next()) {
+				databases.add(rs.getString("TABLE_CAT"));
+			}
+			rs.close();
+			con.close();
+		} catch (Exception e) {
+			return new ArrayList<String>();
+		}
+		return databases;
 	}
 }

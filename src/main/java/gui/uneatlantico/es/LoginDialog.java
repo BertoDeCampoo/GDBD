@@ -26,6 +26,7 @@ import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
@@ -39,13 +40,13 @@ public class LoginDialog extends JDialog {
 	private static final long serialVersionUID = 403555622808592584L;
 	private final JPanel contentPanel = new JPanel();
 	private JTextField txtServer;
-	private JTextField txtDatabase;
 	private JTextField txtUser;
 	private JPasswordField passwordField;
-	private JLabel lblTestResults;
 	private JButton okButton;
 	private JComboBox<DBMS> cbDriver;
 	private JTextField txtPort;
+	private JComboBox<String> cbDatabases;
+	private JLabel lblTestResults;
 	
 	private IDatabase selectedDatabase;
 
@@ -124,7 +125,7 @@ public class LoginDialog extends JDialog {
 			}
 			{
 				txtServer = new JTextField();
-				txtServer.setText("DESKTOP-M9PG788");
+				txtServer.setText("DESKTOP-M9PG788\\SQLEXPRESS");
 				GridBagConstraints gbc_txtServer = new GridBagConstraints();
 				gbc_txtServer.insets = new Insets(0, 0, 5, 0);
 				gbc_txtServer.fill = GridBagConstraints.BOTH;
@@ -153,32 +154,12 @@ public class LoginDialog extends JDialog {
 				txtPort.setColumns(10);
 			}
 			{
-				JLabel lblDatabase = new JLabel("Base de datos:");
-				GridBagConstraints gbc_lblDatabase = new GridBagConstraints();
-				gbc_lblDatabase.fill = GridBagConstraints.BOTH;
-				gbc_lblDatabase.insets = new Insets(0, 0, 5, 5);
-				gbc_lblDatabase.gridx = 0;
-				gbc_lblDatabase.gridy = 3;
-				pnConfiguration.add(lblDatabase, gbc_lblDatabase);
-			}
-			{
-				txtDatabase = new JTextField();
-				txtDatabase.setText("SQLEXPRESS");
-				GridBagConstraints gbc_txtDatabase = new GridBagConstraints();
-				gbc_txtDatabase.insets = new Insets(0, 0, 5, 0);
-				gbc_txtDatabase.fill = GridBagConstraints.BOTH;
-				gbc_txtDatabase.gridx = 1;
-				gbc_txtDatabase.gridy = 3;
-				pnConfiguration.add(txtDatabase, gbc_txtDatabase);
-				txtDatabase.setColumns(10);
-			}
-			{
 				JLabel lblUser = new JLabel("Usuario:");
 				GridBagConstraints gbc_lblUser = new GridBagConstraints();
 				gbc_lblUser.fill = GridBagConstraints.BOTH;
 				gbc_lblUser.insets = new Insets(0, 0, 5, 5);
 				gbc_lblUser.gridx = 0;
-				gbc_lblUser.gridy = 4;
+				gbc_lblUser.gridy = 3;
 				pnConfiguration.add(lblUser, gbc_lblUser);
 			}
 			{
@@ -188,7 +169,7 @@ public class LoginDialog extends JDialog {
 				gbc_txtUser.insets = new Insets(0, 0, 5, 0);
 				gbc_txtUser.fill = GridBagConstraints.BOTH;
 				gbc_txtUser.gridx = 1;
-				gbc_txtUser.gridy = 4;
+				gbc_txtUser.gridy = 3;
 				pnConfiguration.add(txtUser, gbc_txtUser);
 				txtUser.setColumns(10);
 			}
@@ -198,7 +179,7 @@ public class LoginDialog extends JDialog {
 				gbc_lblPassword.fill = GridBagConstraints.BOTH;
 				gbc_lblPassword.insets = new Insets(0, 0, 5, 5);
 				gbc_lblPassword.gridx = 0;
-				gbc_lblPassword.gridy = 5;
+				gbc_lblPassword.gridy = 4;
 				pnConfiguration.add(lblPassword, gbc_lblPassword);
 			}
 			{
@@ -207,14 +188,14 @@ public class LoginDialog extends JDialog {
 				gbc_passwordField.insets = new Insets(0, 0, 5, 0);
 				gbc_passwordField.fill = GridBagConstraints.BOTH;
 				gbc_passwordField.gridx = 1;
-				gbc_passwordField.gridy = 5;
+				gbc_passwordField.gridy = 4;
 				pnConfiguration.add(passwordField, gbc_passwordField);
 			}
 			{
 				JButton btnTest = new JButton("Probar conexi\u00F3n");
 				btnTest.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent ae) {
-						IDatabase db = connectToDatabase();
+						IDatabase db = connectToServer();
 						Connection conn = null;
 						try {
 							conn = db.getConnection();
@@ -222,12 +203,21 @@ public class LoginDialog extends JDialog {
 							{
 								lblTestResults.setForeground(Color.green);
 								lblTestResults.setText("OK");
-								okButton.setEnabled(true);								
+								okButton.setEnabled(true);	
+								fillDatabasesCombo();
+								cbDatabases.setEnabled(true);
 							}
 							db.getConnection();
 							//JOptionPane.showMessageDialog(contentPanel, "Se ha realizado la conexión", "Conexión establecida", JOptionPane.INFORMATION_MESSAGE);
 						} catch (SQLException e) {
-							JOptionPane.showMessageDialog(contentPanel, e.getLocalizedMessage(), "Error de conexión a la base de datos", JOptionPane.ERROR_MESSAGE);
+							StringBuilder sb = new StringBuilder();
+							// Change Width of the panel with CSS as the JLabel supports HTML formatting
+							// In case the error message is too big
+							sb.append("<html><body><p style='width: 300px;'>");
+							sb.append(e.getLocalizedMessage());
+							
+							JOptionPane.showMessageDialog(contentPanel, sb.toString(), 
+									"Error de conexión a la base de datos", JOptionPane.ERROR_MESSAGE);
 						}
 						finally {
 							if (conn == null)
@@ -235,25 +225,45 @@ public class LoginDialog extends JDialog {
 								lblTestResults.setForeground(Color.RED);
 								lblTestResults.setText("Error de conexión");
 								okButton.setEnabled(false);
+								cbDatabases.setModel(new DefaultComboBoxModel<String>());
+								cbDatabases.setEnabled(false);
 							}
 						}
 					}
 				});
 				GridBagConstraints gbc_btnTest = new GridBagConstraints();
-				gbc_btnTest.fill = GridBagConstraints.VERTICAL;
-				gbc_btnTest.insets = new Insets(0, 0, 0, 5);
+				gbc_btnTest.insets = new Insets(0, 0, 5, 5);
 				gbc_btnTest.gridx = 0;
-				gbc_btnTest.gridy = 6;
+				gbc_btnTest.gridy = 5;
 				pnConfiguration.add(btnTest, gbc_btnTest);
-			}
-			{
-				lblTestResults = new JLabel();
-				lblTestResults.setFont(new Font("Tahoma", Font.BOLD, 15));
-				GridBagConstraints gbc_lblTestResults = new GridBagConstraints();
-				gbc_lblTestResults.fill = GridBagConstraints.HORIZONTAL;
-				gbc_lblTestResults.gridx = 1;
-				gbc_lblTestResults.gridy = 6;
-				pnConfiguration.add(lblTestResults, gbc_lblTestResults);
+				{
+					lblTestResults = new JLabel();
+					lblTestResults.setFont(new Font("Tahoma", Font.BOLD, 15));
+					GridBagConstraints gbc_lblTestResults = new GridBagConstraints();
+					gbc_lblTestResults.fill = GridBagConstraints.BOTH;
+					gbc_lblTestResults.insets = new Insets(0, 0, 5, 0);
+					gbc_lblTestResults.gridx = 1;
+					gbc_lblTestResults.gridy = 5;
+					pnConfiguration.add(lblTestResults, gbc_lblTestResults);
+				}
+				{
+					JLabel label = new JLabel("Base de datos:");
+					GridBagConstraints gbc_label = new GridBagConstraints();
+					gbc_label.fill = GridBagConstraints.BOTH;
+					gbc_label.insets = new Insets(0, 0, 0, 5);
+					gbc_label.gridx = 0;
+					gbc_label.gridy = 6;
+					pnConfiguration.add(label, gbc_label);
+				}
+				{
+					cbDatabases = new JComboBox<String>();
+					cbDatabases.setEnabled(false);
+					GridBagConstraints gbc_cbDatabases = new GridBagConstraints();
+					gbc_cbDatabases.fill = GridBagConstraints.BOTH;
+					gbc_cbDatabases.gridx = 1;
+					gbc_cbDatabases.gridy = 6;
+					pnConfiguration.add(cbDatabases, gbc_cbDatabases);
+				}
 			}
 		}
 		{
@@ -265,7 +275,10 @@ public class LoginDialog extends JDialog {
 				okButton.setEnabled(false);
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						LoginDialog.this.selectedDatabase = connectToDatabase();
+						LoginDialog.this.selectedDatabase = connectToServer();
+						// select the database on the combo
+						LoginDialog.this.selectedDatabase.selectDatabase(cbDatabases.getSelectedItem().toString());
+						//LoginDialog.this.selectedDatabase.selectDatabase(LoginDialog.this.txtDatabase.getText());
 						LoginDialog.this.dispose();
 					}
 				});
@@ -285,12 +298,16 @@ public class LoginDialog extends JDialog {
 			}
 		}
 	}
-	public IDatabase getSelectedDatabase()
+	/**
+	 * Obtains the database the user has selected to login
+	 * @return  the given database
+	 */
+	public IDatabase getLogonDatabase()
 	{
 		return this.selectedDatabase;
 	}
 	
-	public IDatabase connectToDatabase()
+	public IDatabase connectToServer()
 	{
 		DBMS driver = DBMS.valueOf(cbDriver.getSelectedItem().toString());
 		String server = txtServer.getText();
@@ -309,9 +326,29 @@ public class LoginDialog extends JDialog {
 				port = -1;
 			}
 		}
-		String database = txtDatabase.getText();
 		String username = txtUser.getText();
 		char[] password = passwordField.getPassword();
-		return FactoryDatabaseAccess.GetDatabaseAccess(driver, server, port, database, username, password);
+		return FactoryDatabaseAccess.getDatabaseAccess(driver, server, port, username, password);
+	}
+	
+	public void fillDatabasesCombo()
+	{
+		if(requiredFieldsFilled())
+		{
+			this.selectedDatabase = connectToServer();
+			IDatabase db = this.getLogonDatabase();
+			List<String> databases = db.getDatabases();
+			System.out.println(databases);
+			cbDatabases.setModel(new DefaultComboBoxModel<String>(databases.toArray(new String[0])));
+			//cbDatabases = new JComboBox<String>(databases.toArray(new String[0]));
+		}
+	}
+	
+	public boolean requiredFieldsFilled()
+	{
+		if (txtServer.getText().length()>0 && txtUser.getText().length() > 0)
+			return true;
+		else 
+			return false;
 	}
 }
