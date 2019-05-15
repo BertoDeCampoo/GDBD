@@ -11,6 +11,10 @@ import javax.swing.JTable;
 
 public class TestTable extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2344605513485553896L;
 	private JPanel contentPane;
 	private JTable table;
 
