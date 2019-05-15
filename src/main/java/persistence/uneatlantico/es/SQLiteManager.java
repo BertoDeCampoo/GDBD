@@ -20,7 +20,7 @@ public class SQLiteManager {
 	/**
 	 * Default name for the SQLite Database the application will use
 	 */
-	private final static String Default_Filename = "db.db";
+	public final static String Default_Filename = "db.db";
 	private String filename;
 	
 	public SQLiteManager (String filename)

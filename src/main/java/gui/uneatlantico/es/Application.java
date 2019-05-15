@@ -12,6 +12,8 @@ import javax.swing.UIManager;
 
 import entities.uneatlantico.es.Database;
 import persistence.uneatlantico.es.SQLiteManager;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 
 public class Application {
 
@@ -22,6 +24,7 @@ public class Application {
 	private JMenu mnDocumentation;
 	private JMenu mnHelp;
 	private JMenuItem mntmNewDatabase;
+	private JPanel panel;
 	
 
 	/**
@@ -61,7 +64,8 @@ public class Application {
 		frmGdbd.setBounds(100, 100, 450, 300);
 		frmGdbd.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmGdbd.setJMenuBar(getMenuBar());
-		sqliteManager = new SQLiteManager("sqlite.db");
+		frmGdbd.getContentPane().add(getPanel(), BorderLayout.WEST);
+		sqliteManager = new SQLiteManager(SQLiteManager.Default_Filename);
 		sqliteManager.initializeDatabase();
 	}
 
@@ -112,5 +116,11 @@ public class Application {
 			});
 		}
 		return mntmNewDatabase;
+	}
+	private JPanel getPanel() {
+		if (panel == null) {
+			panel = new DatabaseListPanel();
+		}
+		return panel;
 	}
 }

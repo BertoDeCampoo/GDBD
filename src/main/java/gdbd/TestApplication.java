@@ -1,7 +1,6 @@
 package gdbd;
 
 import java.awt.EventQueue;
-import gdbd.ConnectMSSQLServer;
 import persistence.uneatlantico.es.SQLiteManager;
 
 import javax.swing.JFrame;
@@ -20,11 +19,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.awt.event.ActionEvent;
 
-public class Application {
+public class TestApplication {
 
 	private JFrame frame;
 	private JPanel panel;
-	private JButton btnConnect;
 	private JButton btnConexinConMysql;
 	private JPanel panel_1;
 	private JButton btnCreateSqliteDatabase;
@@ -39,7 +37,7 @@ public class Application {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Application window = new Application();
+					TestApplication window = new TestApplication();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -51,7 +49,7 @@ public class Application {
 	/**
 	 * Create the application.
 	 */
-	public Application() {
+	public TestApplication() {
 		initialize();
 	}
 
@@ -69,65 +67,11 @@ public class Application {
 	private JPanel getPanel() {
 		if (panel == null) {
 			panel = new JPanel();
-			panel.add(getBtnConnect());
-			//panel.add(getBtnConnectInterface());
 			panel.add(getBtnConexinConMysql());
 		}
 		return panel;
 	}
-	private JButton getBtnConnect() {
-		if (btnConnect == null) {
-			btnConnect = new JButton("Connect");
-			btnConnect.setEnabled(false);
-			btnConnect.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					ConnectMSSQLServer connServer = new ConnectMSSQLServer();
-				      connServer.dbConnect("jdbc:sqlserver://DESKTOP-M9PG788\\SQLEXPRESS", "sa",
-				               "1234");
-				}
-			});
-		}
-		return btnConnect;
-	}
-	/*
-	private JButton getBtnConnectInterface() {
-		if (btnConnectInterface == null) {
-			btnConnectInterface = new JButton("Conexion con SQL Server");
-			btnConnectInterface.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					List<String> tablas, columnas;
-					char[] pass = new char[4];
-					
-					pass[0] = '1';
-					pass[1] = '2';
-					pass[2] = '3';
-					pass[3] = '4';
-					
-					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788", "SQLEXPRESS", "sa", pass);
-					
-					try {
-						db.getConnection();
-						tablas = db.getTableNames();
-						for(int i=0; i<tablas.size();i++)
-						{
-							System.out.print(tablas.get(i) + ": ");
-							columnas = db.getTableColumnNames(tablas.get(i));
-							for (String columna : columnas) {
-								System.out.print(columna + ", ");
-							}
-							System.out.println();
-						}
-							JOptionPane.showMessageDialog(frame, "Se ha realizado la conexión", "Conexión establecida", JOptionPane.INFORMATION_MESSAGE);
-						} catch (SQLException e1) {
-							JOptionPane.showMessageDialog(frame, e1.getLocalizedMessage(), "Error de conexión a la base de datos", JOptionPane.ERROR_MESSAGE);
-						}
-					
-				}
-			});
-		}
-		return btnConnectInterface;
-	}
-	*/
+	
 	private JButton getBtnConexinConMysql() {
 		if (btnConexinConMysql == null) {
 			btnConexinConMysql = new JButton("Conexi\u00F3n con MySQL");
