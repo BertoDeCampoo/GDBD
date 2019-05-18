@@ -15,11 +15,15 @@ public enum DBMS {
 	 */
 	MySQL,
 	/**
-	 * Postgre SQL
+	 * Oracle Database
 	 */
-	Postgre,
+	Oracle,
 	/**
-	 * Oracle
+	 * PostgreSQL Database
 	 */
-	Oracle
+	PostgreSQL,
+	/**
+	 * IBM DB2 Database
+	 */
+	DB2
 }
