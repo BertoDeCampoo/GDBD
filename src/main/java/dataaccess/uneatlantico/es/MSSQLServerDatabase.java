@@ -35,23 +35,12 @@ public class MSSQLServerDatabase implements IDatabase {
 	 */
 	private final static String Driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 	/**
-	 * Default MySQL port
+	 * Default Microsoft SQL Server port
 	 */
 	private final static int Default_Port = 1433;	
 	private String server, selectedDatabase, username;
 	private int port;
 	private char[] password;
-	
-	/**
-	 * Constructor of Microsoft SQL Server/SQL Server Express Database Connector
-	 * @param server  server address. It can be a DNS, an IP Address or a localhost (127.0.0.1 for local PC)
-	 * @param username  user name to login on the database server
-	 * @param password  password for the given username
-	 */
-	public MSSQLServerDatabase(String server, String username, char[] password)
-	{
-		this (server, -1, username, password);
-	}
 	
 	/**
 	 * Constructor of Microsoft SQL Server/SQL Server Express Database Connector (It admits a custom port)
@@ -70,6 +59,19 @@ public class MSSQLServerDatabase implements IDatabase {
 		this.username = username.trim();
 		this.password = password;
 	}
+	
+	/**
+	 * Constructor of Microsoft SQL Server/SQL Server Express Database Connector
+	 * @param server  server address. It can be a DNS, an IP Address or a localhost (127.0.0.1 for local PC)
+	 * @param username  user name to login on the database server
+	 * @param password  password for the given username
+	 */
+	public MSSQLServerDatabase(String server, String username, char[] password)
+	{
+		this (server, -1, username, password);
+	}
+	
+	
 	
 	@Override
 	public boolean selectDatabase(String database)

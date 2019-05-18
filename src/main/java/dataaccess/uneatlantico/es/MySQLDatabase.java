@@ -17,7 +17,7 @@ import entities.uneatlantico.es.Database;
 import entities.uneatlantico.es.Table;
 
 /**
- * Implementation of MySQL database driver
+ * Implementation of MySQL database connector
  * @author Alberto Gutiérrez Arroyo
  *
  */
