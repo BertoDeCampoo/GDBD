@@ -1,4 +1,4 @@
-package dataaccess.uneatlantico.es;
+package es.uneatlantico.gdbd.dataaccess;
 
 /**
  * Contains the supported databases on the application which can be instantiated

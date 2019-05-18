@@ -1,16 +1,16 @@
-package gdbd;
+package es.uneatlantico.gdbd.test;
 
 import java.awt.EventQueue;
-import persistence.uneatlantico.es.SQLiteManager;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import dataaccess.uneatlantico.es.MSSQLServerDatabase;
-import dataaccess.uneatlantico.es.MySQLDatabase;
-import entities.uneatlantico.es.Database;
-import entities.uneatlantico.es.Table;
+import es.uneatlantico.gdbd.dataaccess.MSSQLServerDatabase;
+import es.uneatlantico.gdbd.dataaccess.MySQLDatabase;
+import es.uneatlantico.gdbd.entities.Database;
+import es.uneatlantico.gdbd.entities.Table;
+import es.uneatlantico.gdbd.persistence.SQLiteManager;
 
 import java.awt.BorderLayout;
 import javax.swing.JButton;

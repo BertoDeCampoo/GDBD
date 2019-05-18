@@ -1,7 +1,7 @@
 /**
  * 
  */
-package dataaccess.uneatlantico.es;
+package es.uneatlantico.gdbd.dataaccess;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -12,9 +12,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import entities.uneatlantico.es.Column;
-import entities.uneatlantico.es.Database;
-import entities.uneatlantico.es.Table;
+import es.uneatlantico.gdbd.entities.Column;
+import es.uneatlantico.gdbd.entities.Database;
+import es.uneatlantico.gdbd.entities.Table;
 
 /**
  * Implementation of MySQL database connector

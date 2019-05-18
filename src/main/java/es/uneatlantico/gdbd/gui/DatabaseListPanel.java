@@ -1,4 +1,4 @@
-package gui.uneatlantico.es;
+package es.uneatlantico.gdbd.gui;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -6,7 +6,7 @@ import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
-import persistence.uneatlantico.es.SQLiteManager;
+import es.uneatlantico.gdbd.persistence.SQLiteManager;
 
 import java.awt.BorderLayout;
 import java.awt.HeadlessException;

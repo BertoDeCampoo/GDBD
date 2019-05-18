@@ -1,4 +1,4 @@
-package util.uneatlantico.es;
+package es.uneatlantico.gdbd.util;
 
 public class PathResolver {
 	

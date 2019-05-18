@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import util.uneatlantico.es.StringDotsRemover;
+import es.uneatlantico.gdbd.util.StringDotsRemover;
 
 class StringDotsRemoverTest {
 	

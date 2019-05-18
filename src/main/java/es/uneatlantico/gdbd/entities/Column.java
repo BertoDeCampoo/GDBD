@@ -1,4 +1,4 @@
-package entities.uneatlantico.es;
+package es.uneatlantico.gdbd.entities;
 
 public class Column {
 	

@@ -1,4 +1,4 @@
-package dataaccess.uneatlantico.es;
+package es.uneatlantico.gdbd.dataaccess;
 
 /**
  * @author Alberto Gutiérrez Arroyo

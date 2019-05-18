@@ -1,4 +1,4 @@
-package gdbd;
+package es.uneatlantico.gdbd.test;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;

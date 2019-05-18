@@ -1,4 +1,4 @@
-package gui.uneatlantico.es;
+package es.uneatlantico.gdbd.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -10,9 +10,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import dataaccess.uneatlantico.es.DBMS;
-import dataaccess.uneatlantico.es.FactoryDatabaseAccess;
-import dataaccess.uneatlantico.es.IDatabase;
+import es.uneatlantico.gdbd.dataaccess.DBMS;
+import es.uneatlantico.gdbd.dataaccess.FactoryDatabaseAccess;
+import es.uneatlantico.gdbd.dataaccess.IDatabase;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.DefaultComboBoxModel;

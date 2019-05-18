@@ -1,4 +1,4 @@
-package persistence.uneatlantico.es;
+package es.uneatlantico.gdbd.persistence;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -8,11 +8,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import entities.uneatlantico.es.Column;
-import entities.uneatlantico.es.Database;
-import entities.uneatlantico.es.Table;
-import util.uneatlantico.es.PathResolver;
-import util.uneatlantico.es.StringDotsRemover;
+import es.uneatlantico.gdbd.entities.Column;
+import es.uneatlantico.gdbd.entities.Database;
+import es.uneatlantico.gdbd.entities.Table;
+import es.uneatlantico.gdbd.util.PathResolver;
+import es.uneatlantico.gdbd.util.StringDotsRemover;
 
 public class SQLiteManager {
 	

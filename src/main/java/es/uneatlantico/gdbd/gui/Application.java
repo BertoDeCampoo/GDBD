@@ -1,4 +1,4 @@
-package gui.uneatlantico.es;
+package es.uneatlantico.gdbd.gui;
 
 import java.awt.EventQueue;
 
@@ -10,8 +10,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.UIManager;
 
-import entities.uneatlantico.es.Database;
-import persistence.uneatlantico.es.SQLiteManager;
+import es.uneatlantico.gdbd.entities.Database;
+import es.uneatlantico.gdbd.persistence.SQLiteManager;
+
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 

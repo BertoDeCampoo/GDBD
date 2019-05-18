@@ -1,15 +1,15 @@
 /**
  * 
  */
-package dataaccess.uneatlantico.es;
+package es.uneatlantico.gdbd.dataaccess;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-import entities.uneatlantico.es.Column;
-import entities.uneatlantico.es.Database;
-import entities.uneatlantico.es.Table;
+import es.uneatlantico.gdbd.entities.Column;
+import es.uneatlantico.gdbd.entities.Database;
+import es.uneatlantico.gdbd.entities.Table;
 
 /**
  * @author Alberto Gutiérrez Arroyo
