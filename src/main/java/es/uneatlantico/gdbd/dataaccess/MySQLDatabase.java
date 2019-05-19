@@ -82,22 +82,6 @@ public class MySQLDatabase implements IDatabase {
 		return null;
 	}
 
-	public List<String> getTableNames() {
-		List<String> tableNames = new ArrayList<String>();
-		Statement statement;
-		try {
-			statement = getConnection().createStatement();
-			String queryString = "SELECT table_name FROM information_schema.tables where table_schema='" + selectedDatabase + "'";
-	        ResultSet rs = statement.executeQuery(queryString);
-	        while (rs.next()) {
-	        	tableNames.add(rs.getString(1));
-	        }
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return tableNames;
-	}
-
 	@Override
 	public List<Table> getTables(String databaseName) {
 		List<Table> tables = new ArrayList<Table>();
