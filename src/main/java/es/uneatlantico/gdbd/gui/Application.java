@@ -15,6 +15,7 @@ import es.uneatlantico.gdbd.persistence.SQLiteManager;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 public class Application {
 
@@ -25,7 +26,7 @@ public class Application {
 	private JMenu mnDocumentation;
 	private JMenu mnHelp;
 	private JMenuItem mntmNewDatabase;
-	private JPanel panel;
+	private JPanel pnDatabases;
 	
 
 	/**
@@ -60,14 +61,15 @@ public class Application {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmGdbd = new JFrame();
-		frmGdbd.setTitle("GDBD");
-		frmGdbd.setBounds(100, 100, 450, 300);
-		frmGdbd.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmGdbd.setJMenuBar(getMenuBar());
-		frmGdbd.getContentPane().add(getPanel(), BorderLayout.WEST);
 		sqliteManager = new SQLiteManager(SQLiteManager.Default_Filename);
 		sqliteManager.initializeDatabase();
+		frmGdbd = new JFrame();
+		frmGdbd.setMinimumSize(new Dimension(480, 280));
+		frmGdbd.setTitle("GDBD");
+		frmGdbd.setBounds(100, 100, 695, 389);
+		frmGdbd.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmGdbd.setJMenuBar(getMenuBar());
+		frmGdbd.getContentPane().add(getPnDatabases(), BorderLayout.WEST);
 	}
 
 	private JMenuBar getMenuBar() {
@@ -118,10 +120,10 @@ public class Application {
 		}
 		return mntmNewDatabase;
 	}
-	private JPanel getPanel() {
-		if (panel == null) {
-			panel = new DatabaseListPanel();
+	private JPanel getPnDatabases() {
+		if (pnDatabases == null) {
+			pnDatabases = new DatabaseListPanel(sqliteManager);
 		}
-		return panel;
+		return pnDatabases;
 	}
 }

@@ -20,6 +20,12 @@ import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JComboBox;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
+
+import java.awt.GridLayout;
+import javax.swing.ImageIcon;
 
 public class DatabaseListPanel extends JPanel {
 
@@ -27,39 +33,65 @@ public class DatabaseListPanel extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 8388230314818313907L;
-	private JLabel lblListOfDatabases;
-	private JButton btnLoadData;
-    private JTable table;
+    private JTable tbDatabases;
     private DefaultTableModel tableModel = new DefaultTableModel();
     private JPanel panel;
-    private JScrollPane scrollPane;
-    private void initGUI() {
-		add(getLblListOfDatabases(), BorderLayout.NORTH);
-        add(getScrollPane(), BorderLayout.CENTER);
-        add(getPnSouth(), BorderLayout.SOUTH);    
-	}
+    private JScrollPane scrlPnDatabases;
+    private JPanel pnServers;
+    private JLabel lblServer;
+    private JComboBox<String> cbServers;
+    private JButton btnRefreshservers;
+    private JPanel pnServer;
+    private SQLiteManager sqliteManager;
+    private DefaultComboBoxModel<String> cModel;
+    
 
-    public DatabaseListPanel() throws HeadlessException {
+    public DatabaseListPanel(SQLiteManager sqlite) throws HeadlessException {
+    	this.sqliteManager = sqlite;
         setLayout(new BorderLayout(0, 0));
         initGUI();
     }
     
-    public JScrollPane getScrollPane()
+    private void initGUI() {
+        add(getScrlPnDatabases(), BorderLayout.CENTER);
+        add(getPnSouth(), BorderLayout.SOUTH);    
+    	add(getPnServers(), BorderLayout.NORTH);
+    	this.loadServers();
+    	this.loadDatabases();
+	}
+    
+    public void loadServers()
+    {	
+    	new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+            	// Loads the servers on the combo box of servers
+            	DatabaseListPanel.this.getBtnRefreshservers().setEnabled(false);
+            	cModel = new DefaultComboBoxModel<String>(sqliteManager.getServers().toArray(new String[0]));
+            	cbServers.setModel(cModel);
+            	DatabaseListPanel.this.getBtnRefreshservers().setEnabled(true);
+                return null;
+            }
+        }.execute();
+    }
+    
+    public JScrollPane getScrlPnDatabases()
     {
-    	if (scrollPane == null)
+    	if (scrlPnDatabases == null)
     	{
-    		scrollPane = new JScrollPane(getTable());
+    		scrlPnDatabases = new JScrollPane(getTbDatabases());
     	}
-    	return scrollPane;
+    	return scrlPnDatabases;
     }
 	
-	public JTable getTable()
+	public JTable getTbDatabases()
 	{
-		if(table == null)
+		if(tbDatabases == null)
 		{
-			table = new JTable(tableModel);
+			tbDatabases = new JTable(tableModel);
+			tbDatabases.setEnabled(false);
 		}
-		return table;
+		return tbDatabases;
 	}
 	
 	private JPanel getPnSouth()
@@ -67,78 +99,99 @@ public class DatabaseListPanel extends JPanel {
 		if(panel == null)
 		{
 			panel = new JPanel();
-			panel.add(getBtnLoadData());
 		}
 		return panel;
 	}
-	
-	private JButton getBtnLoadData()
-	{
-		if (btnLoadData == null) {
-			btnLoadData = new JButton("Load data");
-			btnLoadData.addActionListener(new ActionListener() {
-	            @Override
-	            public void actionPerformed(ActionEvent e) {
-	                new SwingWorker<Void, Void>() {
-	                    @Override
-	                    protected Void doInBackground() throws Exception {
-	                        loadData();
-	                        return null;
-	                    }
-	                }.execute();
-	            }
-	        });
-		}
-		return btnLoadData;
-	}
 
-	private JLabel getLblListOfDatabases() {
-		if (lblListOfDatabases == null) {
-			lblListOfDatabases = new JLabel("List of databases:");
-		}
-		return lblListOfDatabases;
-	}
+    private void loadDatabases() {
+    	new SwingWorker<Void, Void>() {
+        @Override
+        protected Void doInBackground() throws Exception {
+        	System.out.println("START loadData method");
+            // LOG.info("START loadData method");
 
-    private void loadData() {
-    	System.out.println("START loadData method");
-       // LOG.info("START loadData method");
+             SQLiteManager mgr = new SQLiteManager(SQLiteManager.Default_Filename);
+             Connection connection;
+             
+             try {
+             	connection = mgr.getConnection();
+             
+         		Statement stmt = connection.createStatement();
 
-        btnLoadData.setEnabled(false);
-        SQLiteManager mgr = new SQLiteManager(SQLiteManager.Default_Filename);
-        Connection connection;
-        
-        try {
-        	connection = mgr.getConnection();
-        
-    		Statement stmt = connection.createStatement();
+                 ResultSet rs = stmt.executeQuery("select NOMBRE as 'Nombre de la base de datos' from 'BBDD'");
+                 ResultSetMetaData metaData = rs.getMetaData();
 
-            ResultSet rs = stmt.executeQuery("select * from 'BBDD'");
-            ResultSetMetaData metaData = rs.getMetaData();
+                 // Names of columns
+                 Vector<String> columnNames = new Vector<String>();
+                 int columnCount = metaData.getColumnCount();
+                 for (int i = 1; i <= columnCount; i++) {
+                     columnNames.add(metaData.getColumnName(i));
+                 }
 
-            // Names of columns
-            Vector<String> columnNames = new Vector<String>();
-            int columnCount = metaData.getColumnCount();
-            for (int i = 1; i <= columnCount; i++) {
-                columnNames.add(metaData.getColumnName(i));
-            }
+                 // Data of the table
+                 Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+                 while (rs.next()) {
+                     Vector<Object> vector = new Vector<Object>();
+                     for (int i = 1; i <= columnCount; i++) {
+                         vector.add(rs.getObject(i));
+                     }
+                     data.add(vector);
+                 }
 
-            // Data of the table
-            Vector<Vector<Object>> data = new Vector<Vector<Object>>();
-            while (rs.next()) {
-                Vector<Object> vector = new Vector<Object>();
-                for (int i = 1; i <= columnCount; i++) {
-                    vector.add(rs.getObject(i));
-                }
-                data.add(vector);
-            }
-
-            tableModel.setDataVector(data, columnNames);
-        } catch (Exception e) {
-        	System.err.println(e.getLocalizedMessage());
-            //LOG.log(Level.SEVERE, "Exception in Load Data", e);
+                 tableModel.setDataVector(data, columnNames);
+             } catch (Exception e) {
+             	System.err.println(e.getLocalizedMessage());
+                 //LOG.log(Level.SEVERE, "Exception in Load Data", e);
+             }
+             System.out.println("Fin de la carga de datos");
+             //LOG.info("END loadData method");
+            return null;
         }
-        btnLoadData.setEnabled(true);
-        System.out.println("Fin de la carga de datos");
-        //LOG.info("END loadData method");
+    }.execute();
+        
+    	
     }
+	private JPanel getPnServers() {
+		if (pnServers == null) {
+			pnServers = new JPanel();
+			pnServers.setLayout(new BoxLayout(pnServers, BoxLayout.X_AXIS));
+			pnServers.add(getPnServer());
+			pnServers.add(getBtnRefreshservers());
+		}
+		return pnServers;
+	}
+	private JLabel getLblServer() {
+		if (lblServer == null) {
+			lblServer = new JLabel("Seleccione un servidor:");
+		}
+		return lblServer;
+	}
+	private JComboBox<String> getCbServers() {
+		if (cbServers == null) {
+			cModel = new DefaultComboBoxModel<String>();
+			cbServers = new JComboBox<String>(cModel);
+		}
+		return cbServers;
+	}
+	private JButton getBtnRefreshservers() {
+		if (btnRefreshservers == null) {
+			btnRefreshservers = new JButton("");
+			btnRefreshservers.setIcon(new ImageIcon(DatabaseListPanel.class.getResource("/com/sun/javafx/scene/web/skin/Redo_16x16_JFX.png")));
+			btnRefreshservers.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					loadServers();
+				}
+			});
+		}
+		return btnRefreshservers;
+	}
+	private JPanel getPnServer() {
+		if (pnServer == null) {
+			pnServer = new JPanel();
+			pnServer.setLayout(new GridLayout(0, 2, 0, 0));
+			pnServer.add(getLblServer());
+			pnServer.add(getCbServers());
+		}
+		return pnServer;
+	}
 }

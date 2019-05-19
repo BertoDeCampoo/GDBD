@@ -7,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import es.uneatlantico.gdbd.entities.Column;
 import es.uneatlantico.gdbd.entities.Database;
@@ -269,5 +271,57 @@ public class SQLiteManager {
 			System.err.println(e.getMessage());
 		}
     	return lastID;
+	}
+	
+	/**
+	 * Gets the list of servers stored on the database
+	 * @return	the servers on the database
+	 */
+	public List<String> getServers()
+	{
+		List<String> servers = new ArrayList<String>();
+		
+		Connection connection;
+		Statement stmt;
+		try {
+    		connection = this.getConnection();
+            
+    		stmt = connection.createStatement();
+
+            ResultSet rs = stmt.executeQuery("SELECT DISTINCT SERVIDOR FROM 'BBDD'");
+            while(rs.next())	
+            {
+            	servers.add(rs.getString(1));
+            }
+			stmt.close();
+			connection.close();
+		} catch (SQLException e) {
+			System.err.println(e.getMessage());
+		}
+    	return servers;
+	}
+	
+	public List<String> getDatabases(String server)
+	{
+		List<String> databases = new ArrayList<String>();
+		
+		Connection connection;
+		Statement stmt;
+		try {
+    		connection = this.getConnection();
+            
+    		stmt = connection.createStatement();
+
+            ResultSet rs = stmt.executeQuery("SELECT 'NOMBRE' FROM BBDD WHERE SERVIDOR='" + server + "'");
+            while(rs.next())	
+            {
+            	databases.add(rs.getString(1));
+            }
+			stmt.close();
+			connection.close();
+		} catch (SQLException e) {
+			System.err.println(e.getMessage());
+		}
+    	return databases;
 	}
 }
