@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 
 import es.uneatlantico.gdbd.dataaccess.MSSQLServerDatabase;
 import es.uneatlantico.gdbd.dataaccess.MySQLDatabase;
+import es.uneatlantico.gdbd.entities.Column;
 import es.uneatlantico.gdbd.entities.Database;
 import es.uneatlantico.gdbd.entities.Table;
 import es.uneatlantico.gdbd.persistence.SQLiteManager;
@@ -77,7 +78,8 @@ public class TestApplication {
 			btnConexinConMysql = new JButton("Conexi\u00F3n con MySQL");
 			btnConexinConMysql.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					List<String> tablas, columnas;
+					List<Table> tablas;
+					List<Column> columnas;
 					char[] pass = new char[4];
 					
 					pass[0] = '1';
@@ -90,12 +92,12 @@ public class TestApplication {
 					
 					try {
 						db.getConnection();
-						tablas = db.getTableNames();
+						tablas = db.getTables("personal_mysql");
 						for(int i=0; i<tablas.size();i++)
 						{
 //							System.out.print(tablas.get(i) + ": ");
-							columnas = db.getTableNames();
-							for (String columna : columnas) {
+							columnas = db.getColumns("personal_mysql");
+							for (Column columna : columnas) {
 								System.out.print(columna + ", ");
 							}
 							System.out.println();
