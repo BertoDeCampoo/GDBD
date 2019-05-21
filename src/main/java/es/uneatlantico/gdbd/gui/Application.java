@@ -16,6 +16,7 @@ import es.uneatlantico.gdbd.persistence.SQLiteManager;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 
 public class Application {
 
@@ -64,8 +65,9 @@ public class Application {
 		sqliteManager = new SQLiteManager(SQLiteManager.Default_Filename);
 		sqliteManager.initializeDatabase();
 		frmGdbd = new JFrame();
+		frmGdbd.setIconImage(Toolkit.getDefaultToolkit().getImage(Application.class.getResource("/database-search-icon.png")));
 		frmGdbd.setMinimumSize(new Dimension(480, 280));
-		frmGdbd.setTitle("GDBD");
+		frmGdbd.setTitle("GDBD - Gestor de Documentación para Bases de Datos");
 		frmGdbd.setBounds(100, 100, 695, 389);
 		frmGdbd.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmGdbd.setJMenuBar(getMenuBar());
@@ -105,16 +107,16 @@ public class Application {
 			mntmNewDatabase = new JMenuItem("A\u00F1adir base de datos");
 			mntmNewDatabase.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg) {
-					LoginDialog databaseLogin = new LoginDialog(frmGdbd);
+					LoginDialog databaseLogin = new LoginDialog(frmGdbd, Application.this.sqliteManager);
 					//dg.setModal(true);
 					databaseLogin.setVisible(true);
 					
-					String dbName = databaseLogin.getLogonDatabase().getSelectedDatabase();
-					Database database = databaseLogin.getLogonDatabase().getDatabaseInformation(dbName);
+//					String dbName = databaseLogin.getLogonDatabase().getName();
+//					Database database = databaseLogin.getLogonDatabase().getDatabaseInformation();
 					
-					sqliteManager.addNewDatabase(database);
-					
-					System.out.println(database);
+//					sqliteManager.addNewDatabase(database);
+//					
+//					System.out.println(database);
 				}
 			});
 		}

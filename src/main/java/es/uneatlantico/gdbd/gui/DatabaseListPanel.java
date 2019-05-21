@@ -6,6 +6,11 @@ import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import es.uneatlantico.gdbd.dataaccess.MySQLDatabase;
 import es.uneatlantico.gdbd.persistence.SQLiteManager;
 
 import java.awt.BorderLayout;
@@ -28,6 +33,7 @@ import java.awt.GridLayout;
 import javax.swing.ImageIcon;
 
 public class DatabaseListPanel extends JPanel {
+	private static final Logger logger = LogManager.getLogger(MySQLDatabase.class); 
 
 	/**
 	 * 
@@ -103,51 +109,47 @@ public class DatabaseListPanel extends JPanel {
 		return panel;
 	}
 
-    private void loadDatabases() {
-    	new SwingWorker<Void, Void>() {
-        @Override
-        protected Void doInBackground() throws Exception {
-        	System.out.println("START loadData method");
-            // LOG.info("START loadData method");
+	private void loadDatabases() {
+		new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				logger.log(Level.DEBUG, "Cargando tabla de bases de datos (DatabaseListPanel)");
+				Connection connection;
 
-             SQLiteManager mgr = new SQLiteManager(SQLiteManager.Default_Filename);
-             Connection connection;
-             
-             try {
-             	connection = mgr.getConnection();
-             
-         		Statement stmt = connection.createStatement();
+				try {
+					connection = sqliteManager.getConnection();
 
-                 ResultSet rs = stmt.executeQuery("select NOMBRE as 'Nombre de la base de datos' from 'BBDD'");
-                 ResultSetMetaData metaData = rs.getMetaData();
+					Statement stmt = connection.createStatement();
+					String sqlQuery = "SELECT ID, NOMBRE AS 'Nombre de la base de datos' FROM 'BBDD' WHERE SERVIDOR = '" + getCbServers().getSelectedItem().toString() + "'";
+					System.out.println(sqlQuery);
 
-                 // Names of columns
-                 Vector<String> columnNames = new Vector<String>();
-                 int columnCount = metaData.getColumnCount();
-                 for (int i = 1; i <= columnCount; i++) {
-                     columnNames.add(metaData.getColumnName(i));
-                 }
+					ResultSet rs = stmt.executeQuery(sqlQuery);
+					ResultSetMetaData metaData = rs.getMetaData();
 
-                 // Data of the table
-                 Vector<Vector<Object>> data = new Vector<Vector<Object>>();
-                 while (rs.next()) {
-                     Vector<Object> vector = new Vector<Object>();
-                     for (int i = 1; i <= columnCount; i++) {
-                         vector.add(rs.getObject(i));
-                     }
-                     data.add(vector);
-                 }
+					// Names of columns
+					Vector<String> columnNames = new Vector<String>();
+					int columnCount = metaData.getColumnCount();
+					for (int i = 1; i <= columnCount; i++) {
+						columnNames.add(metaData.getColumnName(i));
+					}
 
-                 tableModel.setDataVector(data, columnNames);
-             } catch (Exception e) {
-             	System.err.println(e.getLocalizedMessage());
-                 //LOG.log(Level.SEVERE, "Exception in Load Data", e);
-             }
-             System.out.println("Fin de la carga de datos");
-             //LOG.info("END loadData method");
-            return null;
-        }
-    }.execute();
+					// Data of the table
+					Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+					while (rs.next()) {
+						Vector<Object> vector = new Vector<Object>();
+						for (int i = 1; i <= columnCount; i++) {
+							vector.add(rs.getObject(i));
+						}
+						data.add(vector);
+					}
+					tableModel.setDataVector(data, columnNames);
+				} catch (Exception e) {
+					logger.log(Level.ERROR, e.getLocalizedMessage());
+				}
+				logger.log(Level.DEBUG, "Tabla de bases de datos cargada (DatabaseListPanel)");
+				return null;
+			}
+		}.execute();
         
     	
     }
@@ -170,6 +172,11 @@ public class DatabaseListPanel extends JPanel {
 		if (cbServers == null) {
 			cModel = new DefaultComboBoxModel<String>();
 			cbServers = new JComboBox<String>(cModel);
+			cbServers.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					loadDatabases();
+				}
+			});
 		}
 		return cbServers;
 	}
