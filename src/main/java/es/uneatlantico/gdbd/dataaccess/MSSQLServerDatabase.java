@@ -12,6 +12,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import es.uneatlantico.gdbd.entities.Column;
 import es.uneatlantico.gdbd.entities.Database;
 import es.uneatlantico.gdbd.entities.Table;
@@ -26,6 +30,7 @@ import es.uneatlantico.gdbd.entities.Table;
  */
 public class MSSQLServerDatabase implements IDatabase {
 	
+	private static final Logger logger = LogManager.getLogger(MSSQLServerDatabase.class); 
 	/**
 	 * JDBC Microsoft SQL Server/SQL Server Express subprotocol to create JDBC connections
 	 */
@@ -38,7 +43,7 @@ public class MSSQLServerDatabase implements IDatabase {
 	 * Default Microsoft SQL Server port
 	 */
 	private final static int Default_Port = 1433;	
-	private String server, selectedDatabase, username;
+	private String server, name, username;
 	private int port;
 	private char[] password;
 	
@@ -50,48 +55,14 @@ public class MSSQLServerDatabase implements IDatabase {
 	 * @param password  password for the given username
 	 */
 	public MSSQLServerDatabase(String server, int port, String username, char[] password)
-	{
+	{		
 		this.server = server.trim();
 		if (port >= 65535)
 			this.port = Default_Port;
-		else if (port > 0 && port < 65535)
+		else
 			this.port = port;
 		this.username = username.trim();
 		this.password = password;
-	}
-	
-	/**
-	 * Constructor of Microsoft SQL Server/SQL Server Express Database Connector
-	 * @param server  server address. It can be a DNS, an IP Address or a localhost (127.0.0.1 for local PC)
-	 * @param username  user name to login on the database server
-	 * @param password  password for the given username
-	 */
-	public MSSQLServerDatabase(String server, String username, char[] password)
-	{
-		this (server, -1, username, password);
-	}
-	
-	
-	
-	@Override
-	public boolean selectDatabase(String database)
-	{
-		List<String> databases = getDatabases();
-		for (String currentDatabase : databases)
-		{
-			if (currentDatabase.equals(database))
-			{
-				this.selectedDatabase = database;
-				return true;
-			}
-		}
-		return false;	
-	}
-	
-	@Override
-	public String getSelectedDatabase()
-	{
-		return this.selectedDatabase;
 	}
 	
 	@Override
@@ -105,13 +76,13 @@ public class MSSQLServerDatabase implements IDatabase {
 				url += ":" + Integer.toString(port);
 			return DriverManager.getConnection(url, username, new String (password));
 		} catch (ClassNotFoundException e) {
-			System.err.println("Driver error");
+			logger.log(Level.FATAL, e.getLocalizedMessage());
 		}
 		return null;
 	}
 	
 	@Override
-	public List<Table> getTables(String databaseName)
+	public List<Table> getTables()
 	{
 		List<Table> tables = new ArrayList<Table>();
 		List<Column> columns;
@@ -123,9 +94,10 @@ public class MSSQLServerDatabase implements IDatabase {
 		try {
 			connection = getConnection();
 			tablesStatement = connection.createStatement();
+//			String queryString = "SELECT * FROM SYSOBJECTS WHERE TYPE='u'";
 			String queryString = "SELECT TABLE_NAME " + 
 					"FROM INFORMATION_SCHEMA.TABLES " + 
-					"WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_CATALOG='" + databaseName + "'";
+					"WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_CATALOG='" + this.name + "'";
 	        ResultSet rs = tablesStatement.executeQuery(queryString);
 	        while (rs.next()) {
 	        	tableName = rs.getString(1);
@@ -137,34 +109,7 @@ public class MSSQLServerDatabase implements IDatabase {
 	        tablesStatement.close();
 	        connection.close();
 		} catch (SQLException e) {
-			return new ArrayList<Table>();
-		}
-		return tables;
-	}
-	
-	public List<Table> getTablesOld() {
-		List<Table> tables = new ArrayList<Table>();
-		List<Column> columns;
-		Table table;
-		String tableName;
-		
-		Statement tablesStatement;
-		Connection connection;
-		try {
-			connection = getConnection();
-			tablesStatement = connection.createStatement();
-			String queryString = "SELECT * FROM SYSOBJECTS WHERE TYPE='u'";
-	        ResultSet rs = tablesStatement.executeQuery(queryString);
-	        while (rs.next()) {
-	        	tableName = rs.getString(1);
-	        	columns = getColumns(tableName);
-	        	
-	        	table = new Table(tableName, columns);
-	        	tables.add(table);
-	        }
-	        tablesStatement.close();
-	        connection.close();
-		} catch (SQLException e) {
+			logger.log(Level.ERROR, e.getLocalizedMessage());
 			return new ArrayList<Table>();
 		}
 		return tables;
@@ -193,19 +138,20 @@ public class MSSQLServerDatabase implements IDatabase {
 		    }
 		    connection.close();
 		} catch (SQLException e) {
+			logger.log(Level.ERROR, e.getLocalizedMessage());
 			return new ArrayList<Column>();
 		}
 		return columns;
 	}
 
-	public Database getDatabaseInformation(String databaseName)
+	public Database getDatabaseInformation()
 	{
-		List<Table> tables = getTables(databaseName);
-		Database db = new Database(selectedDatabase, server, "Microsoft SQL Server", tables);
+		List<Table> tables = getTables();
+		Database db = new Database(name, server, "Microsoft SQL Server", tables);
 		return db;
 	}
 	
-	public List<String> getDatabases()
+	public List<String> getDatabasesOnThisServer()
 	{
 		List<String> databases = new ArrayList<String>();
 		
@@ -220,8 +166,35 @@ public class MSSQLServerDatabase implements IDatabase {
 			rs.close();
 			con.close();
 		} catch (Exception e) {
+			logger.log(Level.ERROR, e.getLocalizedMessage());
 			return new ArrayList<String>();
 		}
 		return databases;
+	}
+	
+	/**
+	 * Sets the name for the database. The constructor of Database will only setup the connection so you should
+	 * indicate which is the database name (More than one database could be active on that connection)
+	 * @param name  name of the database to use
+	 * @return  <code>True</code> if a database with that name exists on that server <br>
+	 * 			<code>False</code> if a database with that name doesn't exists on that server
+	 */
+	@Override
+	public boolean setName(String name) {
+		List<String> databases = getDatabasesOnThisServer();
+		for (String currentDatabase : databases)
+		{
+			if (currentDatabase.equals(name))
+			{
+				this.name = name;
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public String getName() {
+		return this.name;
 	}
 }

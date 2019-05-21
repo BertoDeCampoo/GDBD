@@ -56,19 +56,19 @@ public class PostgreSQLDatabase implements IDatabase {
 	}
 
 	@Override
-	public boolean selectDatabase(String database) {
+	public boolean setName(String database) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public String getSelectedDatabase() {
+	public String getName() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<Table> getTables(String databaseName) {
+	public List<Table> getTables() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -80,13 +80,13 @@ public class PostgreSQLDatabase implements IDatabase {
 	}
 
 	@Override
-	public Database getDatabaseInformation(String databaseName) {
+	public Database getDatabaseInformation() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<String> getDatabases() {
+	public List<String> getDatabasesOnThisServer() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -12,6 +12,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import es.uneatlantico.gdbd.entities.Column;
 import es.uneatlantico.gdbd.entities.Database;
 import es.uneatlantico.gdbd.entities.Table;
@@ -23,6 +27,7 @@ import es.uneatlantico.gdbd.entities.Table;
  */
 public class MySQLDatabase implements IDatabase {
 	
+	private static final Logger logger = LogManager.getLogger(MySQLDatabase.class); 
 	/**
 	 * JDBC MySQL base path to create connections
 	 */
@@ -35,7 +40,7 @@ public class MySQLDatabase implements IDatabase {
 	 * Default MySQL port
 	 */
 	private final static int Default_Port = 3306;
-	private String server, selectedDatabase, username;
+	private String server, name, username;
 	private int port;
 	private char[] password;	
 
@@ -77,13 +82,13 @@ public class MySQLDatabase implements IDatabase {
 			url = Subprotocol + server + ":" + Integer.toString(port);// + "/" + selectedDatabase;
 			return DriverManager.getConnection(url, username, new String (password));
 		} catch (ClassNotFoundException e) {
-			System.err.println("Driver error");
+			logger.log(Level.FATAL, e.getLocalizedMessage());
 		}
 		return null;
 	}
 
 	@Override
-	public List<Table> getTables(String databaseName) {
+	public List<Table> getTables() {
 		List<Table> tables = new ArrayList<Table>();
 		List<Column> columns;
 		Table table;
@@ -94,7 +99,7 @@ public class MySQLDatabase implements IDatabase {
 		try {
 			connection = getConnection();
 			tablesStatement = connection.createStatement();
-			String queryString = "SELECT table_name FROM information_schema.tables where table_schema='" + databaseName + "'";
+			String queryString = "SELECT table_name FROM information_schema.tables where table_schema='" + this.name + "'";
 	        ResultSet rs = tablesStatement.executeQuery(queryString);
 	        while (rs.next()) {
 	        	tableName = rs.getString(1);
@@ -106,7 +111,7 @@ public class MySQLDatabase implements IDatabase {
 	        tablesStatement.close();
 	        connection.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.log(Level.ERROR, e.getLocalizedMessage());
 		}
 		return tables;
 	}
@@ -123,7 +128,7 @@ public class MySQLDatabase implements IDatabase {
 		try {
 			connection = getConnection();
 			metadata = connection.getMetaData();
-			ResultSet resultSet = metadata.getColumns(selectedDatabase, null, tableName, null);
+			ResultSet resultSet = metadata.getColumns(name, null, tableName, null);
 		    while (resultSet.next()) {
 		    	nombre = resultSet.getString("COLUMN_NAME");
 		    	tipo_dato = resultSet.getString("TYPE_NAME");
@@ -135,40 +140,20 @@ public class MySQLDatabase implements IDatabase {
 		    resultSet.close();
 		    connection.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.log(Level.ERROR, e.getLocalizedMessage());
 		}
 		return columns;
 	}
 
 	@Override
-	public Database getDatabaseInformation(String databaseName) {
-		List<Table> tables = getTables(databaseName);
-		Database db = new Database(selectedDatabase, server, "MySQL", tables);
+	public Database getDatabaseInformation() {
+		List<Table> tables = getTables();
+		Database db = new Database(name, server, "MySQL", tables);
 		return db;
 	}
 
 	@Override
-	public boolean selectDatabase(String database)
-	{
-		List<String> databases = getDatabases();
-		for (String currentDatabase : databases)
-		{
-			if (currentDatabase.equals(database))
-			{
-				this.selectedDatabase = database;
-				return true;
-			}
-		}
-		return false;	
-	}
-
-	@Override
-	public String getSelectedDatabase() {
-		return this.selectedDatabase;
-	}
-
-	@Override
-	public List<String> getDatabases() {
+	public List<String> getDatabasesOnThisServer() {
 		List<String> databases = new ArrayList<String>();
 		
 		Connection con = null;
@@ -182,9 +167,35 @@ public class MySQLDatabase implements IDatabase {
 			rs.close();
 			con.close();
 		} catch (Exception e) {
+			logger.log(Level.ERROR, e.getLocalizedMessage());
 			return new ArrayList<String>();
 		}
 		return databases;
 	}
 
+	/**
+	 * Sets the name for the database. The constructor of Database will only setup the connection so you should
+	 * indicate which is the database name (More than one database could be active on that connection)
+	 * @param name  name of the database to use
+	 * @return  <code>True</code> if a database with that name exists on that server <br>
+	 * 			<code>False</code> if a database with that name doesn't exists on that server
+	 */
+	@Override
+	public boolean setName(String name) {
+		List<String> databases = getDatabasesOnThisServer();
+		for (String currentDatabase : databases)
+		{
+			if (currentDatabase.equals(name))
+			{
+				this.name = name;
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public String getName() {
+		return this.name;
+	}
 }
