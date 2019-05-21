@@ -10,6 +10,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import es.uneatlantico.gdbd.entities.Column;
 import es.uneatlantico.gdbd.entities.Database;
 import es.uneatlantico.gdbd.entities.Table;
@@ -17,6 +21,8 @@ import es.uneatlantico.gdbd.util.PathResolver;
 import es.uneatlantico.gdbd.util.StringDotsRemover;
 
 public class SQLiteManager {
+	
+	private static final Logger logger = LogManager.getLogger(SQLiteManager.class); 
 	
 	private final static String Driver = "org.sqlite.JDBC";
 	/**
@@ -62,7 +68,7 @@ public class SQLiteManager {
 			Class.forName(Driver);
 			return DriverManager.getConnection(getDatabaseUrl());
 		} catch (ClassNotFoundException e) {
-			System.err.println(e.getLocalizedMessage());
+			logger.log(Level.FATAL, e.getLocalizedMessage());
 		}
 		return null;
 	}
@@ -118,55 +124,52 @@ public class SQLiteManager {
                 conn.close();
             }
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            logger.log(Level.FATAL, e.getLocalizedMessage());
         }
 	}
 	
 	/**
 	 * Creates a new database entry on the SQLite database
 	 * @param db  Database entity (Contains the metadata of the database)
+	 * @throws SQLException if the database can't be added
 	 */
-	public void addNewDatabase(Database db)
+	public void addNewDatabase(Database db) throws SQLException
 	{
 		createDatabase(db);
 	}
 	
 	/**
-	 * Auxiliar function to add the database entity on the SQLite database
-	 * @param ID
-	 * @param nombre
-	 * @param servidor
+	 * Auxiliary function to add the database entity on the SQLite database
+	 * @param db  database to add to the list of registered databases
+	 * @throws SQLException  if the information cannot be added to the SQLite database
 	 */
-	private void createDatabase(Database db)
+	private void createDatabase(Database db) throws SQLException
 	{
 		Connection connection;
 		int nextAvailableID;
 		
-		try  {
-        	connection = DriverManager.getConnection(getDatabaseUrl());
-        	// Obtain next free ID for BBDD
-        	nextAvailableID = getNextAvailableID("BBDD");
-        	
-        	String sql = "INSERT INTO BBDD (ID,NOMBRE,SERVIDOR,TIPO) VALUES(?,?,?,?)";
-        	
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-            
-            pstmt.setInt(1, nextAvailableID);
-            pstmt.setString(2, db.getNombre());
-            pstmt.setString(3, db.getServidor());
-            pstmt.setString(4, db.getTipo());
-            pstmt.executeUpdate();
-            
-            pstmt.close();
-            connection.close();
-            
-            for (Table table : db.getTables())
-			{
-				createTable(table, nextAvailableID);
-			}
-        } catch (SQLException e) {
-            System.err.println(e.getMessage());
-        }
+    	connection = DriverManager.getConnection(getDatabaseUrl());
+    	// Obtain next free ID for BBDD
+    	nextAvailableID = getNextAvailableID("BBDD");
+    	
+    	String sql = "INSERT INTO BBDD (ID,NOMBRE,SERVIDOR,TIPO) VALUES(?,?,?,?)";
+    	
+        PreparedStatement pstmt = connection.prepareStatement(sql);
+        
+        pstmt.setInt(1, nextAvailableID);
+        pstmt.setString(2, db.getNombre());
+        pstmt.setString(3, db.getServidor());
+        pstmt.setString(4, db.getTipo());
+        pstmt.executeUpdate();
+        
+        pstmt.close();
+        connection.close();
+        
+        for (Table table : db.getTables())
+		{
+			createTable(table, nextAvailableID);
+		}
+        
 	}
 	
 	/**
