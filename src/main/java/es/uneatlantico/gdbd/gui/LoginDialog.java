@@ -13,6 +13,8 @@ import javax.swing.border.EmptyBorder;
 import es.uneatlantico.gdbd.dataaccess.DBMS;
 import es.uneatlantico.gdbd.dataaccess.FactoryDatabaseAccess;
 import es.uneatlantico.gdbd.dataaccess.IDatabase;
+import es.uneatlantico.gdbd.entities.Database;
+import es.uneatlantico.gdbd.persistence.SQLiteManager;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -50,17 +52,18 @@ public class LoginDialog extends JDialog {
 	private JLabel lblTestResults;
 	
 	private IDatabase selectedDatabase;
+	private SQLiteManager sqliteManager;
 
 	/**
 	 * Create the dialog.
 	 */
-	public LoginDialog(JFrame owner) {
+	public LoginDialog(JFrame owner, SQLiteManager sqliteManager) {		
 		super (owner);
-		
+		this.sqliteManager = sqliteManager;
 		initGUI();
 	}
 	private void initGUI() {
-		setIconImage(Toolkit.getDefaultToolkit().getImage(LoginDialog.class.getResource("/com/sun/java/swing/plaf/windows/icons/HardDrive.gif")));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(LoginDialog.class.getResource("/database-add-icon.png")));
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setModal(true);
 		setResizable(false);
@@ -278,9 +281,12 @@ public class LoginDialog extends JDialog {
 					public void actionPerformed(ActionEvent arg0) {
 						LoginDialog.this.selectedDatabase = connectToServer();
 						// select the database on the combo
-						LoginDialog.this.selectedDatabase.selectDatabase(cbDatabases.getSelectedItem().toString());
+						if(LoginDialog.this.selectedDatabase.setName(cbDatabases.getSelectedItem().toString()))
+						{
+							addNewDatabase();
 						//LoginDialog.this.selectedDatabase.selectDatabase(LoginDialog.this.txtDatabase.getText());
-						LoginDialog.this.dispose();
+							
+						}
 					}
 				});
 				okButton.setActionCommand("OK");
@@ -298,14 +304,6 @@ public class LoginDialog extends JDialog {
 				buttonPane.add(cancelButton);
 			}
 		}
-	}
-	/**
-	 * Obtains the database the user has selected to login
-	 * @return  the given database
-	 */
-	public IDatabase getLogonDatabase()
-	{
-		return this.selectedDatabase;
 	}
 	
 	public IDatabase connectToServer()
@@ -329,7 +327,10 @@ public class LoginDialog extends JDialog {
 		}
 		String username = txtUser.getText();
 		char[] password = passwordField.getPassword();
-		return FactoryDatabaseAccess.getDatabaseAccess(driver, server, port, username, password);
+		IDatabase databaseAccess = FactoryDatabaseAccess.getDatabaseAccess(driver, server, port, username, password);
+		// Sends the password to the garbage collector as soon as possible to avoid security issues
+		password = null;
+		return databaseAccess;
 	}
 	
 	public void fillDatabasesCombo()
@@ -337,8 +338,8 @@ public class LoginDialog extends JDialog {
 		if(requiredFieldsFilled())
 		{
 			this.selectedDatabase = connectToServer();
-			IDatabase db = this.getLogonDatabase();
-			List<String> databases = db.getDatabases();
+//			IDatabase db = this.getLogonDatabase();
+			List<String> databases = selectedDatabase.getDatabasesOnThisServer();
 			System.out.println(databases);
 			cbDatabases.setModel(new DefaultComboBoxModel<String>(databases.toArray(new String[0])));
 			//cbDatabases = new JComboBox<String>(databases.toArray(new String[0]));
@@ -351,5 +352,20 @@ public class LoginDialog extends JDialog {
 			return true;
 		else 
 			return false;
+	}
+	
+	private void addNewDatabase()
+	{
+		this.selectedDatabase.setName(cbDatabases.getSelectedItem().toString());
+		Database db = this.selectedDatabase.getDatabaseInformation();
+		
+		try {
+			sqliteManager.addNewDatabase(db);
+			JOptionPane.showMessageDialog(contentPanel, "Base de datos añadida con éxito", "Operación finalizada", JOptionPane.INFORMATION_MESSAGE);
+			LoginDialog.this.dispose();
+		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(contentPanel, e.getLocalizedMessage(), 
+					"Imposible añadir la base de datos", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 }

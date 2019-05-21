@@ -62,8 +62,7 @@ public class DatabaseListPanel extends JPanel {
         add(getScrlPnDatabases(), BorderLayout.CENTER);
         add(getPnSouth(), BorderLayout.SOUTH);    
     	add(getPnServers(), BorderLayout.NORTH);
-    	this.loadServers();
-    	this.loadDatabases();
+    	this.loadServers();    	
 	}
     
     public void loadServers()
@@ -76,6 +75,7 @@ public class DatabaseListPanel extends JPanel {
             	cModel = new DefaultComboBoxModel<String>(sqliteManager.getServers().toArray(new String[0]));
             	cbServers.setModel(cModel);
             	DatabaseListPanel.this.getBtnRefreshservers().setEnabled(true);
+                DatabaseListPanel.this.loadDatabases();
                 return null;
             }
         }.execute();
@@ -121,7 +121,7 @@ public class DatabaseListPanel extends JPanel {
 
 					Statement stmt = connection.createStatement();
 					String sqlQuery = "SELECT ID, NOMBRE AS 'Nombre de la base de datos' FROM 'BBDD' WHERE SERVIDOR = '" + getCbServers().getSelectedItem().toString() + "'";
-					System.out.println(sqlQuery);
+					logger.log(Level.DEBUG, sqlQuery);
 
 					ResultSet rs = stmt.executeQuery(sqlQuery);
 					ResultSetMetaData metaData = rs.getMetaData();
