@@ -31,8 +31,11 @@ import javax.swing.DefaultComboBoxModel;
 
 import java.awt.GridLayout;
 import javax.swing.ImageIcon;
+import java.awt.Font;
+import javax.swing.ListSelectionModel;
+import java.awt.Dimension;
 
-public class DatabaseListPanel extends JPanel {
+public class DatabaseNavigatorPanel extends JPanel {
 	private static final Logger logger = LogManager.getLogger(MySQLDatabase.class); 
 
 	/**
@@ -40,8 +43,7 @@ public class DatabaseListPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = 8388230314818313907L;
     private JTable tbDatabases;
-    private DefaultTableModel tableModel = new DefaultTableModel();
-    private JPanel panel;
+    private DefaultTableModel tableModel;
     private JScrollPane scrlPnDatabases;
     private JPanel pnServers;
     private JLabel lblServer;
@@ -52,16 +54,25 @@ public class DatabaseListPanel extends JPanel {
     private DefaultComboBoxModel<String> cModel;
     
 
-    public DatabaseListPanel(SQLiteManager sqlite) throws HeadlessException {
+    public DatabaseNavigatorPanel(SQLiteManager sqlite) throws HeadlessException {
     	this.sqliteManager = sqlite;
         setLayout(new BorderLayout(0, 0));
         initGUI();
     }
     
     private void initGUI() {
+    	// Initializes the table model to make the database list not editable
+    	tableModel = new DefaultTableModel(){
+			private static final long serialVersionUID = 1L;
+
+			public boolean isCellEditable(int row, int column)
+            {
+              return false;//This causes all cells to be not editable
+            }
+          };
         add(getScrlPnDatabases(), BorderLayout.CENTER);
-        add(getPnSouth(), BorderLayout.SOUTH);    
     	add(getPnServers(), BorderLayout.NORTH);
+    	
     	this.loadServers();    	
 	}
     
@@ -71,11 +82,11 @@ public class DatabaseListPanel extends JPanel {
             @Override
             protected Void doInBackground() throws Exception {
             	// Loads the servers on the combo box of servers
-            	DatabaseListPanel.this.getBtnRefreshservers().setEnabled(false);
+            	DatabaseNavigatorPanel.this.getBtnRefreshservers().setEnabled(false);
             	cModel = new DefaultComboBoxModel<String>(sqliteManager.getServers().toArray(new String[0]));
             	cbServers.setModel(cModel);
-            	DatabaseListPanel.this.getBtnRefreshservers().setEnabled(true);
-                DatabaseListPanel.this.loadDatabases();
+            	DatabaseNavigatorPanel.this.getBtnRefreshservers().setEnabled(true);
+                DatabaseNavigatorPanel.this.loadDatabases();
                 return null;
             }
         }.execute();
@@ -95,20 +106,58 @@ public class DatabaseListPanel extends JPanel {
 		if(tbDatabases == null)
 		{
 			tbDatabases = new JTable(tableModel);
-			tbDatabases.setEnabled(false);
+			tbDatabases.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			tbDatabases.setShowVerticalLines(false);
+			tbDatabases.getTableHeader().setFont(new Font("Tahoma", Font.PLAIN, 16));
+			tbDatabases.setRowHeight(30);
+			tbDatabases.setFont(new Font("Tahoma", Font.PLAIN, 16));
+			tbDatabases.setCellSelectionEnabled(true);
 		}
 		return tbDatabases;
 	}
-	
-	private JPanel getPnSouth()
-	{
-		if(panel == null)
-		{
-			panel = new JPanel();
-		}
-		return panel;
-	}
 
+	private void loadDatabasesFromSQLiteManager() {
+		new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				logger.log(Level.DEBUG, "Cargando tabla de bases de datos (DatabaseListPanel)");
+				Connection connection;
+
+				try {
+					connection = sqliteManager.getConnection();
+
+					Statement stmt = connection.createStatement();
+					String sqlQuery = "SELECT ID, NOMBRE AS 'Nombre de la base de datos' FROM 'BBDD' WHERE SERVIDOR = '" + getCbServers().getSelectedItem().toString() + "'";
+					logger.log(Level.DEBUG, sqlQuery);
+
+					ResultSet rs = stmt.executeQuery(sqlQuery);
+					ResultSetMetaData metaData = rs.getMetaData();
+
+					// Names of columns
+					Vector<String> columnNames = new Vector<String>();
+					int columnCount = metaData.getColumnCount();
+					for (int i = 1; i <= columnCount; i++) {
+						columnNames.add(metaData.getColumnName(i));
+					}
+
+					// Data of the table
+					Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+					while (rs.next()) {
+						Vector<Object> vector = new Vector<Object>();
+						for (int i = 1; i <= columnCount; i++) {
+							vector.add(rs.getObject(i));
+						}
+						data.add(vector);
+					}
+					tableModel.setDataVector(data, columnNames);
+				} catch (Exception e) {
+					logger.log(Level.ERROR, e.getLocalizedMessage());
+				}
+				logger.log(Level.DEBUG, "Tabla de bases de datos cargada (DatabaseListPanel)");
+				return null;
+			}
+		}.execute();
+	}
 	private void loadDatabases() {
 		new SwingWorker<Void, Void>() {
 			@Override
@@ -183,7 +232,7 @@ public class DatabaseListPanel extends JPanel {
 	private JButton getBtnRefreshservers() {
 		if (btnRefreshservers == null) {
 			btnRefreshservers = new JButton("");
-			btnRefreshservers.setIcon(new ImageIcon(DatabaseListPanel.class.getResource("/com/sun/javafx/scene/web/skin/Redo_16x16_JFX.png")));
+			btnRefreshservers.setIcon(new ImageIcon(DatabaseNavigatorPanel.class.getResource("/com/sun/javafx/scene/web/skin/Redo_16x16_JFX.png")));
 			btnRefreshservers.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					loadServers();

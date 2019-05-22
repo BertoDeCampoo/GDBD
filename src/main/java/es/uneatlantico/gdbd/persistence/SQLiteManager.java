@@ -5,10 +5,12 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -304,27 +306,75 @@ public class SQLiteManager {
     	return servers;
 	}
 	
-	public List<String> getDatabases(String server)
+//	public List<String> getDatabases(String server)
+//	{
+//		List<String> databases = new ArrayList<String>();
+//		
+//		Connection connection;
+//		Statement stmt;
+//		try {
+//    		connection = this.getConnection();
+//            
+//    		stmt = connection.createStatement();
+//
+//            ResultSet rs = stmt.executeQuery("SELECT 'NOMBRE' FROM BBDD WHERE SERVIDOR='" + server + "'");
+//            while(rs.next())	
+//            {
+//            	databases.add(rs.getString(1));
+//            }
+//			stmt.close();
+//			connection.close();
+//		} catch (SQLException e) {
+//			System.err.println(e.getMessage());
+//		}
+//    	return databases;
+//	}
+	
+//	public Vector<String> getDatabases(String server)
+//	{
+//		logger.log(Level.DEBUG, "Cargando tabla de bases de datos (DatabaseListPanel)");
+//		Connection connection;
+//
+//		try {
+//			connection = getConnection();
+//
+//			Statement stmt = connection.createStatement();
+//			String sqlQuery = "SELECT ID, NOMBRE FROM 'BBDD' WHERE SERVIDOR = '" + getCbServers().getSelectedItem().toString() + "'";
+//			logger.log(Level.DEBUG, sqlQuery);
+//
+//			ResultSet rs = stmt.executeQuery(sqlQuery);
+//			ResultSetMetaData metaData = rs.getMetaData();
+//
+//			// Names of columns
+//			Vector<String> columnNames = new Vector<String>();
+//			int columnCount = metaData.getColumnCount();
+//			for (int i = 1; i <= columnCount; i++) {
+//				columnNames.add(metaData.getColumnName(i));
+//			}
+//
+//			// Data of the table
+//			Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+//			while (rs.next()) {
+//				Vector<Object> vector = new Vector<Object>();
+//				for (int i = 1; i <= columnCount; i++) {
+//					vector.add(rs.getObject(i));
+//				}
+//				data.add(vector);
+//			}
+//			tableModel.setDataVector(data, columnNames);
+//		} catch (Exception e) {
+//			logger.log(Level.ERROR, e.getLocalizedMessage());
+//		}
+//		logger.log(Level.DEBUG, "Tabla de bases de datos cargada (DatabaseListPanel)");
+//	}
+	
+	/**
+	 * Obtains a list with the 
+	 * @param databaseID
+	 * @return
+	 */
+	public List<String> getTables(int databaseID)
 	{
-		List<String> databases = new ArrayList<String>();
-		
-		Connection connection;
-		Statement stmt;
-		try {
-    		connection = this.getConnection();
-            
-    		stmt = connection.createStatement();
-
-            ResultSet rs = stmt.executeQuery("SELECT 'NOMBRE' FROM BBDD WHERE SERVIDOR='" + server + "'");
-            while(rs.next())	
-            {
-            	databases.add(rs.getString(1));
-            }
-			stmt.close();
-			connection.close();
-		} catch (SQLException e) {
-			System.err.println(e.getMessage());
-		}
-    	return databases;
+		return new ArrayList<String>();
 	}
 }

@@ -10,13 +10,22 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.UIManager;
 
-import es.uneatlantico.gdbd.entities.Database;
 import es.uneatlantico.gdbd.persistence.SQLiteManager;
+import es.uneatlantico.gdbd.util.UITuner;
 
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.GridLayout;
+import java.awt.FlowLayout;
+import java.awt.Component;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.border.LineBorder;
+import java.awt.Color;
 
 public class Application {
 
@@ -27,7 +36,9 @@ public class Application {
 	private JMenu mnDocumentation;
 	private JMenu mnHelp;
 	private JMenuItem mntmNewDatabase;
-	private JPanel pnDatabases;
+	private JPanel pnDatabaseList;
+	private JSplitPane pnNavigator;
+	private JPanel pnTablesList;
 	
 
 	/**
@@ -36,6 +47,7 @@ public class Application {
 	public static void main(String[] args) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			UITuner.fixBrokenIcons();
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -49,7 +61,7 @@ public class Application {
 				}
 			}
 		});
-	}
+	}	
 
 	/**
 	 * Create the application.
@@ -68,10 +80,11 @@ public class Application {
 		frmGdbd.setIconImage(Toolkit.getDefaultToolkit().getImage(Application.class.getResource("/database-search-icon.png")));
 		frmGdbd.setMinimumSize(new Dimension(480, 280));
 		frmGdbd.setTitle("GDBD - Gestor de Documentación para Bases de Datos");
-		frmGdbd.setBounds(100, 100, 695, 389);
+		frmGdbd.setBounds(100, 100, 786, 925);
 		frmGdbd.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmGdbd.setJMenuBar(getMenuBar());
-		frmGdbd.getContentPane().add(getPnDatabases(), BorderLayout.WEST);
+		frmGdbd.pack();
+		frmGdbd.getContentPane().add(getPnNavigator(), BorderLayout.WEST);
 	}
 
 	private JMenuBar getMenuBar() {
@@ -122,10 +135,25 @@ public class Application {
 		}
 		return mntmNewDatabase;
 	}
-	private JPanel getPnDatabases() {
-		if (pnDatabases == null) {
-			pnDatabases = new DatabaseListPanel(sqliteManager);
+	private JPanel getPanelDatabaseList() {
+		if (pnDatabaseList == null) {
+			pnDatabaseList = new DatabaseNavigatorPanel(sqliteManager);
+			pnDatabaseList.setToolTipText("");
 		}
-		return pnDatabases;
+		return pnDatabaseList;
+	}
+	private JSplitPane getPnNavigator() {
+		if (pnNavigator == null) {
+			pnNavigator = new JSplitPane(JSplitPane.VERTICAL_SPLIT, getPanelDatabaseList(), getPnTablesList());
+			pnNavigator.setOneTouchExpandable(true);
+//			pnNavigator.setDividerLocation(150);
+		}
+		return pnNavigator;
+	}
+	private JPanel getPnTablesList() {
+		if (pnTablesList == null) {
+			pnTablesList = new TablesListPanel(sqliteManager);
+		}
+		return pnTablesList;
 	}
 }

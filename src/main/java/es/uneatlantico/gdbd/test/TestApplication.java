@@ -68,57 +68,57 @@ public class TestApplication {
 	private JPanel getPanel() {
 		if (panel == null) {
 			panel = new JPanel();
-			panel.add(getBtnConexinConMysql());
+//			panel.add(getBtnConexinConMysql());
 		}
 		return panel;
 	}
 	
-	private JButton getBtnConexinConMysql() {
-		if (btnConexinConMysql == null) {
-			btnConexinConMysql = new JButton("Conexi\u00F3n con MySQL");
-			btnConexinConMysql.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					List<Table> tablas;
-					List<Column> columnas;
-					char[] pass = new char[4];
-					
-					pass[0] = '1';
-					pass[1] = '2';
-					pass[2] = '3';
-					pass[3] = '4';
-					
-					//MySQLDatabase db = new MySQLDatabase("jdbc:mysql://localhost:3306/personal_mysql", "root", pass);
-					MySQLDatabase db = new MySQLDatabase("localhost", "personal_mysql", "root", pass);
-					
-					try {
-						db.getConnection();
-						tablas = db.getTables("personal_mysql");
-						for(int i=0; i<tablas.size();i++)
-						{
-//							System.out.print(tablas.get(i) + ": ");
-							columnas = db.getColumns("personal_mysql");
-							for (Column columna : columnas) {
-								System.out.print(columna + ", ");
-							}
-							System.out.println();
-						}
-						JOptionPane.showMessageDialog(frame, "Se ha realizado la conexión", "Conexión establecida", JOptionPane.INFORMATION_MESSAGE);
-					} catch (SQLException e) {
-						JOptionPane.showMessageDialog(frame, e.getLocalizedMessage(), "Error de conexión a la base de datos", JOptionPane.ERROR_MESSAGE);
-					}
-					
-				}
-			});
-		}
-		return btnConexinConMysql;
-	}
+//	private JButton getBtnConexinConMysql() {
+//		if (btnConexinConMysql == null) {
+//			btnConexinConMysql = new JButton("Conexi\u00F3n con MySQL");
+//			btnConexinConMysql.addActionListener(new ActionListener() {
+//				public void actionPerformed(ActionEvent arg0) {
+//					List<Table> tablas;
+//					List<Column> columnas;
+//					char[] pass = new char[4];
+//					
+//					pass[0] = '1';
+//					pass[1] = '2';
+//					pass[2] = '3';
+//					pass[3] = '4';
+//					
+//					//MySQLDatabase db = new MySQLDatabase("jdbc:mysql://localhost:3306/personal_mysql", "root", pass);
+//					MySQLDatabase db = new MySQLDatabase("localhost", "personal_mysql", "root", pass);
+//					
+//					try {
+//						db.getConnection();
+//						tablas = db.getTables("personal_mysql");
+//						for(int i=0; i<tablas.size();i++)
+//						{
+////							System.out.print(tablas.get(i) + ": ");
+//							columnas = db.getColumns("personal_mysql");
+//							for (Column columna : columnas) {
+//								System.out.print(columna + ", ");
+//							}
+//							System.out.println();
+//						}
+//						JOptionPane.showMessageDialog(frame, "Se ha realizado la conexión", "Conexión establecida", JOptionPane.INFORMATION_MESSAGE);
+//					} catch (SQLException e) {
+//						JOptionPane.showMessageDialog(frame, e.getLocalizedMessage(), "Error de conexión a la base de datos", JOptionPane.ERROR_MESSAGE);
+//					}
+//					
+//				}
+//			});
+//		}
+//		return btnConexinConMysql;
+//	}
 	private JPanel getPanel_1() {
 		if (panel_1 == null) {
 			panel_1 = new JPanel();
 			panel_1.add(getBtnCreateSqliteDatabase());
-			panel_1.add(getBtnObtenerTablasnueva());
-			panel_1.add(getBtnMostrarultimoindicebbdd());
-			panel_1.add(getBtnListserverdbs());
+//			panel_1.add(getBtnObtenerTablasnueva());
+//			panel_1.add(getBtnMostrarultimoindicebbdd());
+//			panel_1.add(getBtnListserverdbs());
 		}
 		return panel_1;
 	}
@@ -134,72 +134,72 @@ public class TestApplication {
 		}
 		return btnCreateSqliteDatabase;
 	}
-	private JButton getBtnObtenerTablasnueva() {
-		if (btnObtenerTablasnueva == null) {
-			btnObtenerTablasnueva = new JButton("Obtener tablas (Nueva)");
-			btnObtenerTablasnueva.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					List<Table> tablas;
-					char[] pass = new char[4];
-					
-					pass[0] = '1';
-					pass[1] = '2';
-					pass[2] = '3';
-					pass[3] = '4';
-					
-					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788\\SQLEXPRESS", "sa", pass);
-					
-					tablas = db.getTables("DesarrolloBD");
-					for (Table tabla : tablas)
-					{
-						System.out.println(tabla);
-					}
-				}
-			});
-		}
-		return btnObtenerTablasnueva;
-	}
-	private JButton getBtnMostrarultimoindicebbdd() {
-		if (btnMostrarultimoindicebbdd == null) {
-			btnMostrarultimoindicebbdd = new JButton("Guardar bbdd en SQLite");
-			btnMostrarultimoindicebbdd.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					
-					char[] pass = new char[4];
-					
-					pass[0] = '1';
-					pass[1] = '2';
-					pass[2] = '3';
-					pass[3] = '4';
-					
-					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788\\SQLEXPRESS", "sa", pass);
-					Database database = db.getDatabaseInformation("DesarrolloBD");
-					
-					SQLiteManager mgr = new SQLiteManager("sqlite");
-					mgr.addNewDatabase(database);
-				}
-			});
-		}
-		return btnMostrarultimoindicebbdd;
-	}
-	
-	private JButton getBtnListserverdbs() {
-		if (btnListserverdbs == null) {
-			btnListserverdbs = new JButton("ListServerDBs");
-			btnListserverdbs.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					char[] pass = new char[4];
-					
-					pass[0] = '1';
-					pass[1] = '2';
-					pass[2] = '3';
-					pass[3] = '4';
-					
-					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788\\SQLEXPRESS", "sa", pass);
-					db.getTables("DesarrolloBD");
-				}
-			});
-		}
-		return btnListserverdbs;
-	}
+//	private JButton getBtnObtenerTablasnueva() {
+//		if (btnObtenerTablasnueva == null) {
+//			btnObtenerTablasnueva = new JButton("Obtener tablas (Nueva)");
+//			btnObtenerTablasnueva.addActionListener(new ActionListener() {
+//				public void actionPerformed(ActionEvent arg0) {
+//					List<Table> tablas;
+//					char[] pass = new char[4];
+//					
+//					pass[0] = '1';
+//					pass[1] = '2';
+//					pass[2] = '3';
+//					pass[3] = '4';
+//					
+//					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788\\SQLEXPRESS", "sa", pass);
+//					
+//					tablas = db.getTables("DesarrolloBD");
+//					for (Table tabla : tablas)
+//					{
+//						System.out.println(tabla);
+//					}
+//				}
+//			});
+//		}
+//		return btnObtenerTablasnueva;
+//	}
+//	private JButton getBtnMostrarultimoindicebbdd() {
+//		if (btnMostrarultimoindicebbdd == null) {
+//			btnMostrarultimoindicebbdd = new JButton("Guardar bbdd en SQLite");
+//			btnMostrarultimoindicebbdd.addActionListener(new ActionListener() {
+//				public void actionPerformed(ActionEvent arg0) {
+//					
+//					char[] pass = new char[4];
+//					
+//					pass[0] = '1';
+//					pass[1] = '2';
+//					pass[2] = '3';
+//					pass[3] = '4';
+//					
+//					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788\\SQLEXPRESS", "sa", pass);
+//					Database database = db.getDatabaseInformation();
+//					
+//					SQLiteManager mgr = new SQLiteManager("sqlite");
+//					mgr.addNewDatabase(database);
+//				}
+//			});
+//		}
+//		return btnMostrarultimoindicebbdd;
+//	}
+//	
+//	private JButton getBtnListserverdbs() {
+//		if (btnListserverdbs == null) {
+//			btnListserverdbs = new JButton("ListServerDBs");
+//			btnListserverdbs.addActionListener(new ActionListener() {
+//				public void actionPerformed(ActionEvent arg0) {
+//					char[] pass = new char[4];
+//					
+//					pass[0] = '1';
+//					pass[1] = '2';
+//					pass[2] = '3';
+//					pass[3] = '4';
+//					
+//					MSSQLServerDatabase db = new MSSQLServerDatabase("DESKTOP-M9PG788\\SQLEXPRESS", "sa", pass);
+//					db.getTables("DesarrolloBD");
+//				}
+//			});
+//		}
+//		return btnListserverdbs;
+//	}
 }

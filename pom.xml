@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>es.uneatlantico.gdbd</groupId>
   <artifactId>dbd</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Generador de Documentación para Bases de Datos</name>
   <description>Herramienta de gestión de documentación de bases de datos</description>
