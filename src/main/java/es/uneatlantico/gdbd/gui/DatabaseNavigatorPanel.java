@@ -148,25 +148,31 @@ public class DatabaseNavigatorPanel extends JPanel {
 					logger.log(Level.DEBUG, sqlQuery);
 
 					ResultSet rs = stmt.executeQuery(sqlQuery);
-					ResultSetMetaData metaData = rs.getMetaData();
-
-					// Names of columns
-					Vector<String> columnNames = new Vector<String>();
-					int columnCount = metaData.getColumnCount();
-					for (int i = 1; i <= columnCount; i++) {
-						columnNames.add(metaData.getColumnName(i));
-					}
-
-					// Data of the table
-					Vector<Vector<Object>> data = new Vector<Vector<Object>>();
-					while (rs.next()) {
-						Vector<Object> vector = new Vector<Object>();
-						for (int i = 1; i <= columnCount; i++) {
-							vector.add(rs.getObject(i));
-						}
-						data.add(vector);
-					}
-					tableModelDatabases.setDataVector(data, columnNames);
+					
+					// It creates and displays the table
+					tableModelDatabases = es.uneatlantico.gdbd.util.BuildTableModel.buildTableModel(rs);
+					tbDatabases.setModel(tableModelDatabases);
+					
+					
+//					ResultSetMetaData metaData = rs.getMetaData();
+//
+//					// Names of columns
+//					Vector<String> columnNames = new Vector<String>();
+//					int columnCount = metaData.getColumnCount();
+//					for (int i = 1; i <= columnCount; i++) {
+//						columnNames.add(metaData.getColumnName(i));
+//					}
+//
+//					// Data of the table
+//					Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+//					while (rs.next()) {
+//						Vector<Object> vector = new Vector<Object>();
+//						for (int i = 1; i <= columnCount; i++) {
+//							vector.add(rs.getObject(i));
+//						}
+//						data.add(vector);
+//					}
+//					tableModelDatabases.setDataVector(data, columnNames);
 				} catch (Exception e) {
 					logger.log(Level.ERROR, e.getLocalizedMessage());
 				}
@@ -290,54 +296,14 @@ public class DatabaseNavigatorPanel extends JPanel {
 				ResultSet rs = stmt.executeQuery(sqlQuery);
 
 				// It creates and displays the table
-				tbTables.setModel(es.uneatlantico.gdbd.util.BuildTableModel.buildTableModel(rs));
+				tableModelTables = es.uneatlantico.gdbd.util.BuildTableModel.buildTableModel(rs);
+				tbTables.setModel(tableModelTables);
 			} catch (Exception e) {
 				logger.log(Level.ERROR, e.getLocalizedMessage());
 			}
 			logger.log(Level.DEBUG, "Tabla de bases de datos cargada (DatabaseListPanel)");
 			return null;
 		}
-//		@Override
-//		protected Void doInBackground() throws Exception {
-//			logger.log(Level.DEBUG, "Cargando tablas");
-//			Connection connection;
-//
-//			try {
-//				connection = sqliteManager.getConnection();
-//
-//				Statement stmt = connection.createStatement();
-//				String sqlQuery = "SELECT ID, NOMBRE FROM TABLAS WHERE ID_BBDD =" + this.databaseID;
-//				logger.log(Level.DEBUG, sqlQuery);
-//
-//				ResultSet rs = stmt.executeQuery(sqlQuery);
-//				ResultSetMetaData metaData = rs.getMetaData();
-//
-//				// Names of columns
-//				Vector<String> columnNames = new Vector<String>();
-//				int columnCount = metaData.getColumnCount();
-//				for (int i = 1; i <= columnCount; i++) {
-//					System.err.println(metaData.getColumnName(i));
-//					columnNames.add(metaData.getColumnName(i));
-//				}
-//
-//				// Data of the table
-//				Vector<Vector<Object>> data = new Vector<Vector<Object>>();
-//				while (rs.next()) {
-//					
-//					Vector<Object> vector = new Vector<Object>();
-//					for (int i = 1; i <= columnCount; i++) {
-//						System.err.println(rs.getObject(i));
-//						vector.add(rs.getObject(i));
-//					}
-//					data.add(vector);
-//				}
-//				tableModelTables.setDataVector(data, columnNames);
-//			} catch (Exception e) {
-//				logger.log(Level.ERROR, e.getLocalizedMessage());
-//			}
-//			logger.log(Level.DEBUG, "Tabla de bases de datos cargada (DatabaseListPanel)");
-//			return null;
-//		}
 	}
 	
 	private void loadTables(int databaseID) {
