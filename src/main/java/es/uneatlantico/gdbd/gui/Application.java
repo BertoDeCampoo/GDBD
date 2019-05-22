@@ -37,7 +37,7 @@ public class Application {
 	private JMenu mnHelp;
 	private JMenuItem mntmNewDatabase;
 	private JPanel pnDatabaseList;
-	private JSplitPane pnNavigator;
+	private JPanel pnNavigator;
 	private JPanel pnTablesList;
 	
 
@@ -83,7 +83,7 @@ public class Application {
 		frmGdbd.setBounds(100, 100, 786, 925);
 		frmGdbd.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmGdbd.setJMenuBar(getMenuBar());
-		frmGdbd.pack();
+//		frmGdbd.pack();
 		frmGdbd.getContentPane().add(getPnNavigator(), BorderLayout.WEST);
 	}
 
@@ -121,39 +121,18 @@ public class Application {
 			mntmNewDatabase.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg) {
 					LoginDialog databaseLogin = new LoginDialog(frmGdbd, Application.this.sqliteManager);
-					//dg.setModal(true);
 					databaseLogin.setVisible(true);
-					
-//					String dbName = databaseLogin.getLogonDatabase().getName();
-//					Database database = databaseLogin.getLogonDatabase().getDatabaseInformation();
-					
-//					sqliteManager.addNewDatabase(database);
-//					
-//					System.out.println(database);
 				}
 			});
 		}
 		return mntmNewDatabase;
 	}
-	private JPanel getPanelDatabaseList() {
-		if (pnDatabaseList == null) {
-			pnDatabaseList = new DatabaseNavigatorPanel(sqliteManager);
-			pnDatabaseList.setToolTipText("");
-		}
-		return pnDatabaseList;
-	}
-	private JSplitPane getPnNavigator() {
+	
+	private JPanel getPnNavigator() {
 		if (pnNavigator == null) {
-			pnNavigator = new JSplitPane(JSplitPane.VERTICAL_SPLIT, getPanelDatabaseList(), getPnTablesList());
-			pnNavigator.setOneTouchExpandable(true);
+			pnNavigator = new DatabaseNavigatorPanel(sqliteManager);
 //			pnNavigator.setDividerLocation(150);
 		}
 		return pnNavigator;
-	}
-	private JPanel getPnTablesList() {
-		if (pnTablesList == null) {
-			pnTablesList = new TablesListPanel(sqliteManager);
-		}
-		return pnTablesList;
 	}
 }
