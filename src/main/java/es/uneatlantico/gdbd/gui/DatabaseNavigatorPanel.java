@@ -20,10 +20,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.Statement;
-import java.util.Vector;
-
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
@@ -46,8 +43,8 @@ public class DatabaseNavigatorPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = 8388230314818313907L;
     private JTable tbDatabases, tbTables;
-    private DefaultTableModel tableModelDatabases, tableModelTables;
-    private JScrollPane scrlPnDatabases, scrlPnTables;
+    private DefaultTableModel tableModelDatabases, tableModelTables, tableModelColumns;
+    private JScrollPane scrlPnDatabases, scrlPnTables, scrlPnColumns;
     private JPanel pnServers;
     private JLabel lblServer;
     private JComboBox<String> cbServers;
@@ -57,7 +54,9 @@ public class DatabaseNavigatorPanel extends JPanel {
     private DefaultComboBoxModel<String> cModel;
     private JPanel pnDatabases;
     private JPanel pnTables;
-    private JSplitPane spnDatabasesTables;
+    private JSplitPane spnDatabasesTables, spnBrowser;
+    private JPanel pnColumns;
+    private JTable tbColumns;
     
 
     public DatabaseNavigatorPanel(SQLiteManager sqlite) throws HeadlessException {
@@ -76,9 +75,27 @@ public class DatabaseNavigatorPanel extends JPanel {
               return false;//This causes all cells to be not editable
             }
           };
+       // Initializes the table model to make the database list not editable
+      	tableModelTables = new DefaultTableModel(){
+  			private static final long serialVersionUID = 1L;
 
-      	add(getSplitPaneDatabaseTables(), BorderLayout.CENTER);
-    	this.loadServers();    	
+  			public boolean isCellEditable(int row, int column)
+              {
+                return false;//This causes all cells to be not editable
+              }
+            };
+         // Initializes the table model to make the database list not editable
+        	tableModelColumns = new DefaultTableModel(){
+    			private static final long serialVersionUID = 1L;
+
+    			public boolean isCellEditable(int row, int column)
+                {
+                  return false;//This causes all cells to be not editable
+                }
+              };
+
+          add(getSplitPaneBrowser(), BorderLayout.CENTER);
+    	this.loadServers();
 	}
     
     public void loadServers()
@@ -117,10 +134,11 @@ public class DatabaseNavigatorPanel extends JPanel {
 				public void mouseClicked(MouseEvent e) {
 					// Obtains the ID of the database selected from the table
 					int row = tbDatabases.convertRowIndexToModel(tbDatabases.getSelectedRow());
-					int databaseID = ((int)tableModelDatabases.getValueAt(row, 0));
+					//int databaseID = ((int)tableModelDatabases.getValueAt(row, 0));
+					int databaseID = (int) tableModelDatabases.getValueAt(tbDatabases.convertRowIndexToModel(tbDatabases.getSelectedRow()), 0);
 					
 					DatabaseNavigatorPanel.this.loadTables(databaseID);
-					System.err.println(databaseID);
+					System.err.println("ID de la BBDD seleccionada: " + databaseID);
 				}
 			});
 			tbDatabases.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -134,55 +152,8 @@ public class DatabaseNavigatorPanel extends JPanel {
 	}
 
 	private void loadDatabases() {
-		new SwingWorker<Void, Void>() {
-			@Override
-			protected Void doInBackground() throws Exception {
-				logger.log(Level.DEBUG, "Cargando tabla de bases de datos (DatabaseListPanel)");
-				Connection connection;
-
-				try {
-					connection = sqliteManager.getConnection();
-
-					Statement stmt = connection.createStatement();
-					String sqlQuery = "SELECT ID, NOMBRE AS 'Nombre de la base de datos' FROM 'BBDD' WHERE SERVIDOR = '" + getCbServers().getSelectedItem().toString() + "'";
-					logger.log(Level.DEBUG, sqlQuery);
-
-					ResultSet rs = stmt.executeQuery(sqlQuery);
-					
-					// It creates and displays the table
-					tableModelDatabases = es.uneatlantico.gdbd.util.BuildTableModel.buildTableModel(rs);
-					tbDatabases.setModel(tableModelDatabases);
-					
-					
-//					ResultSetMetaData metaData = rs.getMetaData();
-//
-//					// Names of columns
-//					Vector<String> columnNames = new Vector<String>();
-//					int columnCount = metaData.getColumnCount();
-//					for (int i = 1; i <= columnCount; i++) {
-//						columnNames.add(metaData.getColumnName(i));
-//					}
-//
-//					// Data of the table
-//					Vector<Vector<Object>> data = new Vector<Vector<Object>>();
-//					while (rs.next()) {
-//						Vector<Object> vector = new Vector<Object>();
-//						for (int i = 1; i <= columnCount; i++) {
-//							vector.add(rs.getObject(i));
-//						}
-//						data.add(vector);
-//					}
-//					tableModelDatabases.setDataVector(data, columnNames);
-				} catch (Exception e) {
-					logger.log(Level.ERROR, e.getLocalizedMessage());
-				}
-				logger.log(Level.DEBUG, "Tabla de bases de datos cargada (DatabaseListPanel)");
-				return null;
-			}
-		}.execute();
-        
-    	
-    }
+		new DatabaseLoaderWorker().execute();   
+	}
 	private JPanel getPnServers() {
 		if (pnServers == null) {
 			pnServers = new JPanel();
@@ -260,10 +231,62 @@ public class DatabaseNavigatorPanel extends JPanel {
 			tbTables.setRowHeight(30);
 			tbTables.setFont(new Font("Tahoma", Font.PLAIN, 16));
 			tbTables.setCellSelectionEnabled(true);
+			tbTables.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					// Obtains the ID of the database selected from the table
+					int row = tbTables.convertRowIndexToModel(tbTables.getSelectedRow());
+					//int tableID = ((int)tableModelTables.getValueAt(row, 0));
+					int tableID = (int) tableModelTables.getValueAt(tbTables.convertRowIndexToModel(tbTables.getSelectedRow()), 0);
+					System.out.println("id del modelo: " + tableID);
+					
+					DatabaseNavigatorPanel.this.loadColumns(tableID);
+					System.err.println("ID de la tabla seleccionada: " + tableID);
+				}
+			});
 		}
 		return tbTables;
 	}
+
+	protected class ColumnLoaderWorker extends SwingWorker<Void, Void>
+	{
+		private int tableID;
+		
+		public ColumnLoaderWorker(int tableID)
+		{
+			this.tableID = tableID;
+		}
+		@Override
+		protected Void doInBackground() throws Exception {
+			logger.log(Level.DEBUG, "Cargando columnas");
+			Connection connection;
+
+			try {
+				connection = sqliteManager.getConnection();
+				Statement stmt = connection.createStatement();
+				String sqlQuery = "SELECT ID, NOMBRE AS 'Nombre de la columna' FROM COLUMNAS WHERE ID_TABLA = " + this.tableID;
+				logger.log(Level.DEBUG, sqlQuery);
+
+				ResultSet rs = stmt.executeQuery(sqlQuery);
+
+				// It creates and displays the table
+				tableModelColumns = es.uneatlantico.gdbd.util.BuildTableModel.buildTableModel(rs);
+				tbColumns.setModel(tableModelColumns);
+				tbColumns.removeColumn(tbColumns.getColumnModel().getColumn(0));
+				rs.close();
+				stmt.close();
+			} catch (Exception e) {
+				logger.log(Level.ERROR, e.getLocalizedMessage());
+			}
+			logger.log(Level.DEBUG, "Columna de bases de datos cargada");
+			return null;
+		}
+	}
 	
+	private void loadColumns(int tableID) {
+		new ColumnLoaderWorker(tableID).execute();
+	}
+
 	public JScrollPane getScrlPnTables()
     {
     	if (scrlPnTables == null)
@@ -273,6 +296,100 @@ public class DatabaseNavigatorPanel extends JPanel {
     	}
     	return scrlPnTables;
     }
+	
+	
+	
+	private void loadTables(int databaseID) {
+		new TableLoaderWorker(databaseID).execute();    	
+    }
+	
+	private JSplitPane getSplitPaneBrowser() {
+		if (spnBrowser == null) {
+			spnBrowser = new JSplitPane(JSplitPane.VERTICAL_SPLIT, getSplitPaneDatabaseTables(), getPnColumns());
+			spnBrowser.setDividerLocation(360);
+		}
+		return spnBrowser;
+	}
+	
+	private JSplitPane getSplitPaneDatabaseTables() {
+		if (spnDatabasesTables == null) {
+			spnDatabasesTables = new JSplitPane(JSplitPane.VERTICAL_SPLIT, getPnDatabases(), getPnTables());
+			spnDatabasesTables.setDividerLocation(150);
+		}
+		return spnDatabasesTables;
+	}
+	
+	private JScrollPane getScrlPnColumns()
+    {
+    	if (scrlPnColumns == null)
+    	{
+    		scrlPnColumns = new JScrollPane(getTbColumns());
+    		scrlPnColumns.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+    	}
+    	return scrlPnColumns;
+    }
+	
+	private JPanel getPnColumns() {
+		if (pnColumns == null) {
+			pnColumns = new JPanel();
+			pnColumns.setLayout(new BorderLayout(0, 0));
+			pnColumns.add(getScrlPnColumns());
+		}
+		return pnColumns;
+	}
+	private JTable getTbColumns() {
+		if (tbColumns == null) {
+			tbColumns = new JTable();
+			tbColumns.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			tbColumns.setShowVerticalLines(false);
+			tbColumns.getTableHeader().setFont(new Font("Tahoma", Font.PLAIN, 16));
+			tbColumns.setRowHeight(30);
+			tbColumns.setFont(new Font("Tahoma", Font.PLAIN, 16));
+			tbColumns.setCellSelectionEnabled(true);
+			tbColumns.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					// Obtains the ID of the column selected from the table
+					int row = tbColumns.convertRowIndexToModel(tbColumns.getSelectedRow());
+					//int columnID = ((int)tableModelColumns.getValueAt(row, 0));
+					int rowID = (int) tableModelColumns.getValueAt(tbColumns.convertRowIndexToModel(tbColumns.getSelectedRow()), 0);
+					
+					System.err.println("ID de la columna seleccionada: " + rowID);
+				}
+			});
+		}
+		return tbColumns;
+	}
+	
+	protected class DatabaseLoaderWorker extends SwingWorker<Void, Void>
+	{		
+		@Override
+		protected Void doInBackground() throws Exception {
+			logger.log(Level.DEBUG, "Cargando tabla de bases de datos (DatabaseListPanel)");
+			Connection connection;
+
+			try {
+				connection = sqliteManager.getConnection();
+
+				Statement stmt = connection.createStatement();
+				String sqlQuery = "SELECT ID, NOMBRE AS 'Nombre de la base de datos' FROM 'BBDD' WHERE SERVIDOR = '" + getCbServers().getSelectedItem().toString() + "'";
+				logger.log(Level.DEBUG, sqlQuery);
+
+				ResultSet rs = stmt.executeQuery(sqlQuery);
+				
+				// It creates and displays the table
+				tableModelDatabases = es.uneatlantico.gdbd.util.BuildTableModel.buildTableModel(rs);
+				tbDatabases.setModel(tableModelDatabases);
+				tbDatabases.removeColumn(tbDatabases.getColumnModel().getColumn(0));
+				rs.close();
+				stmt.close();
+			} catch (Exception e) {
+				logger.log(Level.ERROR, e.getLocalizedMessage());
+			}
+			logger.log(Level.DEBUG, "Tabla de bases de datos cargada (DatabaseListPanel)");
+			return null;
+		}
+	}
 	
 	protected class TableLoaderWorker extends SwingWorker<Void, Void>
 	{
@@ -298,23 +415,15 @@ public class DatabaseNavigatorPanel extends JPanel {
 				// It creates and displays the table
 				tableModelTables = es.uneatlantico.gdbd.util.BuildTableModel.buildTableModel(rs);
 				tbTables.setModel(tableModelTables);
+				tbTables.removeColumn(tbTables.getColumnModel().getColumn(0));
+				rs.close();
+				stmt.close();
 			} catch (Exception e) {
 				logger.log(Level.ERROR, e.getLocalizedMessage());
 			}
 			logger.log(Level.DEBUG, "Tabla de bases de datos cargada (DatabaseListPanel)");
 			return null;
 		}
-	}
-	
-	private void loadTables(int databaseID) {
-		new TableLoaderWorker(databaseID).execute();    	
-    }
-	
-	private JSplitPane getSplitPaneDatabaseTables() {
-		if (spnDatabasesTables == null) {
-			spnDatabasesTables = new JSplitPane(JSplitPane.VERTICAL_SPLIT, getPnDatabases(), getPnTables());
-			spnDatabasesTables.setDividerLocation(150);
-		}
-		return spnDatabasesTables;
+		
 	}
 }
