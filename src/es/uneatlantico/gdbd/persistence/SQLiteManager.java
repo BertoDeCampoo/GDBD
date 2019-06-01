@@ -1,6 +1,7 @@
 package es.uneatlantico.gdbd.persistence;
 
 import es.uneatlantico.gdbd.entities.*;
+import es.uneatlantico.gdbd.util.Configuration;
 
 public class SQLiteManager {
 
@@ -8,7 +9,7 @@ public class SQLiteManager {
 	/**
 	 * Default name for the SQLite Database the application will use
 	 */
-	public static final String Default_Filename = "db.db";
+	public static final String Default_Filename = Configuration.getSQLiteFilename();
 	private String filename;
 
 	/**

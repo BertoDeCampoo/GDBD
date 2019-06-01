@@ -36,9 +36,8 @@ public class Application {
 	private JMenu mnDocumentation;
 	private JMenu mnHelp;
 	private JMenuItem mntmNewDatabase;
-	private JPanel pnDatabaseList;
-	private JPanel pnNavigator;
-	private JPanel pnTablesList;
+	private NavigatorPanel pnNavigator;
+	private TextEditorPanel pnEditor;
 	
 
 	/**
@@ -83,8 +82,11 @@ public class Application {
 		frmGdbd.setBounds(100, 100, 786, 925);
 		frmGdbd.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmGdbd.setJMenuBar(getMenuBar());
-//		frmGdbd.pack();
+		frmGdbd.getContentPane().setLayout(new BorderLayout(0, 0));
+		
 		frmGdbd.getContentPane().add(getPnNavigator(), BorderLayout.WEST);
+		frmGdbd.getContentPane().add(getPnEditor(), BorderLayout.CENTER);
+		frmGdbd.pack();
 	}
 
 	private JMenuBar getMenuBar() {
@@ -128,11 +130,17 @@ public class Application {
 		return mntmNewDatabase;
 	}
 	
-	private JPanel getPnNavigator() {
+	private NavigatorPanel getPnNavigator() {
 		if (pnNavigator == null) {
-			pnNavigator = new DatabaseNavigatorPanel(sqliteManager);
+			pnNavigator = new NavigatorPanel(sqliteManager);
 //			pnNavigator.setDividerLocation(150);
 		}
 		return pnNavigator;
+	}
+	private TextEditorPanel getPnEditor() {
+		if (pnEditor == null) {
+			pnEditor = new TextEditorPanel();
+		}
+		return pnEditor;
 	}
 }
