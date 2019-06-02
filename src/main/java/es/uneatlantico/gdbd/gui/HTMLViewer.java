@@ -2,36 +2,25 @@ package es.uneatlantico.gdbd.gui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JScrollPane;
-import java.awt.Dialog.ModalityType;
 import javax.swing.JEditorPane;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.awt.Toolkit;
+import javax.swing.JLabel;
+import java.awt.Font;
 
 public class HTMLViewer extends JDialog {
 
+	private static final long serialVersionUID = -8328017730576270617L;
 	private final JPanel contentPanel = new JPanel();
 	private final String text;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		try {
-			HTMLViewer dialog = new HTMLViewer("HOLA");
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
+	
 	/**
 	 * Create the dialog.
 	 */
@@ -40,9 +29,10 @@ public class HTMLViewer extends JDialog {
 		initGUI();
 	}
 	private void initGUI() {
-		setIconImage(Toolkit.getDefaultToolkit().getImage(HTMLViewer.class.getResource("/html-icon.png")));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(HTMLViewer.class.getResource("/com/sun/javafx/scene/web/skin/FontColor_16x16_JFX.png")));
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setModal(true);
-		setModalityType(ModalityType.DOCUMENT_MODAL);
+		setModalityType(ModalityType.APPLICATION_MODAL);
 		setTitle("Visor HTML");
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout());
@@ -54,9 +44,16 @@ public class HTMLViewer extends JDialog {
 			JScrollPane scrollPane = new JScrollPane();
 			contentPanel.add(scrollPane);
 			{
-				JEditorPane editorPane = new JEditorPane();
-				editorPane.setText(text);
-				scrollPane.setViewportView(editorPane);
+				JEditorPane pane=new JEditorPane();
+				pane.setFont(new Font("Consolas", Font.PLAIN, 13));
+				pane.setContentType("text/html");
+				pane.setText(text);
+				pane.setEditable(false);
+				scrollPane.setViewportView(pane);
+			}
+			{
+				JLabel lblVisorHtml = new JLabel("Visor HTML");
+				scrollPane.setColumnHeaderView(lblVisorHtml);
 			}
 		}
 		{
@@ -67,6 +64,7 @@ public class HTMLViewer extends JDialog {
 				JButton closeButton = new JButton("Cerrar");
 				closeButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						dispose();
 					}
 				});
 				closeButton.setActionCommand("Cancel");
