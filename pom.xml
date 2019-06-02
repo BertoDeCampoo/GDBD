@@ -55,5 +55,10 @@
 	    <artifactId>sqlite-jdbc</artifactId>
 	    <version>3.27.2.1</version>
 	</dependency>
+	<dependency>
+	    <groupId>net.sf.jasperreports</groupId>
+	    <artifactId>jasperreports</artifactId>
+	    <version>6.8.1</version>
+	</dependency>	
   </dependencies>
 </project>
