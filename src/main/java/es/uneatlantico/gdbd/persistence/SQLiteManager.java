@@ -393,4 +393,19 @@ public class SQLiteManager {
 		}
 		return tableModelColumns;
 	}
+	
+	public String getDatabaseDescription(int databaseID)
+	{
+		return "Prueba de BBDD. Editando ID " + databaseID;
+	}
+	
+	public String getTableDescription(int tableID)
+	{
+		return "Prueba de tabla. Editando ID " + tableID;
+	}
+	
+	public String getColumnDescription(int columnID)
+	{
+		return "Prueba de columna. Editando ID " + columnID;
+	}
 }

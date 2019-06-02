@@ -31,6 +31,7 @@ public class NavigatorPanel extends JPanel {
 	private static final long serialVersionUID = -7988855004314830937L;
 
 	private SQLiteManager sqliteManager;
+	private TextEditorPanel textEditorPanel;
 	
 	// Swing components
 	private JPanel pnServers, pnServer, pnDatabases, pnTables, pnColumns;
@@ -46,8 +47,9 @@ public class NavigatorPanel extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	public NavigatorPanel(SQLiteManager sqliteManager) {
+	public NavigatorPanel(SQLiteManager sqliteManager, TextEditorPanel textEditorPanel) {
 		this.sqliteManager = sqliteManager;
+		this.textEditorPanel = textEditorPanel;
 		initGUI();
 	}
 	private void initGUI() {
@@ -115,24 +117,6 @@ public class NavigatorPanel extends JPanel {
 		return cbServers;
 	}
 	
-	private void loadServers()
-	{
-		new SwingWorker<Void, Void>() {
-            @Override
-            protected Void doInBackground() throws Exception {
-            	// Loads the servers on the combo box of servers
-            	NavigatorPanel.this.getBtnRefreshservers().setEnabled(false);
-            	cModelServers = new DefaultComboBoxModel<String>(sqliteManager.getServers().toArray(new String[0]));
-            	cbServers.setModel(cModelServers);
-    			cbServers.setPrototypeDisplayValue("XXXXXXXXXXXXXXXXXXXXXXXXXXX");
-            	
-            	NavigatorPanel.this.getBtnRefreshservers().setEnabled(true);
-            	NavigatorPanel.this.loadDatabases(getCbServers().getSelectedItem().toString());
-                return null;
-            }
-        }.execute();
-	}
-	
 	private JButton getBtnRefreshservers() {
 		if (btnRefreshservers == null) {
 			btnRefreshservers = new JButton("");
@@ -198,28 +182,23 @@ public class NavigatorPanel extends JPanel {
 		{
 			tbDatabases = new JTable(tableModelDatabases);
 			tbDatabases.getTableHeader().setReorderingAllowed(false);
-			tbDatabases.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					if (e.getClickCount() == 2) {
-						e.consume();
-						System.out.println("double clicked");
-					}
-					// Obtains the ID of the database selected from the table
-					//int row = tbDatabases.convertRowIndexToModel(tbDatabases.getSelectedRow());
-					//int databaseID = ((int)tableModelDatabases.getValueAt(row, 0));
-					int databaseID = (int) tableModelDatabases.getValueAt(tbDatabases.convertRowIndexToModel(tbDatabases.getSelectedRow()), 0);
-					
-					NavigatorPanel.this.loadTables(databaseID);
-					System.err.println("ID de la BBDD seleccionada: " + databaseID);
-				}
-			});
 			tbDatabases.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			tbDatabases.setShowVerticalLines(false);
 			tbDatabases.getTableHeader().setFont(new Font("Tahoma", Font.PLAIN, 16));
 			tbDatabases.setRowHeight(30);
 			tbDatabases.setFont(new Font("Tahoma", Font.PLAIN, 16));
 			tbDatabases.setCellSelectionEnabled(true);
+			tbDatabases.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					// Obtains the ID of the database selected from the table
+					int databaseID = (int) tableModelDatabases.getValueAt(tbDatabases.convertRowIndexToModel(tbDatabases.getSelectedRow()), 0);
+					
+					NavigatorPanel.this.loadTables(databaseID);
+					System.err.println("ID de la BBDD seleccionada: " + databaseID);
+					textEditorPanel.editDatabase(databaseID);
+				}
+			});
 		}
 		return tbDatabases;
 	}
@@ -256,8 +235,13 @@ public class NavigatorPanel extends JPanel {
 					int tableID = (int) tableModelTables.getValueAt(tbTables.convertRowIndexToModel(tbTables.getSelectedRow()), 0);
 					System.out.println("id del modelo: " + tableID);
 					
+					// Clear columns
+			 		DefaultTableModel dm = (DefaultTableModel)getTbColumns().getModel();
+			 		dm.getDataVector().removeAllElements();
+			 		dm.fireTableDataChanged();
 					NavigatorPanel.this.loadColumns(tableID);
 					System.err.println("ID de la tabla seleccionada: " + tableID);
+					textEditorPanel.editTable(tableID);
 				}
 			});
 		}
@@ -294,18 +278,33 @@ public class NavigatorPanel extends JPanel {
 					int rowID = (int) tableModelColumns.getValueAt(tbColumns.convertRowIndexToModel(tbColumns.getSelectedRow()), 0);
 					
 					System.err.println("ID de la columna seleccionada: " + rowID);
+					textEditorPanel.editColumn(rowID);
 				}
 			});
 		}
 		return tbColumns;
 	}
 	
-	
-	
-	
-	
-	
 	///////////////////// LOGICA
+
+	private void loadServers()
+	{
+		new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+            	// Loads the servers on the combo box of servers
+            	NavigatorPanel.this.getBtnRefreshservers().setEnabled(false);
+            	cModelServers = new DefaultComboBoxModel<String>(sqliteManager.getServers().toArray(new String[0]));
+            	cbServers.setModel(cModelServers);
+    			cbServers.setPrototypeDisplayValue("XXXXXXXXXXXXXXXXXXX");
+            	
+            	NavigatorPanel.this.getBtnRefreshservers().setEnabled(true);
+            	NavigatorPanel.this.loadDatabases(getCbServers().getSelectedItem().toString());
+                return null;
+            }
+        }.execute();
+	}
+	
 	private void loadDatabases(String server)
 	{
 		new SwingWorker<Void, Void>() {
