@@ -85,9 +85,10 @@ public class SQLiteManager {
         	conn = getConnection();
             if (conn != null) {
                 DatabaseMetaData meta = conn.getMetaData();
-                System.out.println("The driver name is " + meta.getDriverName());
+                logger.log(Level.INFO, "Modelo de persistencia: Base de datos SQLite");
+                logger.log(Level.INFO, "Nombre del driver a utilizar: " + meta.getDriverName());
+                logger.log(Level.INFO, getDatabaseUrl());
                 
-                System.out.println(getDatabaseUrl());
                 stmt = conn.createStatement();
 
                 StringBuilder sql = new StringBuilder();
@@ -120,7 +121,8 @@ public class SQLiteManager {
                 stmt.executeUpdate(sql.toString());
                 
                 stmt.close();
-                System.out.println("SQLite database created successfully!");
+                
+                logger.log(Level.INFO, "Base de datos inicializada con éxito");
 
                 conn.close();
             }
@@ -170,79 +172,70 @@ public class SQLiteManager {
 		{
 			createTable(table, nextAvailableID);
 		}
-        
 	}
 	
 	/**
 	 * Auxiliar function to add a new table entity on the SQLite database
 	 * @param table  table to add (Metadata)
 	 * @param ID_BBDD  database parent of this table
+	 * @throws SQLException  if the table can't be created
 	 */
-	private void createTable(Table table, int ID_BBDD)
+	private void createTable(Table table, int ID_BBDD) throws SQLException
 	{
 		Connection connection;
 		int nextAvailableID = 0;
-		String sql;
 		
-		try  {
-        	connection = DriverManager.getConnection(getDatabaseUrl());
-        	// Obtain next free ID for TABLAS
-        	nextAvailableID = getNextAvailableID("TABLAS");
-        				
-			sql = "INSERT INTO TABLAS (ID,NOMBRE,ID_BBDD) VALUES(?,?,?)";
-        	
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-            
-            pstmt.setInt(1, nextAvailableID);
-            pstmt.setString(2, table.getNombre());
-            pstmt.setInt(3, ID_BBDD);
-            pstmt.executeUpdate();
-            
-            pstmt.close();
-            connection.close();
-            
-            // for each column on the table, add it to the SQLite database
-			for (Column column : table.getColumns())
-			{
-				createColumn(column, nextAvailableID);
-			}
-        } catch (SQLException e) {
-            System.err.println(e.getMessage());
-        }
+    	connection = DriverManager.getConnection(getDatabaseUrl());
+    	// Obtain next free ID for TABLAS
+    	nextAvailableID = getNextAvailableID("TABLAS");
+    				
+    	String sql = "INSERT INTO TABLAS (ID,NOMBRE,ID_BBDD) VALUES(?,?,?)";
+    	
+        PreparedStatement pstmt = connection.prepareStatement(sql);
+        
+        pstmt.setInt(1, nextAvailableID);
+        pstmt.setString(2, table.getNombre());
+        pstmt.setInt(3, ID_BBDD);
+        pstmt.executeUpdate();
+        
+        pstmt.close();
+        connection.close();
+        
+        // for each column on the table, add it to the SQLite database
+		for (Column column : table.getColumns())
+		{
+			createColumn(column, nextAvailableID);
+		}
 	}
 	
 	/**
 	 * Auxiliar function to add a new column entity on the SQLite database 
 	 * @param column  column to add
 	 * @param ID_TABLA  ID of the parent table of this column
+	 * @throws SQLException if the column can't be created 
 	 */
-	private void createColumn(Column column, int ID_TABLA)
+	private void createColumn(Column column, int ID_TABLA) throws SQLException
 	{
 		Connection connection;
 		int nextID = 0;
-		String sql;
-		
-		try  {
-        	connection = DriverManager.getConnection(getDatabaseUrl());
-        	// Obtain last ID used on the database
-        	nextID = getNextAvailableID("COLUMNAS");
-						
-			sql = "INSERT INTO COLUMNAS (ID,NOMBRE,TIPO_DATO,TAM_DATO,ID_TABLA) VALUES(?,?,?,?,?)";
-        	
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-            
-            pstmt.setInt(1, nextID);
-            pstmt.setString(2, column.getNombre());
-            pstmt.setString(3, column.getTipo_dato());
-            pstmt.setInt(4, column.getTam_dato());
-            pstmt.setInt(5, ID_TABLA);
-            pstmt.executeUpdate();
-            
-            pstmt.close();
-            connection.close();
-        } catch (SQLException e) {
-            System.err.println(e.getMessage());
-        }
+	
+    	connection = DriverManager.getConnection(getDatabaseUrl());
+    	// Obtain last ID used on the database
+    	nextID = getNextAvailableID("COLUMNAS");
+					
+    	String sql = "INSERT INTO COLUMNAS (ID,NOMBRE,TIPO_DATO,TAM_DATO,ID_TABLA) VALUES(?,?,?,?,?)";
+    	
+        PreparedStatement pstmt = connection.prepareStatement(sql);
+        
+        pstmt.setInt(1, nextID);
+        pstmt.setString(2, column.getNombre());
+        pstmt.setString(3, column.getTipo_dato());
+        pstmt.setInt(4, column.getTam_dato());
+        pstmt.setInt(5, ID_TABLA);
+        pstmt.executeUpdate();
+        
+        pstmt.close();
+        connection.close();
 	}
 	
 	/**
@@ -252,9 +245,9 @@ public class SQLiteManager {
 	 */
 	private int getNextAvailableID(String tableName)
 	{
-		Connection connection;
-		Statement stmt;
-		int lastID = 0;
+		Connection connection = null;
+		Statement stmt = null;
+		int lastID = 1;
 		String sql;
 		
     	try {
@@ -267,12 +260,21 @@ public class SQLiteManager {
 			
 			while (rs.next()) {
 				lastID = Integer.parseInt(rs.getString(1));
-			}				
-			stmt.close();
+			}
 			lastID++;
-			connection.close();
 		} catch (SQLException e) {
-			System.err.println(e.getMessage());
+			logger.log(Level.ERROR, e.getLocalizedMessage());
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (stmt != null) {
+					stmt.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
 		}
     	return lastID;
 	}
@@ -285,8 +287,8 @@ public class SQLiteManager {
 	{
 		List<String> servers = new ArrayList<String>();
 		
-		Connection connection;
-		Statement stmt;
+		Connection connection = null;
+		Statement stmt = null;
 		try {
     		connection = this.getConnection();
             
@@ -297,10 +299,19 @@ public class SQLiteManager {
             {
             	servers.add(rs.getString(1));
             }
-			stmt.close();
-			connection.close();
 		} catch (SQLException e) {
-			System.err.println(e.getMessage());
+			logger.log(Level.ERROR, e.getLocalizedMessage());
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (stmt != null) {
+					stmt.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
 		}
     	return servers;
 	}
@@ -312,7 +323,8 @@ public class SQLiteManager {
 	 */
 	public DefaultTableModel getDatabases(String server)
 	{
-		Connection connection;
+		Connection connection = null;
+		ResultSet rs = null;
 		DefaultTableModel tableModelDatabases;
 
 		try {
@@ -321,15 +333,24 @@ public class SQLiteManager {
 			Statement stmt = connection.createStatement();
 			String sqlQuery = "SELECT ID, NOMBRE AS 'Nombre de la base de datos' FROM 'BBDD' WHERE SERVIDOR = '" + server + "'";
 			
-			ResultSet rs = stmt.executeQuery(sqlQuery);
+			rs = stmt.executeQuery(sqlQuery);
 			
 			// It creates and displays the table
 			tableModelDatabases = es.uneatlantico.gdbd.util.BuildTableModel.buildTableModel(rs);
-			rs.close();
-			stmt.close();
 		} catch (Exception e) {
 			tableModelDatabases = new DefaultTableModel();
 			logger.log(Level.ERROR, e.getLocalizedMessage());
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (rs != null) {
+					rs.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
 		}
 		return tableModelDatabases;
 	}
@@ -341,7 +362,8 @@ public class SQLiteManager {
 	 */
 	public DefaultTableModel getTables(int databaseID)
 	{
-		Connection connection;
+		Connection connection = null;
+		ResultSet rs = null;
 		DefaultTableModel tableModelTables;
 
 		try {
@@ -350,16 +372,24 @@ public class SQLiteManager {
 			String sqlQuery = "SELECT ID, NOMBRE AS 'Nombre de la tabla' FROM TABLAS WHERE ID_BBDD = '" + databaseID + "'";
 			logger.log(Level.DEBUG, sqlQuery);
 
-			ResultSet rs = stmt.executeQuery(sqlQuery);
+			rs = stmt.executeQuery(sqlQuery);
 
 			// It creates and displays the table
 			tableModelTables = es.uneatlantico.gdbd.util.BuildTableModel.buildTableModel(rs);
-			
-			rs.close();
-			stmt.close();
 		} catch (Exception e) {
 			tableModelTables = new DefaultTableModel();
 			logger.log(Level.ERROR, e.getLocalizedMessage());
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (rs != null) {
+					rs.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
 		}
 		return tableModelTables;
 	}
@@ -371,7 +401,8 @@ public class SQLiteManager {
 	 */
 	public DefaultTableModel getColumns(int tableID)
 	{
-		Connection connection;
+		Connection connection = null;
+		ResultSet rs = null;
 		DefaultTableModel tableModelColumns;
 		
 		try {
@@ -380,32 +411,340 @@ public class SQLiteManager {
 			String sqlQuery = "SELECT ID, NOMBRE AS 'Nombre de la columna' FROM COLUMNAS WHERE ID_TABLA = '" + tableID + "'";
 			logger.log(Level.DEBUG, sqlQuery);
 
-			ResultSet rs = stmt.executeQuery(sqlQuery);
+			rs = stmt.executeQuery(sqlQuery);
 
 			// It creates and displays the table
 			tableModelColumns = es.uneatlantico.gdbd.util.BuildTableModel.buildTableModel(rs);
-			
-			rs.close();
-			stmt.close();
 		} catch (Exception e) {
 			tableModelColumns = new DefaultTableModel();
 			logger.log(Level.ERROR, e.getLocalizedMessage());
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (rs != null) {
+					rs.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
 		}
 		return tableModelColumns;
 	}
 	
+	/**
+	 * Obtains the description of the given database as specified by the user
+	 * @param databaseID  ID of the database
+	 * @return  the description of the database
+	 */
 	public String getDatabaseDescription(int databaseID)
 	{
-		return "Prueba de BBDD. Editando ID " + databaseID;
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		String description = "";
+		try {
+			String sql = "SELECT DESCRIPCION FROM 'BBDD' WHERE ID = ?";
+			
+			connection = this.getConnection();
+            pstmt = connection.prepareStatement(sql);
+            
+            pstmt.setInt(1, databaseID);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+            	description = rs.getString("DESCRIPCION");
+            }
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, e.getLocalizedMessage());
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (pstmt != null) {
+					pstmt.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
+		}
+    	return description;
 	}
 	
+	/**
+	 * Obtains the description of the given table as specified by the user
+	 * @param tableID  ID of the table
+	 * @return  the description of the table
+	 */
 	public String getTableDescription(int tableID)
 	{
-		return "Prueba de tabla. Editando ID " + tableID;
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		String description = "";
+		try {
+			String sql = "SELECT DESCRIPCION FROM 'TABLAS' WHERE ID = ?";
+			
+			connection = this.getConnection();
+            pstmt = connection.prepareStatement(sql);
+            
+            pstmt.setInt(1, tableID);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+            	description = rs.getString("DESCRIPCION");
+            }
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, e.getLocalizedMessage());
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (pstmt != null) {
+					pstmt.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
+		}
+		return description;
 	}
 	
+	/**
+	 * Obtains the description given by the user to the selected column
+	 * @param columnID  ID of the column
+	 * @return  the description of the column
+	 */
 	public String getColumnDescription(int columnID)
 	{
-		return "Prueba de columna. Editando ID " + columnID;
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		String description = "";
+		try {
+			String sql = "SELECT DESCRIPCION FROM 'COLUMNAS' WHERE ID = ?";
+			
+			connection = this.getConnection();
+            pstmt = connection.prepareStatement(sql);
+            
+            pstmt.setInt(1, columnID);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+            	description = rs.getString("DESCRIPCION");
+            }
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, e.getLocalizedMessage());
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (pstmt != null) {
+					pstmt.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
+		}
+		return description;
+	}
+	
+	/**
+	 * Obtains the name of the given database ID
+	 * @param tableID  ID of the database
+	 * @return  the name of the database
+	 */
+	public String getDatabaseName(int databaseID)
+	{
+		String databaseName = "";
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		try {
+			String sql = "SELECT NOMBRE FROM 'BBDD' WHERE ID = ?";
+			
+			connection = this.getConnection();
+            pstmt = connection.prepareStatement(sql);
+            
+            pstmt.setInt(1, databaseID);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+            	databaseName = rs.getString("NOMBRE");
+            }
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, e.getLocalizedMessage());
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (pstmt != null) {
+					pstmt.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
+		}
+		
+		return databaseName;
+	}
+	
+	/**
+	 * Obtains the name of the given table ID
+	 * @param tableID  ID of the table
+	 * @return  the name of the table
+	 */
+	public String getTableName(int tableID)
+	{
+		String tableName = "";
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		try {
+			String sql = "SELECT NOMBRE FROM 'TABLAS' WHERE ID = ?";
+			
+			connection = this.getConnection();
+            pstmt = connection.prepareStatement(sql);
+            
+            pstmt.setInt(1, tableID);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+            	tableName = rs.getString("NOMBRE");
+            }
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, e.getLocalizedMessage());
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (pstmt != null) {
+					pstmt.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
+		}
+		
+		return tableName;
+	}
+	
+	/**
+	 * Obtains the name of the given column ID
+	 * @param columnID  ID of the column
+	 * @return  the name of the column
+	 */
+	public String getColumnName(int columnID)
+	{
+		String columnName = "";
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		try {
+			String sql = "SELECT NOMBRE FROM 'COLUMNAS' WHERE ID = ?";
+			
+			connection = this.getConnection();
+            pstmt = connection.prepareStatement(sql);
+            
+            pstmt.setInt(1, columnID);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+            	columnName = rs.getString("NOMBRE");
+            }
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, e.getLocalizedMessage());
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (pstmt != null) {
+					pstmt.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
+		}
+		
+		return columnName;
+	}
+	
+	public void changeDatabaseDescription(int databaseID, String newDescription) throws SQLException
+	{
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		try {
+			connection = this.getConnection();
+			pstmt = connection.prepareStatement("UPDATE 'BBDD' SET 'DESCRIPCION' = ? WHERE ID = ?");  
+			
+			pstmt.setString(1, newDescription);
+			pstmt.setInt(2,databaseID);
+			
+			pstmt.executeUpdate();
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (pstmt != null) {
+					pstmt.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
+		}
+	}
+	
+	public void changeTableDescription(int tableID, String newDescription) throws SQLException
+	{
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		try {
+			connection = this.getConnection();
+			pstmt = connection.prepareStatement("UPDATE 'TABLAS' SET 'DESCRIPCION' = ? WHERE ID = ?");  
+			
+			pstmt.setString(1, newDescription);
+			pstmt.setInt(2,tableID);
+			
+			pstmt.executeUpdate();
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (pstmt != null) {
+					pstmt.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
+		}
+	}
+	
+	public void changeColumnDescription(int columnID, String newDescription) throws SQLException
+	{
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		try {
+			connection = this.getConnection();
+			pstmt = connection.prepareStatement("UPDATE 'COLUMNAS' SET 'DESCRIPCION' = ? WHERE ID = ?");  
+			
+			pstmt.setString(1, newDescription);
+			pstmt.setInt(2,columnID);
+			
+			pstmt.executeUpdate();
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (pstmt != null) {
+					pstmt.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
+		}
 	}
 }
