@@ -28,6 +28,7 @@ public class Application {
 	private JMenuItem mntmNewDatabase;
 	private NavigatorPanel pnNavigator;
 	private TextEditorPanel pnEditor;	
+	private JMenuItem mntmExportarAArchivo;
 
 	/**
 	 * Launch the application.
@@ -99,6 +100,7 @@ public class Application {
 		if (mnDocumentation == null) {
 			mnDocumentation = new JMenu("Documentaci\u00F3n");
 			mnDocumentation.add(getMntmNewDatabase());
+			mnDocumentation.add(getMntmExportarAArchivo());
 		}
 		return mnDocumentation;
 	}
@@ -119,6 +121,19 @@ public class Application {
 			});
 		}
 		return mntmNewDatabase;
+	}
+	
+	private JMenuItem getMntmExportarAArchivo() {
+		if (mntmExportarAArchivo == null) {
+			mntmExportarAArchivo = new JMenuItem("Exportar a archivo...");
+			mntmExportarAArchivo.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg) {
+					ExportReportDialog exportDialog = new ExportReportDialog(Application.this.sqliteManager);
+					exportDialog.setVisible(true);
+				}
+			});
+		}
+		return mntmExportarAArchivo;
 	}
 	
 	private NavigatorPanel getPnNavigator() {

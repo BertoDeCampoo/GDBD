@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 6.8.0-2ed8dfabb690ff337a5797129f2cd92902b0c87b  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ReportTFG" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a8effad0-0d23-4834-8e4d-4f445cd6ec2b">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="479"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="521"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT BBDD.ID AS "ID BBDD", BBDD.NOMBRE AS "NOMBRE BASE DE DATOS", BBDD.DESCRIPCION AS "DESCRIPCION BASE DE DATOS", 
+	BBDD.SERVIDOR AS "SERVIDOR", BBDD.TIPO AS "TIPO BBDD",
+	COLUMNAS.ID AS "ID COLUMNA", COLUMNAS.NOMBRE AS "NOMBRE DE COLUMNA", 
+	COLUMNAS.TIPO_DATO AS "TIPO DE DATO", COLUMNAS.TAM_DATO AS "TAMAÑO DE DATO", 
+		COLUMNAS.DESCRIPCION AS "DESCRIPCION DE COLUMNA",
+	TABLAS.ID AS "ID TABLA", TABLAS.NOMBRE AS "NOMBRE DE TABLA", TABLAS.DESCRIPCION AS "DESCRIPCION DE TABLA"
+ FROM BBDD, COLUMNAS, TABLAS
+ WHERE (BBDD.ID = TABLAS.ID_BBDD AND TABLAS.ID = COLUMNAS.ID_TABLA)]]>
+	</queryString>
+	<field name="ID BBDD" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.label" value="ID BBDD"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="BBDD"/>
+	</field>
+	<field name="NOMBRE BASE DE DATOS" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.label" value="NOMBRE BASE DE DATOS"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="BBDD"/>
+	</field>
+	<field name="DESCRIPCION BASE DE DATOS" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.label" value="DESCRIPCION BASE DE DATOS"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="BBDD"/>
+	</field>
+	<field name="SERVIDOR" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.label" value="SERVIDOR"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="BBDD"/>
+	</field>
+	<field name="TIPO BBDD" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.label" value="TIPO BBDD"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="BBDD"/>
+	</field>
+	<field name="ID COLUMNA" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.label" value="ID COLUMNA"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="COLUMNAS"/>
+	</field>
+	<field name="NOMBRE DE COLUMNA" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.label" value="NOMBRE DE COLUMNA"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="COLUMNAS"/>
+	</field>
+	<field name="TIPO DE DATO" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.label" value="TIPO DE DATO"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="COLUMNAS"/>
+	</field>
+	<field name="TAMAÑO DE DATO" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.label" value="TAMAÑO DE DATO"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="COLUMNAS"/>
+	</field>
+	<field name="DESCRIPCION DE COLUMNA" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.label" value="DESCRIPCION DE COLUMNA"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="COLUMNAS"/>
+	</field>
+	<field name="ID TABLA" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.label" value="ID TABLA"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="TABLAS"/>
+	</field>
+	<field name="NOMBRE DE TABLA" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.label" value="NOMBRE DE TABLA"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="TABLAS"/>
+	</field>
+	<field name="DESCRIPCION DE TABLA" class="java.lang.Object">
+		<property name="com.jaspersoft.studio.field.label" value="DESCRIPCION DE TABLA"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="TABLAS"/>
+	</field>
+	<group name="Servidor" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{SERVIDOR}]]></groupExpression>
+		<groupHeader>
+			<band height="32">
+				<textField>
+					<reportElement mode="Opaque" x="0" y="0" width="555" height="32" forecolor="#006699" backcolor="#E6E6E6" uuid="2f33a802-777d-486c-8cc2-9a2822d6adae"/>
+					<textElement>
+						<font size="24" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Servidor: " + $F{SERVIDOR}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="29"/>
+		</groupFooter>
+	</group>
+	<group name="Bases de datos" isReprintHeaderOnEachPage="true">
+		<groupExpression><![CDATA[$F{ID BBDD}]]></groupExpression>
+		<groupHeader>
+			<band height="43">
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="10" y="10" width="536" height="32" forecolor="#006699" uuid="0d10b9c2-aae0-4392-b9a9-2983769bee9f">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="657aa317-d1b9-4268-b7c9-24e187dbcd5e"/>
+					</reportElement>
+					<textElement verticalAlignment="Bottom">
+						<font size="18" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Base de Datos: " + $F{NOMBRE BASE DE DATOS}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<group name="Bases de datos informacion">
+		<groupExpression><![CDATA[$F{ID BBDD}]]></groupExpression>
+		<groupHeader>
+			<band height="50">
+				<textField isStretchWithOverflow="true">
+					<reportElement x="10" y="0" width="360" height="20" uuid="9fe84bb2-e2d5-49b4-9c3b-f39abaf17b69">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="65eeb09d-4b08-43ff-8256-9531dbfe7ec8"/>
+					</reportElement>
+					<textElement>
+						<font size="14" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Tipo de base de datos: " + $F{TIPO BBDD}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="10" y="30" width="545" height="20" uuid="14cb5109-1537-4cde-bbd3-1c019ad3f80c">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="cdfa83e2-4d54-40ac-9bbb-2807ceab8368"/>
+					</reportElement>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{DESCRIPCION BASE DE DATOS}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<group name="Tablas">
+		<groupExpression><![CDATA[$F{ID TABLA}]]></groupExpression>
+		<groupHeader>
+			<band height="70">
+				<textField isBlankWhenNull="true">
+					<reportElement mode="Transparent" x="20" y="0" width="520" height="30" forecolor="#006699" backcolor="#FFFFFF" uuid="c459c1d1-db3d-476b-9d96-3d17afb34fe0">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="a5028347-4ea4-4774-8c96-13a0a1081c5b"/>
+					</reportElement>
+					<textElement verticalAlignment="Bottom">
+						<font size="16" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Tabla: " + $F{NOMBRE DE TABLA}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="19" y="40" width="520" height="20" isRemoveLineWhenBlank="true" uuid="52adbbe8-533d-4a9d-b5aa-6698460c4f01">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="410ae980-0507-41a7-b1ff-230f77521feb"/>
+					</reportElement>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{DESCRIPCION DE TABLA}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<group name="Columnas" keepTogether="true">
+		<groupExpression><![CDATA[$F{ID COLUMNA}]]></groupExpression>
+		<groupHeader>
+			<band height="80">
+				<textField isBlankWhenNull="true">
+					<reportElement key="" x="30" y="0" width="499" height="20" forecolor="#006699" uuid="590bdce5-7538-41c4-af95-1bc45331a86f"/>
+					<textElement verticalAlignment="Bottom">
+						<font size="14" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Columna: " + $F{NOMBRE DE COLUMNA}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="140" y="20" width="170" height="20" uuid="f413c488-5062-4c66-ab14-9dd2cc364df8">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="7cb85b63-0076-4cd1-8aa7-9194fd0c0db5"/>
+					</reportElement>
+					<textElement verticalAlignment="Bottom">
+						<font size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{TIPO DE DATO} + "(" + $F{TAMAÑO DE DATO} + ")"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="30" y="50" width="499" height="19" uuid="27180c5b-ce80-448c-9933-76404263832d">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="cf54b4f4-dbb6-42a8-8628-e0a672fb8213"/>
+					</reportElement>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{DESCRIPCION DE COLUMNA}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="40" y="20" width="100" height="20" forecolor="#666666" uuid="fe8da90e-e6c8-48da-af5a-716429123e38"/>
+					<textElement verticalAlignment="Bottom">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Tipo de dato:]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<background>
+		<band/>
+	</background>
+	<title>
+		<band height="72">
+			<frame>
+				<reportElement mode="Opaque" x="-20" y="-20" width="595" height="92" backcolor="#006699" uuid="c0c34b04-9ccd-4594-ac3b-728e76cec180"/>
+				<staticText>
+					<reportElement x="20" y="20" width="374" height="43" forecolor="#FFFFFF" uuid="4f78770d-46ad-4b39-8956-6e8d8dc0fc59"/>
+					<textElement>
+						<font size="26" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Catálogo de base de datos]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="395" y="43" width="180" height="20" forecolor="#FFFFFF" uuid="e7d5ed52-b3af-4ed1-bab2-2a6fa5f42209"/>
+					<textElement textAlignment="Right">
+						<font size="14" isBold="false"/>
+					</textElement>
+					<text><![CDATA[GDBD - Alberto Gutiérrez]]></text>
+				</staticText>
+			</frame>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="13"/>
+	</pageHeader>
+	<columnFooter>
+		<band/>
+	</columnFooter>
+	<pageFooter>
+		<band height="17">
+			<textField>
+				<reportElement mode="Opaque" x="0" y="4" width="515" height="13" backcolor="#E6E6E6" uuid="36c28cbd-e86d-4e91-b0a3-23579c354687"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement mode="Opaque" x="515" y="4" width="40" height="13" backcolor="#E6E6E6" uuid="69b2bb8f-1738-4591-a629-15f42b9caa5b"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="EEEEE dd MMMMM yyyy">
+				<reportElement x="0" y="4" width="100" height="13" uuid="60a888df-f5b5-4ec1-a0c9-fd7e4e3d68dc"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band/>
+	</summary>
+</jasperReport>
