@@ -332,6 +332,10 @@ public class NavigatorPanel extends JPanel {
 		new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() throws Exception {
+            	// Clear columns
+		 		DefaultTableModel dm = (DefaultTableModel)getTbColumns().getModel();
+		 		dm.getDataVector().removeAllElements();
+		 		dm.fireTableDataChanged();
             	tableModelTables = sqliteManager.getTables(databaseID);
             	tbTables.setModel(tableModelTables);
         		tbTables.removeColumn(tbTables.getColumnModel().getColumn(0));
