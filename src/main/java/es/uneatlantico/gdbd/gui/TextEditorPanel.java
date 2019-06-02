@@ -5,15 +5,12 @@ import javax.swing.undo.UndoManager;
 
 import es.uneatlantico.gdbd.persistence.SQLiteManager;
 
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import java.awt.BorderLayout;
-import java.awt.Panel;
-import java.awt.Button;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -21,9 +18,6 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
-import java.awt.FlowLayout;
-import javax.swing.JEditorPane;
-import java.awt.GridLayout;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -39,6 +33,7 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 	 * ID of the current element under edition (Example: ID of the database, ID of the table or ID of the column)
 	 */
 	private int currentID;
+	private String currentElementType;
 	private String currentText = "";
 	private boolean elementModified = false;
 	private UndoManager undoManager = new UndoManager();
@@ -96,6 +91,34 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 	private JButton getBtnSave() {
 		if (btnSave == null) {
 			btnSave = new JButton("", new ImageIcon(TextEditorPanel.class.getResource("/com/sun/java/swing/plaf/windows/icons/FloppyDrive.gif")));
+			btnSave.setEnabled(false);
+			btnSave.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					try {
+						if (currentElementType.equals("BBDD"))
+						{
+							TextEditorPanel.this.sqliteManager.changeDatabaseDescription(currentID, TextEditorPanel.this.getTxtEditor().getText());
+						}
+						else if (currentElementType.equals("TABLA"))
+						{
+							TextEditorPanel.this.sqliteManager.changeTableDescription(currentID, TextEditorPanel.this.getTxtEditor().getText());
+						}
+						else if (currentElementType.equals("COLUMNA"))
+						{
+							TextEditorPanel.this.sqliteManager.changeColumnDescription(currentID, TextEditorPanel.this.getTxtEditor().getText());
+						}
+						else
+							return;
+					} catch (Exception spanishInquisition) {
+						JOptionPane.showMessageDialog(TextEditorPanel.this, spanishInquisition.getLocalizedMessage(), "No se puede actualizar la descripción", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					
+					getBtnSave().setEnabled(false);
+					TextEditorPanel.this.elementModified = false;
+					JOptionPane.showMessageDialog(TextEditorPanel.this, "Se ha actualizado la descripción del elemento seleccionado", "Descripción actualizada", JOptionPane.INFORMATION_MESSAGE);
+				}
+			});
 		}
 		return btnSave;
 	}
@@ -147,12 +170,14 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 	private JLabel getLblEditorDeDocumentacin() {
 		if (lblEditorDeDocumentacin == null) {
 			lblEditorDeDocumentacin = new JLabel("Editando: ");
+			lblEditorDeDocumentacin.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		}
 		return lblEditorDeDocumentacin;
 	}
 	private JButton getBtnVisorHtml() {
 		if (btnVisorHtml == null) {
 			btnVisorHtml = new JButton("Visor HTML");
+			btnVisorHtml.setEnabled(false);
 			btnVisorHtml.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					// Load the HTML viewer
@@ -176,6 +201,7 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 	private JLabel getLblCurrentElement() {
 		if (lblCurrentElement == null) {
 			lblCurrentElement = new JLabel("<No se ha seleccionado ning\u00FAn elemento>");
+			lblCurrentElement.setFont(new Font("Tahoma", Font.ITALIC, 15));
 		}
 		return lblCurrentElement;
 	}
@@ -191,6 +217,9 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 		{
 			newText = sqliteManager.getDatabaseDescription(databaseID);
 			this.currentText = newText;
+			this.currentElementType = "BBDD";
+			this.currentID = databaseID;
+			getLblCurrentElement().setText("Base de datos '" + sqliteManager.getDatabaseName(databaseID) + "'");
 		}
 		else 
 		{
@@ -199,7 +228,6 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 		
 		getTxtEditor().setText(newText);
 		changeSelectedElement();
-		
 	}
 	
 	public void editTable(int tableID)
@@ -210,6 +238,9 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 		{
 			newText = sqliteManager.getTableDescription(tableID);
 			this.currentText = newText;
+			this.currentElementType = "TABLA";
+			this.currentID = tableID;
+			getLblCurrentElement().setText("Tabla '" + sqliteManager.getTableName(tableID) + "'");
 		}
 		else
 		{
@@ -228,6 +259,9 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 		{
 			newText = sqliteManager.getColumnDescription(columnID);
 			this.currentText = newText;
+			this.currentElementType = "COLUMNA";
+			this.currentID = columnID;
+			getLblCurrentElement().setText("Columna '" + sqliteManager.getColumnName(columnID) + "'");
 		}
 		else 
 		{
@@ -264,6 +298,8 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 		undoManager.discardAllEdits();
 		getBtnUndo().setEnabled(false);
 		getBtnRedo().setEnabled(false);
+		getBtnSave().setEnabled(false);
+		getBtnVisorHtml().setEnabled(getTxtEditor().getText().length()>0);
 	}
 
 	@Override
@@ -271,6 +307,9 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 		this.elementModified = true;
 		getBtnUndo().setEnabled(true);
 		getBtnRedo().setEnabled(true);
+		getBtnSave().setEnabled(true);
+		System.out.println("changed");
+		getBtnVisorHtml().setEnabled(getTxtEditor().getText().length()>0);
 	}
 
 	@Override
@@ -278,6 +317,9 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 		this.elementModified = true;
 		getBtnUndo().setEnabled(true);
 		getBtnRedo().setEnabled(true);
+		getBtnSave().setEnabled(true);
+		System.out.println("insert");
+		getBtnVisorHtml().setEnabled(getTxtEditor().getText().length()>0);
 	}
 
 	@Override
@@ -285,5 +327,8 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 		this.elementModified = true;
 		getBtnUndo().setEnabled(true);
 		getBtnRedo().setEnabled(true);
+		getBtnSave().setEnabled(true);
+		System.out.println("remove");
+		getBtnVisorHtml().setEnabled(getTxtEditor().getText().length()>0);
 	}
 }
