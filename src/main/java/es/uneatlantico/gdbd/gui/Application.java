@@ -13,19 +13,9 @@ import javax.swing.UIManager;
 import es.uneatlantico.gdbd.persistence.SQLiteManager;
 import es.uneatlantico.gdbd.util.UITuner;
 
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.GridLayout;
-import java.awt.FlowLayout;
-import java.awt.Component;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.border.LineBorder;
-import java.awt.Color;
 
 public class Application {
 
@@ -37,8 +27,7 @@ public class Application {
 	private JMenu mnHelp;
 	private JMenuItem mntmNewDatabase;
 	private NavigatorPanel pnNavigator;
-	private TextEditorPanel pnEditor;
-	
+	private TextEditorPanel pnEditor;	
 
 	/**
 	 * Launch the application.
@@ -76,10 +65,12 @@ public class Application {
 		sqliteManager = new SQLiteManager(SQLiteManager.Default_Filename);
 		sqliteManager.initializeDatabase();
 		frmGdbd = new JFrame();
+		frmGdbd.getContentPane().setPreferredSize(new Dimension(820, 380));
+		frmGdbd.setSize(new Dimension(718, 463));
 		frmGdbd.setIconImage(Toolkit.getDefaultToolkit().getImage(Application.class.getResource("/database-search-icon.png")));
 		frmGdbd.setMinimumSize(new Dimension(480, 280));
 		frmGdbd.setTitle("GDBD - Gestor de Documentación para Bases de Datos");
-		frmGdbd.setBounds(100, 100, 786, 925);
+		frmGdbd.setBounds(100, 100, 480, 360);
 		frmGdbd.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmGdbd.setJMenuBar(getMenuBar());
 		frmGdbd.getContentPane().setLayout(new BorderLayout(0, 0));
@@ -132,14 +123,13 @@ public class Application {
 	
 	private NavigatorPanel getPnNavigator() {
 		if (pnNavigator == null) {
-			pnNavigator = new NavigatorPanel(sqliteManager);
-//			pnNavigator.setDividerLocation(150);
+			pnNavigator = new NavigatorPanel(sqliteManager, getPnEditor());
 		}
 		return pnNavigator;
 	}
 	private TextEditorPanel getPnEditor() {
 		if (pnEditor == null) {
-			pnEditor = new TextEditorPanel();
+			pnEditor = new TextEditorPanel(sqliteManager);
 		}
 		return pnEditor;
 	}
