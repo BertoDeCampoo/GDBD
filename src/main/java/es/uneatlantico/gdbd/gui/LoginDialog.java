@@ -129,7 +129,6 @@ public class LoginDialog extends JDialog {
 			}
 			{
 				txtServer = new JTextField();
-				txtServer.setText("DESKTOP-M9PG788\\SQLEXPRESS");
 				GridBagConstraints gbc_txtServer = new GridBagConstraints();
 				gbc_txtServer.insets = new Insets(0, 0, 5, 0);
 				gbc_txtServer.fill = GridBagConstraints.BOTH;
@@ -168,7 +167,6 @@ public class LoginDialog extends JDialog {
 			}
 			{
 				txtUser = new JTextField();
-				txtUser.setText("sa");
 				GridBagConstraints gbc_txtUser = new GridBagConstraints();
 				gbc_txtUser.insets = new Insets(0, 0, 5, 0);
 				gbc_txtUser.fill = GridBagConstraints.BOTH;
@@ -364,6 +362,7 @@ public class LoginDialog extends JDialog {
 			JOptionPane.showMessageDialog(contentPanel, "Base de datos añadida con éxito", "Operación finalizada", JOptionPane.INFORMATION_MESSAGE);
 			LoginDialog.this.dispose();
 		} catch (SQLException e) {
+			// TODO: Corregir
 			JOptionPane.showMessageDialog(contentPanel, e.getLocalizedMessage(), 
 					"Imposible añadir la base de datos", JOptionPane.ERROR_MESSAGE);
 		}
