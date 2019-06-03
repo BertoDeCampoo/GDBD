@@ -29,6 +29,7 @@ public class Application {
 	private NavigatorPanel pnNavigator;
 	private TextEditorPanel pnEditor;	
 	private JMenuItem mntmExportarAArchivo;
+	private JMenuItem mntmAcercaDe;
 
 	/**
 	 * Launch the application.
@@ -107,6 +108,7 @@ public class Application {
 	private JMenu getMnHelp() {
 		if (mnHelp == null) {
 			mnHelp = new JMenu("Ayuda");
+			mnHelp.add(getMntmAcercaDe());
 		}
 		return mnHelp;
 	}
@@ -147,5 +149,18 @@ public class Application {
 			pnEditor = new TextEditorPanel(sqliteManager);
 		}
 		return pnEditor;
+	}
+	private JMenuItem getMntmAcercaDe() {
+		if (mntmAcercaDe == null) {
+			mntmAcercaDe = new JMenuItem("Acerca de");
+			mntmAcercaDe.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					// Load "About" dialog
+					About about = new About();
+					about.setVisible(true);
+				}
+			});
+		}
+		return mntmAcercaDe;
 	}
 }
