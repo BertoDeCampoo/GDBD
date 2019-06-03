@@ -161,7 +161,10 @@ public class SQLiteManager {
         
         pstmt.setInt(1, nextAvailableID);
         pstmt.setString(2, db.getNombre());
-        pstmt.setString(3, db.getServidor());
+        if (!db.getServidor().equals(""))
+        	pstmt.setString(3, db.getServidor());
+        else
+        	pstmt.setString(3, "localhost");
         pstmt.setString(4, db.getTipo());
         pstmt.executeUpdate();
         
