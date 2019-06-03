@@ -213,17 +213,12 @@ public class ExportReportDialog extends JDialog {
 			btnAccept.setToolTipText("Generar la documentaci\u00F3n");
 			btnAccept.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					
-					//String path = getTxtPath().getText();
-					
 					Path path = Paths.get(getTxtPath().getText());
 					if (Files.exists(path))
 						try {
 							String finalPath = getTxtPath().getText() + System.getProperty("file.separator") + FileNameCleaner.cleanString(getTxtFileName().getText());
 							task = new GenerateReportTask(finalPath);
 							task.execute();
-							
-							//report.export(es.uneatlantico.gdbd.util.Configuration.getDatabaseReportFilename(), finalPath, ExportReportDialog.this.sqliteManager.getConnection());
 						} catch (Exception re) {
 							JOptionPane.showMessageDialog(ExportReportDialog.this, re.getLocalizedMessage(), "No se puede exportar", JOptionPane.ERROR_MESSAGE);
 						}
@@ -282,6 +277,7 @@ public class ExportReportDialog extends JDialog {
 	
 	class GenerateReportTask extends SwingWorker<Void, Void> {
 		private String exportPath;
+		private String resultPath;
 		
         public GenerateReportTask(String finalPath) {
 			this.exportPath = finalPath;
@@ -295,9 +291,8 @@ public class ExportReportDialog extends JDialog {
 			getBtnAccept().setEnabled(false);
 			IReport report = FactoryReport.getReport(ReportFormat.valueOf(getCbFormats().getSelectedItem().toString()));
 			try {
-				String result = report.export(es.uneatlantico.gdbd.util.Configuration.getDatabaseReportFilename(), this.exportPath, ExportReportDialog.this.sqliteManager.getConnection());
-				JOptionPane.showMessageDialog(null, "Puede acceder a él "
-            			+ "en la siguiente ruta: " + result, "Documento generado con éxito", JOptionPane.INFORMATION_MESSAGE);
+				this.resultPath = report.export(es.uneatlantico.gdbd.util.Configuration.getDatabaseReportFilename(), this.exportPath, ExportReportDialog.this.sqliteManager.getConnection());
+				
 			} catch (SQLException e) {
 				JOptionPane.showMessageDialog(ExportReportDialog.this, e.getLocalizedMessage(), 
 						"No se puede conectar con la base de datos SQLite (" + es.uneatlantico.gdbd.util.Configuration.getDefaultSQLiteFilename() + ")", 
@@ -317,6 +312,9 @@ public class ExportReportDialog extends JDialog {
             setCursor(null);
             if(isCancelled())
             	JOptionPane.showMessageDialog(null, "Generación del documento cancelada" + this.exportPath, "Tarea cancelada", JOptionPane.INFORMATION_MESSAGE);
+            else
+            	JOptionPane.showMessageDialog(null, "Puede acceder a él "
+            			+ "en la siguiente ruta: " + this.resultPath, "Documento generado con éxito", JOptionPane.INFORMATION_MESSAGE);
         }
 	}
 }
