@@ -68,9 +68,9 @@ public class Application {
 		sqliteManager.initializeDatabase();
 		frmGdbd = new JFrame();
 		frmGdbd.getContentPane().setPreferredSize(new Dimension(820, 380));
-		frmGdbd.setSize(new Dimension(718, 463));
+		frmGdbd.setSize(new Dimension(720, 500));
 		frmGdbd.setIconImage(Toolkit.getDefaultToolkit().getImage(Application.class.getResource("/database-search-icon.png")));
-		frmGdbd.setMinimumSize(new Dimension(480, 280));
+		frmGdbd.setMinimumSize(new Dimension(720, 500));
 		frmGdbd.setTitle("GDBD - Gestor de Documentación para Bases de Datos");
 		frmGdbd.setBounds(100, 100, 480, 360);
 		frmGdbd.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -117,7 +117,7 @@ public class Application {
 			mntmNewDatabase = new JMenuItem("A\u00F1adir base de datos");
 			mntmNewDatabase.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg) {
-					LoginDialog databaseLogin = new LoginDialog(frmGdbd, Application.this.sqliteManager);
+					LoginDialog databaseLogin = new LoginDialog(Application.this, Application.this.sqliteManager);
 					databaseLogin.setVisible(true);
 				}
 			});
@@ -162,5 +162,10 @@ public class Application {
 			});
 		}
 		return mntmAcercaDe;
+	}
+	
+	public void triggerRefreshNavigator()
+	{
+		this.pnNavigator.refreshServers();
 	}
 }
