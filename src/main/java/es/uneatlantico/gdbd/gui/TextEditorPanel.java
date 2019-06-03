@@ -282,9 +282,6 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 			newText = "";
 		if ((!(this.currentText.equals(newText))) && this.elementModified)
 		{
-			System.out.println("Detectado elemento Modificado");
-			System.out.println("Elemento anterior: '" + this.currentText + "'");
-			System.out.println("Elemento nuevo: '" + newText + "'");
 			int response = JOptionPane.showConfirmDialog(null, "¿Descartar cambios?", "Ha modificado la descripción. Si continúa perderá los cambios no guardados",
 					JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
 			if (response == JOptionPane.NO_OPTION)
@@ -308,7 +305,6 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 		getBtnUndo().setEnabled(true);
 		getBtnRedo().setEnabled(true);
 		getBtnSave().setEnabled(true);
-		System.out.println("changed");
 		getBtnVisorHtml().setEnabled(getTxtEditor().getText().length()>0);
 	}
 
@@ -318,7 +314,6 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 		getBtnUndo().setEnabled(true);
 		getBtnRedo().setEnabled(true);
 		getBtnSave().setEnabled(true);
-		System.out.println("insert");
 		getBtnVisorHtml().setEnabled(getTxtEditor().getText().length()>0);
 	}
 
@@ -328,7 +323,6 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 		getBtnUndo().setEnabled(true);
 		getBtnRedo().setEnabled(true);
 		getBtnSave().setEnabled(true);
-		System.out.println("remove");
 		getBtnVisorHtml().setEnabled(getTxtEditor().getText().length()>0);
 	}
 }
