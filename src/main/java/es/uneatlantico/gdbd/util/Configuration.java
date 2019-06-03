@@ -36,13 +36,17 @@ public class Configuration {
 	}
 	
 	/**
-	 * Obtains the Jasper Reports database report (A JRXML file) file name
+	 * Obtains the Jasper Reports database report (A .Jasper file) file name
 	 * @return  the name of the database report file
 	 */
 	public static String getDatabaseReportFilename() {
 		if (properties == null)
 			initializeProperties();
-		return properties.getProperty("DATABASE_REPORT_FILENAME");
+		String reportFileName = properties.getProperty("DATABASE_REPORT_FILENAME");
+		// As it will be used as an inputstream, it must begin with a "/"
+		if (!reportFileName.startsWith("/"))
+			reportFileName = "/" + reportFileName;
+		return reportFileName;
 	}
 	
 	/**
