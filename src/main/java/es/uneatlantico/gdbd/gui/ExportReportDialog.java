@@ -6,6 +6,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.GridBagLayout;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -18,9 +19,11 @@ import javax.swing.border.BevelBorder;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import javax.swing.DefaultComboBoxModel;
 
@@ -29,9 +32,12 @@ import es.uneatlantico.es.gdbd.reports.IReport;
 import es.uneatlantico.es.gdbd.reports.ReportFormat;
 import es.uneatlantico.gdbd.persistence.SQLiteManager;
 import es.uneatlantico.gdbd.util.FileNameCleaner;
+
 import javax.swing.border.EmptyBorder;
 import java.awt.Toolkit;
 import javax.swing.JTextPane;
+import javax.swing.SwingWorker;
+import javax.swing.JProgressBar;
 
 public class ExportReportDialog extends JDialog {
 	
@@ -46,9 +52,12 @@ public class ExportReportDialog extends JDialog {
 	private JTextField txtPath;
 	private JButton btnPath;
 	private JButton btnAccept;
-	private JButton btnCancel;
 	private JLabel lblNombreDeArchivo;
 	private JTextPane txtFileName;
+	private JProgressBar progressBar;
+	private JLabel lblGenerating;
+	
+	private GenerateReportTask task;
 
 	/**
 	 * Create the dialog.
@@ -63,7 +72,7 @@ public class ExportReportDialog extends JDialog {
 		setModal(true);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ExportReportDialog.class.getResource("/net/sf/jasperreports/view/images/print.GIF")));
 		setTitle("Exportar documentaci\u00F3n");
-		setBounds(100, 100, 450, 200);
+		setBounds(100, 100, 450, 190);
 		getContentPane().add(getPnControls(), BorderLayout.SOUTH);
 		getContentPane().add(getPnCenter(), BorderLayout.CENTER);
 	}
@@ -73,7 +82,6 @@ public class ExportReportDialog extends JDialog {
 			pnControls = new JPanel();
 			pnControls.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			pnControls.add(getBtnAccept());
-			pnControls.add(getBtnCancel());
 		}
 		return pnControls;
 	}
@@ -83,9 +91,9 @@ public class ExportReportDialog extends JDialog {
 			pnCenter.setBorder(new EmptyBorder(5, 5, 5, 5));
 			GridBagLayout gbl_pnCenter = new GridBagLayout();
 			gbl_pnCenter.columnWidths = new int[]{200, 0, 0};
-			gbl_pnCenter.rowHeights = new int[]{24, 0, 0, 0};
-			gbl_pnCenter.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
-			gbl_pnCenter.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
+			gbl_pnCenter.rowHeights = new int[]{24, 0, 0, 0, 0};
+			gbl_pnCenter.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+			gbl_pnCenter.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 			pnCenter.setLayout(gbl_pnCenter);
 			GridBagConstraints gbc_lblFormat = new GridBagConstraints();
 			gbc_lblFormat.insets = new Insets(0, 0, 5, 5);
@@ -113,15 +121,27 @@ public class ExportReportDialog extends JDialog {
 			pnCenter.add(getTxtFileName(), gbc_txtFileName);
 			GridBagConstraints gbc_lblPath = new GridBagConstraints();
 			gbc_lblPath.anchor = GridBagConstraints.WEST;
-			gbc_lblPath.insets = new Insets(0, 0, 0, 5);
+			gbc_lblPath.insets = new Insets(0, 0, 5, 5);
 			gbc_lblPath.gridx = 0;
 			gbc_lblPath.gridy = 2;
 			pnCenter.add(getLblPath(), gbc_lblPath);
 			GridBagConstraints gbc_pnPath = new GridBagConstraints();
+			gbc_pnPath.insets = new Insets(0, 0, 5, 0);
 			gbc_pnPath.fill = GridBagConstraints.BOTH;
 			gbc_pnPath.gridx = 1;
 			gbc_pnPath.gridy = 2;
 			pnCenter.add(getPnPath(), gbc_pnPath);
+			GridBagConstraints gbc_lblGenerating = new GridBagConstraints();
+			gbc_lblGenerating.anchor = GridBagConstraints.WEST;
+			gbc_lblGenerating.insets = new Insets(0, 0, 0, 5);
+			gbc_lblGenerating.gridx = 0;
+			gbc_lblGenerating.gridy = 3;
+			pnCenter.add(getLblGenerating(), gbc_lblGenerating);
+			GridBagConstraints gbc_progressBar = new GridBagConstraints();
+			gbc_progressBar.fill = GridBagConstraints.HORIZONTAL;
+			gbc_progressBar.gridx = 1;
+			gbc_progressBar.gridy = 3;
+			pnCenter.add(getProgressBar(), gbc_progressBar);
 		}
 		return pnCenter;
 	}
@@ -193,14 +213,17 @@ public class ExportReportDialog extends JDialog {
 			btnAccept.setToolTipText("Generar la documentaci\u00F3n");
 			btnAccept.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					IReport report = FactoryReport.getReport(ReportFormat.valueOf(getCbFormats().getSelectedItem().toString()));
+					
 					//String path = getTxtPath().getText();
+					
 					Path path = Paths.get(getTxtPath().getText());
 					if (Files.exists(path))
 						try {
 							String finalPath = getTxtPath().getText() + System.getProperty("file.separator") + FileNameCleaner.cleanString(getTxtFileName().getText());
-							System.out.println(finalPath);
-							report.export("DatabaseReport.jrxml", finalPath, ExportReportDialog.this.sqliteManager.getConnection());
+							task = new GenerateReportTask(finalPath);
+							task.execute();
+							
+							//report.export(es.uneatlantico.gdbd.util.Configuration.getDatabaseReportFilename(), finalPath, ExportReportDialog.this.sqliteManager.getConnection());
 						} catch (Exception re) {
 							JOptionPane.showMessageDialog(ExportReportDialog.this, re.getLocalizedMessage(), "No se puede exportar", JOptionPane.ERROR_MESSAGE);
 						}
@@ -213,17 +236,19 @@ public class ExportReportDialog extends JDialog {
 		}
 		return btnAccept;
 	}
-	private JButton getBtnCancel() {
-		if (btnCancel == null) {
-			btnCancel = new JButton("Cancelar");
-			btnCancel.setToolTipText("Volver a la ventana principal de la aplicaci\u00F3n");
-			btnCancel.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					ExportReportDialog.this.dispose();
-				}
-			});
-		}
-		return btnCancel;
+	
+	public void propertyChange(PropertyChangeEvent evt) {
+	    if (!task.isDone()) {
+	        int progress = task.getProgress();
+	        if (progress == 0) {
+	            progressBar.setIndeterminate(true);
+	            progressBar.setString("Procesando...");
+	        } else {
+	            progressBar.setIndeterminate(false); 
+	            progressBar.setString(null);
+	            progressBar.setValue(progress);
+	        }
+	    }
 	}
 	private JLabel getLblNombreDeArchivo() {
 		if (lblNombreDeArchivo == null) {
@@ -238,5 +263,60 @@ public class ExportReportDialog extends JDialog {
 			txtFileName.setText(es.uneatlantico.gdbd.util.Configuration.getDefaultReportFilename());
 		}
 		return txtFileName;
+	}
+	private JProgressBar getProgressBar() {
+		if (progressBar == null) {
+			progressBar = new JProgressBar();
+			progressBar.setVisible(false);
+			progressBar.setIndeterminate(true);
+		}
+		return progressBar;
+	}
+	private JLabel getLblGenerating() {
+		if (lblGenerating == null) {
+			lblGenerating = new JLabel("Generando. Por favor, espere");
+			lblGenerating.setVisible(false);
+		}
+		return lblGenerating;
+	}
+	
+	class GenerateReportTask extends SwingWorker<Void, Void> {
+		private String exportPath;
+		
+        public GenerateReportTask(String finalPath) {
+			this.exportPath = finalPath;
+		}
+
+		@Override
+        public Void doInBackground() {
+			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			getLblGenerating().setVisible(true);
+			getProgressBar().setVisible(true);
+			getBtnAccept().setEnabled(false);
+			IReport report = FactoryReport.getReport(ReportFormat.valueOf(getCbFormats().getSelectedItem().toString()));
+			try {
+				String result = report.export(es.uneatlantico.gdbd.util.Configuration.getDatabaseReportFilename(), this.exportPath, ExportReportDialog.this.sqliteManager.getConnection());
+				JOptionPane.showMessageDialog(null, "Puede acceder a él "
+            			+ "en la siguiente ruta: " + result, "Documento generado con éxito", JOptionPane.INFORMATION_MESSAGE);
+			} catch (SQLException e) {
+				JOptionPane.showMessageDialog(ExportReportDialog.this, e.getLocalizedMessage(), 
+						"No se puede conectar con la base de datos SQLite (" + es.uneatlantico.gdbd.util.Configuration.getDefaultSQLiteFilename() + ")", 
+						JOptionPane.ERROR_MESSAGE);
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(ExportReportDialog.this, e.getLocalizedMessage(), "Error al acceder al archivo del informe (" + es.uneatlantico.gdbd.util.Configuration.getDatabaseReportFilename() + ")", JOptionPane.ERROR_MESSAGE);
+			}
+			return null;
+        }
+        
+        @Override
+        public void done() {
+        	getBtnAccept().setEnabled(true);
+        	getLblGenerating().setVisible(false);
+			getProgressBar().setVisible(false);
+            Toolkit.getDefaultToolkit().beep();
+            setCursor(null);
+            if(isCancelled())
+            	JOptionPane.showMessageDialog(null, "Generación del documento cancelada" + this.exportPath, "Tarea cancelada", JOptionPane.INFORMATION_MESSAGE);
+        }
 	}
 }
