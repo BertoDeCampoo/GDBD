@@ -73,7 +73,7 @@
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 					<reportElement mode="Opaque" x="0" y="0" width="555" height="20" forecolor="#000000" backcolor="#E6E6E6" uuid="2f33a802-777d-486c-8cc2-9a2822d6adae"/>
 					<textElement>
-						<font size="14" isBold="true"/>
+						<font fontName="Arial" size="14" isBold="true"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Servidor: " + $F{SERVIDOR}]]></textFieldExpression>
 				</textField>
@@ -88,17 +88,24 @@
 		<groupHeader>
 			<band height="48">
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="10" y="10" width="536" height="32" forecolor="#006699" uuid="0d10b9c2-aae0-4392-b9a9-2983769bee9f">
+					<reportElement x="150" y="10" width="396" height="32" forecolor="#006699" uuid="0d10b9c2-aae0-4392-b9a9-2983769bee9f">
 						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="657aa317-d1b9-4268-b7c9-24e187dbcd5e"/>
 					</reportElement>
 					<textElement verticalAlignment="Bottom">
-						<font size="18" isUnderline="false"/>
+						<font fontName="Arial" size="18" isUnderline="false"/>
 					</textElement>
-					<textFieldExpression><![CDATA["Base de Datos: " + $F{NOMBRE BASE DE DATOS}]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{NOMBRE BASE DE DATOS}]]></textFieldExpression>
 				</textField>
 				<line>
 					<reportElement x="10" y="42" width="536" height="1" forecolor="#000000" uuid="a3e04547-828e-4dbc-b9fc-fa99a844ea9f"/>
 				</line>
+				<staticText>
+					<reportElement x="10" y="11" width="140" height="30" forecolor="#006699" uuid="fd118878-c5de-494a-a1b3-6b348290057a"/>
+					<textElement verticalAlignment="Bottom">
+						<font fontName="Arial" size="18" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Base de datos:]]></text>
+				</staticText>
 			</band>
 		</groupHeader>
 		<groupFooter>
@@ -110,26 +117,33 @@
 		<groupHeader>
 			<band height="50">
 				<textField isStretchWithOverflow="true">
-					<reportElement x="10" y="0" width="360" height="20" uuid="9fe84bb2-e2d5-49b4-9c3b-f39abaf17b69">
+					<reportElement x="60" y="0" width="486" height="20" uuid="9fe84bb2-e2d5-49b4-9c3b-f39abaf17b69">
 						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="65eeb09d-4b08-43ff-8256-9531dbfe7ec8"/>
 					</reportElement>
 					<textElement verticalAlignment="Bottom">
-						<font size="12" isUnderline="false"/>
+						<font fontName="Arial" size="12" isUnderline="false"/>
 					</textElement>
-					<textFieldExpression><![CDATA["SGBD: " + $F{TIPO BBDD}]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{TIPO BBDD}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="10" y="30" width="545" height="20" uuid="14cb5109-1537-4cde-bbd3-1c019ad3f80c">
+					<reportElement x="10" y="30" width="536" height="20" uuid="14cb5109-1537-4cde-bbd3-1c019ad3f80c">
 						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="cdfa83e2-4d54-40ac-9bbb-2807ceab8368"/>
 					</reportElement>
-					<textElement>
-						<font size="12"/>
+					<textElement markup="html">
+						<font fontName="Arial" size="12"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{DESCRIPCION BASE DE DATOS}]]></textFieldExpression>
 				</textField>
 				<line>
 					<reportElement x="10" y="20" width="536" height="1" forecolor="#000000" uuid="19e94cb5-8d95-4eff-bdf6-79bc05706fa0"/>
 				</line>
+				<staticText>
+					<reportElement x="10" y="0" width="50" height="20" uuid="8f076b51-881f-4208-99d8-a2813e98a31e"/>
+					<textElement verticalAlignment="Bottom">
+						<font fontName="Arial" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[SGBD:]]></text>
+				</staticText>
 			</band>
 		</groupHeader>
 		<groupFooter>
@@ -141,26 +155,33 @@
 		<groupHeader>
 			<band height="70">
 				<textField isBlankWhenNull="true">
-					<reportElement mode="Transparent" x="20" y="0" width="520" height="30" forecolor="#006699" backcolor="#FFFFFF" uuid="c459c1d1-db3d-476b-9d96-3d17afb34fe0">
+					<reportElement mode="Transparent" x="80" y="0" width="460" height="30" forecolor="#006699" backcolor="#FFFFFF" uuid="c459c1d1-db3d-476b-9d96-3d17afb34fe0">
 						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="a5028347-4ea4-4774-8c96-13a0a1081c5b"/>
 					</reportElement>
 					<textElement verticalAlignment="Bottom">
-						<font size="16" isUnderline="false"/>
+						<font fontName="Arial" size="16" isUnderline="false"/>
 					</textElement>
-					<textFieldExpression><![CDATA["Tabla: " + $F{NOMBRE DE TABLA}]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{NOMBRE DE TABLA}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 					<reportElement x="19" y="40" width="520" height="20" isRemoveLineWhenBlank="true" uuid="52adbbe8-533d-4a9d-b5aa-6698460c4f01">
 						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="410ae980-0507-41a7-b1ff-230f77521feb"/>
 					</reportElement>
-					<textElement>
-						<font size="12"/>
+					<textElement markup="html">
+						<font fontName="Arial" size="12"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{DESCRIPCION DE TABLA}]]></textFieldExpression>
 				</textField>
 				<line>
 					<reportElement x="19" y="30" width="521" height="1" forecolor="#000000" uuid="11f8d9a4-4067-46ac-8183-faee1e2707bc"/>
 				</line>
+				<staticText>
+					<reportElement x="20" y="0" width="60" height="30" forecolor="#006699" uuid="b2ed36a5-6cd1-4b21-85f8-744805a5eceb"/>
+					<textElement verticalAlignment="Bottom">
+						<font fontName="Arial" size="16" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Tabla:]]></text>
+				</staticText>
 			</band>
 		</groupHeader>
 		<groupFooter>
@@ -172,18 +193,18 @@
 		<groupHeader>
 			<band height="80">
 				<textField isBlankWhenNull="true">
-					<reportElement key="" x="30" y="0" width="499" height="20" forecolor="#006699" uuid="590bdce5-7538-41c4-af95-1bc45331a86f"/>
+					<reportElement key="" x="100" y="0" width="429" height="20" forecolor="#006699" uuid="590bdce5-7538-41c4-af95-1bc45331a86f"/>
 					<textElement verticalAlignment="Bottom">
-						<font size="14" isUnderline="false"/>
+						<font fontName="Arial" size="14" isUnderline="false"/>
 					</textElement>
-					<textFieldExpression><![CDATA["Columna: " + $F{NOMBRE DE COLUMNA}]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{NOMBRE DE COLUMNA}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true">
 					<reportElement x="120" y="20" width="170" height="20" uuid="f413c488-5062-4c66-ab14-9dd2cc364df8">
 						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="7cb85b63-0076-4cd1-8aa7-9194fd0c0db5"/>
 					</reportElement>
 					<textElement verticalAlignment="Bottom">
-						<font size="12"/>
+						<font fontName="Arial" size="12"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{TIPO DE DATO} + "(" + $F{TAMAÑO DE DATO} + ")"]]></textFieldExpression>
 				</textField>
@@ -191,15 +212,15 @@
 					<reportElement x="30" y="50" width="499" height="19" uuid="27180c5b-ce80-448c-9933-76404263832d">
 						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="cf54b4f4-dbb6-42a8-8628-e0a672fb8213"/>
 					</reportElement>
-					<textElement>
-						<font size="12"/>
+					<textElement markup="html">
+						<font fontName="Arial" size="12"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{DESCRIPCION DE COLUMNA}]]></textFieldExpression>
 				</textField>
 				<staticText>
 					<reportElement x="31" y="20" width="78" height="20" forecolor="#666666" uuid="fe8da90e-e6c8-48da-af5a-716429123e38"/>
 					<textElement verticalAlignment="Bottom">
-						<font size="12" isBold="true"/>
+						<font fontName="Arial" size="12" isBold="true"/>
 					</textElement>
 					<text><![CDATA[Tipo de dato:]]></text>
 				</staticText>
@@ -209,6 +230,13 @@
 				<line>
 					<reportElement x="31" y="40" width="499" height="1" forecolor="#000000" uuid="491862cd-ee84-4083-a25e-93de0b62808d"/>
 				</line>
+				<staticText>
+					<reportElement x="30" y="0" width="70" height="20" forecolor="#006699" uuid="c2fcbd5e-a981-4c93-bea6-5ab4715e673e"/>
+					<textElement verticalAlignment="Bottom">
+						<font fontName="Arial" size="14" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Columna:]]></text>
+				</staticText>
 			</band>
 		</groupHeader>
 		<groupFooter>
@@ -225,16 +253,16 @@
 				<staticText>
 					<reportElement x="20" y="20" width="374" height="43" forecolor="#FFFFFF" uuid="4f78770d-46ad-4b39-8956-6e8d8dc0fc59"/>
 					<textElement>
-						<font size="26" isBold="true"/>
+						<font size="22" isBold="true"/>
 					</textElement>
-					<text><![CDATA[Catálogo de base de datos]]></text>
+					<text><![CDATA[Documentación de base de datos]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="395" y="43" width="180" height="20" forecolor="#FFFFFF" uuid="e7d5ed52-b3af-4ed1-bab2-2a6fa5f42209"/>
-					<textElement textAlignment="Right">
-						<font size="14" isBold="false"/>
+					<reportElement x="420" y="17" width="146" height="62" forecolor="#FFFFFF" uuid="e7d5ed52-b3af-4ed1-bab2-2a6fa5f42209"/>
+					<textElement textAlignment="Justified">
+						<font size="12" isBold="false"/>
 					</textElement>
-					<text><![CDATA[GDBD - Alberto Gutiérrez]]></text>
+					<text><![CDATA[Trabajo de Fin de Grado Alberto Gutiérrez Arroyo (GII, Universidad Europea del Atlántico) - 2019]]></text>
 				</staticText>
 			</frame>
 		</band>
@@ -249,20 +277,30 @@
 		<band height="35">
 			<textField>
 				<reportElement mode="Opaque" x="0" y="17" width="515" height="13" backcolor="#E6E6E6" uuid="36c28cbd-e86d-4e91-b0a3-23579c354687"/>
-				<textElement textAlignment="Right"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
 				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
 			</textField>
 			<textField evaluationTime="Report">
 				<reportElement mode="Opaque" x="515" y="17" width="40" height="13" backcolor="#E6E6E6" uuid="69b2bb8f-1738-4591-a629-15f42b9caa5b"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
 				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
 			<textField pattern="EEEEE dd MMMMM yyyy">
 				<reportElement x="238" y="17" width="100" height="13" uuid="60a888df-f5b5-4ec1-a0c9-fd7e4e3d68dc"/>
-				<textElement textAlignment="Center"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial"/>
+				</textElement>
 				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="0" y="17" width="108" height="13" uuid="cc478f7c-d055-442a-9f33-2847b1c0e478"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
 				<textFieldExpression><![CDATA["Generado con GDBD"]]></textFieldExpression>
 			</textField>
 		</band>
