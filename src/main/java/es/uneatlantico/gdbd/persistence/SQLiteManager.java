@@ -29,7 +29,7 @@ public class SQLiteManager {
 	/**
 	 * Default name for the SQLite Database the application will use
 	 */
-	public final static String Default_Filename = "db.db";
+	public final static String Default_Filename = es.uneatlantico.gdbd.util.Configuration.getDefaultSQLiteFilename();
 	private String filename;
 	
 	public SQLiteManager (String filename)
