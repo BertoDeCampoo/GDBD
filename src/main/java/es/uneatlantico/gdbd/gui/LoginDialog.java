@@ -36,7 +36,11 @@ import javax.swing.SwingWorker;
 import javax.swing.JPasswordField;
 import java.awt.Toolkit;
 import java.awt.event.ItemListener;
+import java.beans.PropertyChangeEvent;
 import java.awt.event.ItemEvent;
+import javax.swing.JProgressBar;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class LoginDialog extends JDialog {
 
@@ -51,6 +55,8 @@ public class LoginDialog extends JDialog {
 	private JComboBox<String> cbDatabases;
 	private JLabel lblTestResults;
 	private JButton btnTest;
+	private JProgressBar progressBar;
+	private JLabel lblProgressBar;
 	private Application parentApplication;
 	
 	private IDatabase selectedDatabase;
@@ -68,6 +74,13 @@ public class LoginDialog extends JDialog {
 		initGUI();
 	}
 	private void initGUI() {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				// On close, refresh list of databases on the main window
+				LoginDialog.this.parentApplication.triggerRefreshNavigator();
+			}
+		});
 		setIconImage(Toolkit.getDefaultToolkit().getImage(LoginDialog.class.getResource("/database-add-icon.png")));
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setModal(true);
@@ -99,9 +112,9 @@ public class LoginDialog extends JDialog {
 			contentPanel.add(pnConfiguration, BorderLayout.CENTER);
 			GridBagLayout gbl_pnConfiguration = new GridBagLayout();
 			gbl_pnConfiguration.columnWidths = new int[]{98, 128, 0};
-			gbl_pnConfiguration.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
+			gbl_pnConfiguration.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0};
 			gbl_pnConfiguration.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
-			gbl_pnConfiguration.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+			gbl_pnConfiguration.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 			pnConfiguration.setLayout(gbl_pnConfiguration);
 			{
 				DefaultComboBoxModel<DBMS> cModel = new DefaultComboBoxModel<DBMS>(
@@ -274,7 +287,7 @@ public class LoginDialog extends JDialog {
 					JLabel label = new JLabel("Base de datos:");
 					GridBagConstraints gbc_label = new GridBagConstraints();
 					gbc_label.fill = GridBagConstraints.BOTH;
-					gbc_label.insets = new Insets(0, 0, 0, 5);
+					gbc_label.insets = new Insets(0, 0, 5, 5);
 					gbc_label.gridx = 0;
 					gbc_label.gridy = 6;
 					pnConfiguration.add(label, gbc_label);
@@ -284,11 +297,31 @@ public class LoginDialog extends JDialog {
 					cbDatabases.setToolTipText("Lista de bases de datos en el servidor seleccionado");
 					cbDatabases.setEnabled(false);
 					GridBagConstraints gbc_cbDatabases = new GridBagConstraints();
+					gbc_cbDatabases.insets = new Insets(0, 0, 5, 0);
 					gbc_cbDatabases.fill = GridBagConstraints.BOTH;
 					gbc_cbDatabases.gridx = 1;
 					gbc_cbDatabases.gridy = 6;
 					pnConfiguration.add(cbDatabases, gbc_cbDatabases);
 				}
+			}
+			{
+				lblProgressBar = new JLabel("Importando. Por favor, espere");
+				lblProgressBar.setVisible(false);
+				GridBagConstraints gbc_lblProgressBar = new GridBagConstraints();
+				gbc_lblProgressBar.insets = new Insets(0, 0, 0, 5);
+				gbc_lblProgressBar.gridx = 0;
+				gbc_lblProgressBar.gridy = 7;
+				pnConfiguration.add(lblProgressBar, gbc_lblProgressBar);
+			}
+			{
+				progressBar = new JProgressBar();
+				progressBar.setIndeterminate(true);
+				progressBar.setVisible(false);
+				GridBagConstraints gbc_progressBar = new GridBagConstraints();
+				gbc_progressBar.fill = GridBagConstraints.HORIZONTAL;
+				gbc_progressBar.gridx = 1;
+				gbc_progressBar.gridy = 7;
+				pnConfiguration.add(progressBar, gbc_progressBar);
 			}
 		}
 		{
@@ -317,7 +350,9 @@ public class LoginDialog extends JDialog {
 		@Override
 		protected Void doInBackground() throws Exception {
 			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			okButton.setEnabled(false);		
+			okButton.setEnabled(false);
+			progressBar.setVisible(true);
+			lblProgressBar.setVisible(true);
 			
 			// Check if the connection is valid (In case the values of the fields have been altered after pressing Test)
 			IDatabase database = LoginDialog.this.selectedDatabase = connectToServer();
@@ -352,7 +387,24 @@ public class LoginDialog extends JDialog {
         public void done() {
 			setCursor(null);
 			okButton.setEnabled(true);
+			progressBar.setVisible(false);
+			lblProgressBar.setVisible(false);
+			JOptionPane.showMessageDialog(contentPanel, "Base de datos añadida con éxito", "Operación finalizada", JOptionPane.INFORMATION_MESSAGE);
 		}
+	}
+	
+	public void propertyChange(PropertyChangeEvent evt) {
+	    if (!task.isDone()) {
+	        int progress = task.getProgress();
+	        if (progress == 0) {
+	        	progressBar.setIndeterminate(true);
+	            progressBar.setString("Procesando...");
+	        } else {
+	            progressBar.setIndeterminate(false); 
+	            progressBar.setString(null);
+	            progressBar.setValue(progress);
+	        }
+	    }
 	}
 	
 	public IDatabase connectToServer()
@@ -416,8 +468,5 @@ public class LoginDialog extends JDialog {
 		Database db = this.selectedDatabase.getDatabaseInformation();
 		
 		sqliteManager.addNewDatabase(db);
-		JOptionPane.showMessageDialog(contentPanel, "Base de datos añadida con éxito", "Operación finalizada", JOptionPane.INFORMATION_MESSAGE);
-		this.parentApplication.triggerRefreshNavigator();
-		LoginDialog.this.dispose();
 	}
 }
