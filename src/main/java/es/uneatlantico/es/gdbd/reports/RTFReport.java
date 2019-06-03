@@ -1,32 +1,52 @@
 package es.uneatlantico.es.gdbd.reports;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRExporterParameter;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.sf.jasperreports.engine.JasperCompileManager;
-import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.export.JRRtfExporter;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleWriterExporterOutput;
 
+/**
+ * Class which implements the IReport interface and can generate Rich Text Format (RTF) files
+ * @author Alberto Gutiérrez Arroyo
+ *
+ */
 public class RTFReport implements IReport {
 
+	private static final Logger logger = LogManager.getLogger(RTFReport.class); 
+	
 	@Override
-	public void export(String reportFile, String exportPath, Connection dataSourceConnection) throws JRException {
-		throw new NotImplementedException();
-//		JasperPrint jasperPrint = (JasperPrint) JRLoader.loadObject(sourceFile);
-//	    File destFile = new File(sourceFile.getParent(), jasperPrint.getName() + ".rtf");
-//	    JRRtfExporter exporter = new JRRtfExporter();
-//	    exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
-//	    exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME, destFile.toString());
-//	    exporter.exportReport();
+	public String export(String reportFile, String exportPath, Connection dataSourceConnection) throws Exception {
+		exportPath += ".rtf";
+		File file = new File(getClass().getClassLoader().getResource(reportFile).getFile());
+		
+		String filePath = file.getCanonicalPath();
+		
+		JasperReport jasperReport = JasperCompileManager.compileReport(filePath);
+		
+		// Parameters for report
+		Map<String, Object> parameters = new HashMap<String, Object>();
+	
+   		JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSourceConnection);
+   		
+		JRRtfExporter exporter = new JRRtfExporter();
+		exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+		exporter.setExporterOutput(new SimpleWriterExporterOutput(exportPath));
+		
+		exporter.exportReport();
+		logger.log(Level.INFO, "Informe RTF generado con éxito", exportPath);
+		return exportPath;
 	}
 
 }

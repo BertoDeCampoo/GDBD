@@ -2,9 +2,20 @@ package es.uneatlantico.es.gdbd.reports;
 
 import java.sql.Connection;
 
-import net.sf.jasperreports.engine.JRException;
-
+/**
+ * Contains the specification every report must implement in order to be compatible with the application
+ * @author Alberto Gutiérrez Arroyo
+ */
 public interface IReport {
 	
-	public void export(String reportFile, String exportPath, Connection dataSourceConnection) throws JRException;
+	/**
+	 * Exports the report with the given attributes
+	 * @param reportFile  contains the path to the report file (Usually a .jrxml file)
+	 * @param exportPath  the path in which to export the generated file
+	 * @param dataSourceConnection  the connection to the datasource. For example, our SQLite Database, but it could be any database
+	 * @return  the path of the generated report
+	 * @throws Exception  if any error happens during the processing
+	 * 
+	 */
+	public String export(String reportFile, String exportPath, Connection dataSourceConnection) throws Exception;
 }

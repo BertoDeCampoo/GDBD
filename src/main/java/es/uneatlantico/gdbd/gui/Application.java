@@ -128,7 +128,7 @@ public class Application {
 			mntmExportarAArchivo = new JMenuItem("Exportar a archivo...");
 			mntmExportarAArchivo.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg) {
-					ExportReportDialogNew exportDialog = new ExportReportDialogNew(Application.this.sqliteManager);
+					ExportReportDialog exportDialog = new ExportReportDialog(Application.this.sqliteManager);
 					exportDialog.setVisible(true);
 				}
 			});

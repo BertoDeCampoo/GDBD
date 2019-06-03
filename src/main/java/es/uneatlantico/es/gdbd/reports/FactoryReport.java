@@ -6,8 +6,12 @@ public class FactoryReport {
 	{
 		if (reportType == ReportFormat.PDF)
 			return new PDFReport();
-		if (reportType == ReportFormat.RTF)
+		else if (reportType == ReportFormat.RTF)
 			return new RTFReport();
+		else if (reportType == ReportFormat.HTML)
+			return new HTMLReport();
+//		else if (reportType == ReportFormat.DOCX)
+//			return new DOCXReport();
 		return null;
 	}
 

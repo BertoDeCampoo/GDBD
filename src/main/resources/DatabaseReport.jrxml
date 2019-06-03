@@ -66,36 +66,39 @@
 		<property name="com.jaspersoft.studio.field.label" value="DESCRIPCION DE TABLA"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="TABLAS"/>
 	</field>
-	<group name="Servidor" isStartNewPage="true">
+	<group name="Servidor" isStartNewPage="true" isReprintHeaderOnEachPage="true">
 		<groupExpression><![CDATA[$F{SERVIDOR}]]></groupExpression>
 		<groupHeader>
-			<band height="32">
-				<textField>
-					<reportElement mode="Opaque" x="0" y="0" width="555" height="32" forecolor="#006699" backcolor="#E6E6E6" uuid="2f33a802-777d-486c-8cc2-9a2822d6adae"/>
+			<band height="22">
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="0" y="0" width="555" height="20" forecolor="#000000" backcolor="#E6E6E6" uuid="2f33a802-777d-486c-8cc2-9a2822d6adae"/>
 					<textElement>
-						<font size="24" isBold="true"/>
+						<font size="14" isBold="true"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Servidor: " + $F{SERVIDOR}]]></textFieldExpression>
 				</textField>
 			</band>
 		</groupHeader>
 		<groupFooter>
-			<band height="29"/>
+			<band height="15"/>
 		</groupFooter>
 	</group>
 	<group name="Bases de datos" isReprintHeaderOnEachPage="true">
 		<groupExpression><![CDATA[$F{ID BBDD}]]></groupExpression>
 		<groupHeader>
-			<band height="43">
+			<band height="48">
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 					<reportElement x="10" y="10" width="536" height="32" forecolor="#006699" uuid="0d10b9c2-aae0-4392-b9a9-2983769bee9f">
 						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="657aa317-d1b9-4268-b7c9-24e187dbcd5e"/>
 					</reportElement>
 					<textElement verticalAlignment="Bottom">
-						<font size="18" isUnderline="true"/>
+						<font size="18" isUnderline="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Base de Datos: " + $F{NOMBRE BASE DE DATOS}]]></textFieldExpression>
 				</textField>
+				<line>
+					<reportElement x="10" y="42" width="536" height="1" forecolor="#000000" uuid="a3e04547-828e-4dbc-b9fc-fa99a844ea9f"/>
+				</line>
 			</band>
 		</groupHeader>
 		<groupFooter>
@@ -110,10 +113,10 @@
 					<reportElement x="10" y="0" width="360" height="20" uuid="9fe84bb2-e2d5-49b4-9c3b-f39abaf17b69">
 						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="65eeb09d-4b08-43ff-8256-9531dbfe7ec8"/>
 					</reportElement>
-					<textElement>
-						<font size="14" isUnderline="false"/>
+					<textElement verticalAlignment="Bottom">
+						<font size="12" isUnderline="false"/>
 					</textElement>
-					<textFieldExpression><![CDATA["Tipo de base de datos: " + $F{TIPO BBDD}]]></textFieldExpression>
+					<textFieldExpression><![CDATA["SGBD: " + $F{TIPO BBDD}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 					<reportElement x="10" y="30" width="545" height="20" uuid="14cb5109-1537-4cde-bbd3-1c019ad3f80c">
@@ -124,6 +127,9 @@
 					</textElement>
 					<textFieldExpression><![CDATA[$F{DESCRIPCION BASE DE DATOS}]]></textFieldExpression>
 				</textField>
+				<line>
+					<reportElement x="10" y="20" width="536" height="1" forecolor="#000000" uuid="19e94cb5-8d95-4eff-bdf6-79bc05706fa0"/>
+				</line>
 			</band>
 		</groupHeader>
 		<groupFooter>
@@ -139,7 +145,7 @@
 						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="a5028347-4ea4-4774-8c96-13a0a1081c5b"/>
 					</reportElement>
 					<textElement verticalAlignment="Bottom">
-						<font size="16" isUnderline="true"/>
+						<font size="16" isUnderline="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Tabla: " + $F{NOMBRE DE TABLA}]]></textFieldExpression>
 				</textField>
@@ -152,6 +158,9 @@
 					</textElement>
 					<textFieldExpression><![CDATA[$F{DESCRIPCION DE TABLA}]]></textFieldExpression>
 				</textField>
+				<line>
+					<reportElement x="19" y="30" width="521" height="1" forecolor="#000000" uuid="11f8d9a4-4067-46ac-8183-faee1e2707bc"/>
+				</line>
 			</band>
 		</groupHeader>
 		<groupFooter>
@@ -165,12 +174,12 @@
 				<textField isBlankWhenNull="true">
 					<reportElement key="" x="30" y="0" width="499" height="20" forecolor="#006699" uuid="590bdce5-7538-41c4-af95-1bc45331a86f"/>
 					<textElement verticalAlignment="Bottom">
-						<font size="14" isUnderline="true"/>
+						<font size="14" isUnderline="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Columna: " + $F{NOMBRE DE COLUMNA}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true">
-					<reportElement x="140" y="20" width="170" height="20" uuid="f413c488-5062-4c66-ab14-9dd2cc364df8">
+					<reportElement x="120" y="20" width="170" height="20" uuid="f413c488-5062-4c66-ab14-9dd2cc364df8">
 						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="7cb85b63-0076-4cd1-8aa7-9194fd0c0db5"/>
 					</reportElement>
 					<textElement verticalAlignment="Bottom">
@@ -188,12 +197,18 @@
 					<textFieldExpression><![CDATA[$F{DESCRIPCION DE COLUMNA}]]></textFieldExpression>
 				</textField>
 				<staticText>
-					<reportElement x="40" y="20" width="100" height="20" forecolor="#666666" uuid="fe8da90e-e6c8-48da-af5a-716429123e38"/>
+					<reportElement x="31" y="20" width="78" height="20" forecolor="#666666" uuid="fe8da90e-e6c8-48da-af5a-716429123e38"/>
 					<textElement verticalAlignment="Bottom">
 						<font size="12" isBold="true"/>
 					</textElement>
 					<text><![CDATA[Tipo de dato:]]></text>
 				</staticText>
+				<line>
+					<reportElement x="30" y="20" width="499" height="1" forecolor="#000000" uuid="6ad42246-158b-42c2-8d3b-0ac3e20ffd0d"/>
+				</line>
+				<line>
+					<reportElement x="31" y="40" width="499" height="1" forecolor="#000000" uuid="491862cd-ee84-4083-a25e-93de0b62808d"/>
+				</line>
 			</band>
 		</groupHeader>
 		<groupFooter>
@@ -231,19 +246,24 @@
 		<band/>
 	</columnFooter>
 	<pageFooter>
-		<band height="17">
+		<band height="35">
 			<textField>
-				<reportElement mode="Opaque" x="0" y="4" width="515" height="13" backcolor="#E6E6E6" uuid="36c28cbd-e86d-4e91-b0a3-23579c354687"/>
+				<reportElement mode="Opaque" x="0" y="17" width="515" height="13" backcolor="#E6E6E6" uuid="36c28cbd-e86d-4e91-b0a3-23579c354687"/>
 				<textElement textAlignment="Right"/>
-				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
 			</textField>
 			<textField evaluationTime="Report">
-				<reportElement mode="Opaque" x="515" y="4" width="40" height="13" backcolor="#E6E6E6" uuid="69b2bb8f-1738-4591-a629-15f42b9caa5b"/>
+				<reportElement mode="Opaque" x="515" y="17" width="40" height="13" backcolor="#E6E6E6" uuid="69b2bb8f-1738-4591-a629-15f42b9caa5b"/>
 				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
 			<textField pattern="EEEEE dd MMMMM yyyy">
-				<reportElement x="0" y="4" width="100" height="13" uuid="60a888df-f5b5-4ec1-a0c9-fd7e4e3d68dc"/>
+				<reportElement x="238" y="17" width="100" height="13" uuid="60a888df-f5b5-4ec1-a0c9-fd7e4e3d68dc"/>
+				<textElement textAlignment="Center"/>
 				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="17" width="108" height="13" uuid="cc478f7c-d055-442a-9f33-2847b1c0e478"/>
+				<textFieldExpression><![CDATA["Generado con GDBD"]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageFooter>
