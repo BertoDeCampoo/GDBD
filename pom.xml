@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>es.uneatlantico.gdbd</groupId>
-  <artifactId>dbd</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+  <artifactId>gdbd</artifactId>
+  <version>0.0.4-ALPHA</version>
   <packaging>jar</packaging>
-  <name>Generador de Documentación para Bases de Datos</name>
+  <name>Gestor de Documentación para Bases de Datos</name>
   <description>Herramienta de gestión de documentación de bases de datos</description>
   <build>
   	<plugins>
