@@ -88,31 +88,26 @@ public class MySQLDatabase implements IDatabase {
 	}
 
 	@Override
-	public List<Table> getTables() {
+	public List<Table> getTables() throws SQLException {
 		List<Table> tables = new ArrayList<Table>();
 		List<Column> columns;
 		Table table;
 		String tableName;
 		
 		Statement tablesStatement;
-		Connection connection;
-		try {
-			connection = getConnection();
-			tablesStatement = connection.createStatement();
-			String queryString = "SELECT table_name FROM information_schema.tables where table_schema='" + this.name + "'";
-	        ResultSet rs = tablesStatement.executeQuery(queryString);
-	        while (rs.next()) {
-	        	tableName = rs.getString(1);
-	        	columns = getColumns(tableName);
-	        	
-	        	table = new Table(tableName, columns);
-	        	tables.add(table);
-	        }
-	        tablesStatement.close();
-	        connection.close();
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, e.getLocalizedMessage());
-		}
+		Connection connection = getConnection();
+		tablesStatement = connection.createStatement();
+		String queryString = "SELECT table_name FROM information_schema.tables where table_schema='" + this.name + "'";
+        ResultSet rs = tablesStatement.executeQuery(queryString);
+        while (rs.next()) {
+        	tableName = rs.getString(1);
+        	columns = getColumns(tableName);
+        	
+        	table = new Table(tableName, columns);
+        	tables.add(table);
+        }
+        tablesStatement.close();
+        connection.close();
 		return tables;
 	}
 
@@ -146,30 +141,24 @@ public class MySQLDatabase implements IDatabase {
 	}
 
 	@Override
-	public Database getDatabaseInformation() {
+	public Database getDatabaseInformation() throws SQLException {
 		List<Table> tables = getTables();
 		Database db = new Database(name, server, "MySQL", tables);
 		return db;
 	}
 
 	@Override
-	public List<String> getDatabasesOnThisServer() {
+	public List<String> getDatabasesOnThisServer() throws SQLException {
 		List<String> databases = new ArrayList<String>();
 		
-		Connection con = null;
-	    try {
-    		con = getConnection();
-			DatabaseMetaData meta = con.getMetaData();
-			ResultSet rs = meta.getCatalogs();
-			while (rs.next()) {
-				databases.add(rs.getString("TABLE_CAT"));
-			}
-			rs.close();
-			con.close();
-		} catch (Exception e) {
-			logger.log(Level.ERROR, e.getLocalizedMessage());
-			return new ArrayList<String>();
+		Connection con = getConnection();
+		DatabaseMetaData meta = con.getMetaData();
+		ResultSet rs = meta.getCatalogs();
+		while (rs.next()) {
+			databases.add(rs.getString("TABLE_CAT"));
 		}
+		rs.close();
+		con.close();
 		return databases;
 	}
 
@@ -182,7 +171,12 @@ public class MySQLDatabase implements IDatabase {
 	 */
 	@Override
 	public boolean setName(String name) {
-		List<String> databases = getDatabasesOnThisServer();
+		List<String> databases;
+		try {
+			databases = getDatabasesOnThisServer();
+		} catch (SQLException e) {
+			return false;
+		}
 		for (String currentDatabase : databases)
 		{
 			if (currentDatabase.equals(name))

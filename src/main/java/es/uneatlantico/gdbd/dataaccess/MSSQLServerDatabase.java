@@ -67,7 +67,6 @@ public class MSSQLServerDatabase implements IDatabase {
 	
 	@Override
 	public Connection getConnection() throws SQLException {
-		//MSSQLServerDatabase("jdbc:sqlserver://DESKTOP-M9PG788\\SQLEXPRESS", "sa", pass);
 		String url;
 		try {
 			Class.forName(Driver);
@@ -82,7 +81,7 @@ public class MSSQLServerDatabase implements IDatabase {
 	}
 	
 	@Override
-	public List<Table> getTables()
+	public List<Table> getTables() throws SQLException
 	{
 		List<Table> tables = new ArrayList<Table>();
 		List<Column> columns;
@@ -91,84 +90,68 @@ public class MSSQLServerDatabase implements IDatabase {
 		
 		Statement tablesStatement;
 		Connection connection;
-		try {
-			connection = getConnection();
-			tablesStatement = connection.createStatement();
+		connection = getConnection();
+		tablesStatement = connection.createStatement();
 //			String queryString = "SELECT * FROM SYSOBJECTS WHERE TYPE='u'";
-			String queryString = "SELECT TABLE_NAME " + 
-					"FROM INFORMATION_SCHEMA.TABLES " + 
-					"WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_CATALOG='" + this.name + "'";
-	        ResultSet rs = tablesStatement.executeQuery(queryString);
-	        while (rs.next()) {
-	        	tableName = rs.getString(1);
-	        	columns = getColumns(tableName);
-	        	
-	        	table = new Table(tableName, columns);
-	        	tables.add(table);
-	        }
-	        tablesStatement.close();
-	        connection.close();
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, e.getLocalizedMessage());
-			return new ArrayList<Table>();
-		}
+		String queryString = "SELECT TABLE_NAME " + 
+				"FROM INFORMATION_SCHEMA.TABLES " + 
+				"WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_CATALOG='" + this.name + "'";
+        ResultSet rs = tablesStatement.executeQuery(queryString);
+        while (rs.next()) {
+        	tableName = rs.getString(1);
+        	columns = getColumns(tableName);
+        	
+        	table = new Table(tableName, columns);
+        	tables.add(table);
+        }
+        tablesStatement.close();
+        connection.close();
 		return tables;
 	}
 	
 	@Override
-	public List<Column> getColumns(String tableName) {
+	public List<Column> getColumns(String tableName) throws SQLException {
 		String nombre, tipo_dato;
 		int tam_dato;
 		DatabaseMetaData metadata;
-		Connection connection;
 		Column column;
 		List<Column> columns = new ArrayList<Column>();
 		
-		try {
-			connection = getConnection();
-			metadata = connection.getMetaData();
-			ResultSet resultSet = metadata.getColumns(null, null, tableName, null);
-		    while (resultSet.next()) {
-		    	nombre = resultSet.getString("COLUMN_NAME");
-		    	tipo_dato = resultSet.getString("TYPE_NAME");
-		    	tam_dato = resultSet.getInt("COLUMN_SIZE");
+		Connection connection = getConnection();
+		metadata = connection.getMetaData();
+		ResultSet resultSet = metadata.getColumns(null, null, tableName, null);
+	    while (resultSet.next()) {
+	    	nombre = resultSet.getString("COLUMN_NAME");
+	    	tipo_dato = resultSet.getString("TYPE_NAME");
+	    	tam_dato = resultSet.getInt("COLUMN_SIZE");
 
-		      column = new Column(nombre, tipo_dato, tam_dato);
-		      columns.add(column);
-		    }
-		    connection.close();
-		} catch (SQLException e) {
-			logger.log(Level.ERROR, e.getLocalizedMessage());
-			return new ArrayList<Column>();
-		}
+			column = new Column(nombre, tipo_dato, tam_dato);
+			columns.add(column);
+	    }
+	    connection.close();
+		
 		return columns;
 	}
 
-	public Database getDatabaseInformation()
+	public Database getDatabaseInformation() throws SQLException
 	{
 		List<Table> tables = getTables();
 		Database db = new Database(name, server, "Microsoft SQL Server", tables);
 		return db;
 	}
 	
-	public List<String> getDatabasesOnThisServer()
+	public List<String> getDatabasesOnThisServer() throws SQLException
 	{
 		List<String> databases = new ArrayList<String>();
 		
-		Connection con = null;
-	    try {
-    		con = getConnection();
-			DatabaseMetaData meta = con.getMetaData();
-			ResultSet rs = meta.getCatalogs();
-			while (rs.next()) {
-				databases.add(rs.getString("TABLE_CAT"));
-			}
-			rs.close();
-			con.close();
-		} catch (Exception e) {
-			logger.log(Level.ERROR, e.getLocalizedMessage());
-			return new ArrayList<String>();
+		Connection con = getConnection();
+		DatabaseMetaData meta = con.getMetaData();
+		ResultSet rs = meta.getCatalogs();
+		while (rs.next()) {
+			databases.add(rs.getString("TABLE_CAT"));
 		}
+		rs.close();
+		con.close();
 		return databases;
 	}
 	
@@ -181,7 +164,12 @@ public class MSSQLServerDatabase implements IDatabase {
 	 */
 	@Override
 	public boolean setName(String name) {
-		List<String> databases = getDatabasesOnThisServer();
+		List<String> databases;
+		try {
+			databases = getDatabasesOnThisServer();
+		} catch (SQLException e) {
+			return false;
+		}
 		for (String currentDatabase : databases)
 		{
 			if (currentDatabase.equals(name))
