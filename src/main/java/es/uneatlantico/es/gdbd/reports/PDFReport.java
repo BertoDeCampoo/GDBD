@@ -26,6 +26,7 @@ public class PDFReport implements IReport {
 	@Override
 	public String export(String reportFile, String exportPath, Connection dataSourceConnection) throws Exception {
 		exportPath += ".pdf";
+		logger.log(Level.INFO, "Generando informe PDF en " + exportPath + "...");
 		File file = new File(getClass().getClassLoader().getResource(reportFile).getFile());
 		
 		String filePath = file.getCanonicalPath();

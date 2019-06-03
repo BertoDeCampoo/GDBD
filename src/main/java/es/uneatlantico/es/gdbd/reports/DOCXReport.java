@@ -13,11 +13,9 @@ import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.export.JRRtfExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
-import net.sf.jasperreports.export.SimpleWriterExporterOutput;
 
 /**
  * Class which implements the IReport interface and can generate Office Open XML Document (DOCX) files
@@ -30,6 +28,7 @@ public class DOCXReport implements IReport {
 	@Override
 	public String export(String reportFile, String exportPath, Connection dataSourceConnection) throws Exception {
 		exportPath += ".docx";
+		logger.log(Level.INFO, "Generando informe DOCX en " + exportPath + "...");
 		File file = new File(getClass().getClassLoader().getResource(reportFile).getFile());
 		
 		String filePath = file.getCanonicalPath();

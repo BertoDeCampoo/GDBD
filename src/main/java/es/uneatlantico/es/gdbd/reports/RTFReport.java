@@ -29,6 +29,7 @@ public class RTFReport implements IReport {
 	@Override
 	public String export(String reportFile, String exportPath, Connection dataSourceConnection) throws Exception {
 		exportPath += ".rtf";
+		logger.log(Level.INFO, "Generando informe RTF en " + exportPath + "...");
 		File file = new File(getClass().getClassLoader().getResource(reportFile).getFile());
 		
 		String filePath = file.getCanonicalPath();
