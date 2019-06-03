@@ -2,11 +2,11 @@ package es.uneatlantico.gdbd.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.FlowLayout;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import es.uneatlantico.gdbd.dataaccess.DBMS;
@@ -28,12 +28,15 @@ import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.JPasswordField;
 import java.awt.Toolkit;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 
 public class LoginDialog extends JDialog {
 
@@ -48,16 +51,19 @@ public class LoginDialog extends JDialog {
 	private JComboBox<String> cbDatabases;
 	private JLabel lblTestResults;
 	private JButton btnTest;
+	private Application parentApplication;
 	
 	private IDatabase selectedDatabase;
 	private SQLiteManager sqliteManager;
 	private Connection connection;
+	
+	private ConnectionTask task;
 
 	/**
 	 * Create the dialog.
 	 */
-	public LoginDialog(JFrame owner, SQLiteManager sqliteManager) {		
-		super (owner);
+	public LoginDialog(Application owner, SQLiteManager sqliteManager) {
+		this.parentApplication = owner;
 		this.sqliteManager = sqliteManager;
 		initGUI();
 	}
@@ -110,6 +116,11 @@ public class LoginDialog extends JDialog {
 					pnConfiguration.add(lblDriver, gbc_lblDriver);
 				}
 				cbDriver = new JComboBox<DBMS>(cModel);
+				cbDriver.addItemListener(new ItemListener() {
+					public void itemStateChanged(ItemEvent arg0) {
+						okButton.setEnabled(false);
+					}
+				});
 				cbDriver.setToolTipText("Tipo de driver a utilizar");
 				GridBagConstraints gbc_cbDriver = new GridBagConstraints();
 				gbc_cbDriver.insets = new Insets(0, 0, 5, 0);
@@ -290,31 +301,57 @@ public class LoginDialog extends JDialog {
 				okButton.setEnabled(false);
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						LoginDialog.this.selectedDatabase = connectToServer();
-						// select the database on the combo
-						if(LoginDialog.this.selectedDatabase.setName(cbDatabases.getSelectedItem().toString()))
-						{
-							addNewDatabase();
-						//LoginDialog.this.selectedDatabase.selectDatabase(LoginDialog.this.txtDatabase.getText());
-							
-						}
+						task = new ConnectionTask();
+						task.execute();
 					}
 				});
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
 			}
-			{
-				JButton cancelButton = new JButton("Cancelar");
-				cancelButton.setToolTipText("Volver a la pantalla principal");
-				cancelButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						LoginDialog.this.dispose();
-					}
-				});
-				cancelButton.setActionCommand("Cancel");
-				buttonPane.add(cancelButton);
+		}
+	}
+	
+	class ConnectionTask extends SwingWorker<Void, Void> {
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			okButton.setEnabled(false);		
+			
+			// Check if the connection is valid (In case the values of the fields have been altered after pressing Test)
+			IDatabase database = LoginDialog.this.selectedDatabase = connectToServer();
+			try {
+				database.getConnection();
+			} catch (SQLException e){
+				StringBuilder sb = new StringBuilder();
+				// Change Width of the panel with CSS as the JLabel supports HTML formatting
+				// In case the error message is too big
+				sb.append("<html><body><p style='width: 300px;'>");
+				sb.append(e.getLocalizedMessage());
+				JOptionPane.showMessageDialog(contentPanel, sb.toString(), 
+						"Error de conexión a la base de datos", JOptionPane.ERROR_MESSAGE);
+				return null;
 			}
+			// select the database on the combo
+			if(LoginDialog.this.selectedDatabase.setName(cbDatabases.getSelectedItem().toString()))
+			{
+				try {
+					addNewDatabase();
+				} catch (SQLException e)
+				{
+					JOptionPane.showMessageDialog(contentPanel, e.getLocalizedMessage(), 
+							"Imposible añadir la base de datos", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			
+			return null;
+		}
+		
+		@Override
+        public void done() {
+			setCursor(null);
+			okButton.setEnabled(true);
 		}
 	}
 	
@@ -348,7 +385,13 @@ public class LoginDialog extends JDialog {
 	public void fillDatabasesCombo()
 	{
 		this.selectedDatabase = connectToServer();
-		List<String> databases = selectedDatabase.getDatabasesOnThisServer();
+		List<String> databases = new ArrayList<String>();
+		try {
+			databases = selectedDatabase.getDatabasesOnThisServer();
+		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(contentPanel, e.getLocalizedMessage(), 
+					"No se puede cargar la lista de bases de datos", JOptionPane.ERROR_MESSAGE);
+		}
 		System.out.println(databases);
 		cbDatabases.setModel(new DefaultComboBoxModel<String>(databases.toArray(new String[0])));
 		if (cbDatabases.getModel().getSize() > 0)
@@ -367,19 +410,14 @@ public class LoginDialog extends JDialog {
 		}
 	}
 	
-	private void addNewDatabase()
+	private void addNewDatabase() throws SQLException
 	{
 		this.selectedDatabase.setName(cbDatabases.getSelectedItem().toString());
 		Database db = this.selectedDatabase.getDatabaseInformation();
 		
-		try {
-			sqliteManager.addNewDatabase(db);
-			JOptionPane.showMessageDialog(contentPanel, "Base de datos añadida con éxito", "Operación finalizada", JOptionPane.INFORMATION_MESSAGE);
-			LoginDialog.this.dispose();
-		} catch (SQLException e) {
-			// TODO: Corregir
-			JOptionPane.showMessageDialog(contentPanel, e.getLocalizedMessage(), 
-					"Imposible añadir la base de datos", JOptionPane.ERROR_MESSAGE);
-		}
+		sqliteManager.addNewDatabase(db);
+		JOptionPane.showMessageDialog(contentPanel, "Base de datos añadida con éxito", "Operación finalizada", JOptionPane.INFORMATION_MESSAGE);
+		this.parentApplication.triggerRefreshNavigator();
+		LoginDialog.this.dispose();
 	}
 }
