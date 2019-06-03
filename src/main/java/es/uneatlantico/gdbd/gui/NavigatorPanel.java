@@ -142,7 +142,7 @@ public class NavigatorPanel extends JPanel {
 	private JSplitPane getSpnBrowser() {
 		if (spnBrowser == null) {
 			spnBrowser = new JSplitPane();
-			spnBrowser.setDividerLocation(300);
+			spnBrowser.setDividerLocation(290);
 			spnBrowser.setOrientation(JSplitPane.VERTICAL_SPLIT);
 			spnBrowser.setOneTouchExpandable(true);
 			spnBrowser.setLeftComponent(getSpnDatabasesTables());
@@ -153,7 +153,7 @@ public class NavigatorPanel extends JPanel {
 	private JSplitPane getSpnDatabasesTables() {
 		if (spnDatabasesTables == null) {
 			spnDatabasesTables = new JSplitPane();
-			spnDatabasesTables.setDividerLocation(150);
+			spnDatabasesTables.setDividerLocation(95);
 			spnDatabasesTables.setOneTouchExpandable(true);
 			spnDatabasesTables.setOrientation(JSplitPane.VERTICAL_SPLIT);
 			spnDatabasesTables.setLeftComponent(getPnDatabases());
@@ -195,7 +195,6 @@ public class NavigatorPanel extends JPanel {
 					int databaseID = (int) tableModelDatabases.getValueAt(tbDatabases.convertRowIndexToModel(tbDatabases.getSelectedRow()), 0);
 					
 					NavigatorPanel.this.loadTables(databaseID);
-					System.err.println("ID de la BBDD seleccionada: " + databaseID);
 					textEditorPanel.editDatabase(databaseID);
 				}
 			});
@@ -233,14 +232,12 @@ public class NavigatorPanel extends JPanel {
 				public void mouseClicked(MouseEvent e) {
 					// Obtains the ID of the database selected from the table
 					int tableID = (int) tableModelTables.getValueAt(tbTables.convertRowIndexToModel(tbTables.getSelectedRow()), 0);
-					System.out.println("id del modelo: " + tableID);
 					
 					// Clear columns
 			 		DefaultTableModel dm = (DefaultTableModel)getTbColumns().getModel();
 			 		dm.getDataVector().removeAllElements();
 			 		dm.fireTableDataChanged();
 					NavigatorPanel.this.loadColumns(tableID);
-					System.err.println("ID de la tabla seleccionada: " + tableID);
 					textEditorPanel.editTable(tableID);
 				}
 			});
@@ -277,7 +274,6 @@ public class NavigatorPanel extends JPanel {
 					// Obtains the ID of the column selected from the table
 					int rowID = (int) tableModelColumns.getValueAt(tbColumns.convertRowIndexToModel(tbColumns.getSelectedRow()), 0);
 					
-					System.err.println("ID de la columna seleccionada: " + rowID);
 					textEditorPanel.editColumn(rowID);
 				}
 			});
@@ -357,5 +353,10 @@ public class NavigatorPanel extends JPanel {
             	return null;
             }
         }.execute();
+	}
+	
+	public void refreshServers()
+	{
+		loadServers();
 	}
 }
