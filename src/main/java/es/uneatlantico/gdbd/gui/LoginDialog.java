@@ -37,9 +37,6 @@ import java.awt.Toolkit;
 
 public class LoginDialog extends JDialog {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 403555622808592584L;
 	private final JPanel contentPanel = new JPanel();
 	private JTextField txtServer;

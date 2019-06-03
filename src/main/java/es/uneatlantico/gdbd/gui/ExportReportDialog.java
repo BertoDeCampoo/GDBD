@@ -32,7 +32,6 @@ import es.uneatlantico.gdbd.util.FileNameCleaner;
 import javax.swing.border.EmptyBorder;
 import java.awt.Toolkit;
 import javax.swing.JTextPane;
-import java.awt.Dialog.ModalityType;
 
 public class ExportReportDialog extends JDialog {
 	
@@ -50,23 +49,6 @@ public class ExportReportDialog extends JDialog {
 	private JButton btnCancel;
 	private JLabel lblNombreDeArchivo;
 	private JTextPane txtFileName;
-
-//	/**
-//	 * Launch the application.
-//	 */
-//	public static void main(String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					ExportReportDialogNew dialog = new ExportReportDialogNew();
-//					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-//					dialog.setVisible(true);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//	}
 
 	/**
 	 * Create the dialog.
@@ -218,9 +200,9 @@ public class ExportReportDialog extends JDialog {
 						try {
 							String finalPath = getTxtPath().getText() + System.getProperty("file.separator") + FileNameCleaner.cleanString(getTxtFileName().getText());
 							System.out.println(finalPath);
-							report.export("DatabaseReport-HTML.jrxml", finalPath, ExportReportDialog.this.sqliteManager.getConnection());
+							report.export("DatabaseReport.jrxml", finalPath, ExportReportDialog.this.sqliteManager.getConnection());
 						} catch (Exception re) {
-							JOptionPane.showMessageDialog(ExportReportDialog.this, re.getMessage(), "No se puede exportar", JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(ExportReportDialog.this, re.getLocalizedMessage(), "No se puede exportar", JOptionPane.ERROR_MESSAGE);
 						}
 					else
 					{
@@ -253,7 +235,7 @@ public class ExportReportDialog extends JDialog {
 		if (txtFileName == null) {
 			txtFileName = new JTextPane();
 			txtFileName.setToolTipText("Nombre del archivo a generar");
-			txtFileName.setText("catalogo-bbdd");
+			txtFileName.setText(es.uneatlantico.gdbd.util.Configuration.getDefaultReportFilename());
 		}
 		return txtFileName;
 	}

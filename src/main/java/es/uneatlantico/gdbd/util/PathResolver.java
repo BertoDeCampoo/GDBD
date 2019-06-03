@@ -9,7 +9,6 @@ public class PathResolver {
 	public static String getCurrentDirectory()
 	{
 		return System.getProperty("user.dir") + System.getProperty("file.separator");
-//	return (PathResolver.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
 	}
 
 }
