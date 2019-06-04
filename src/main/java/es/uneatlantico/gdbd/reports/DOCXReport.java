@@ -1,4 +1,4 @@
-package es.uneatlantico.es.gdbd.reports;
+package es.uneatlantico.gdbd.reports;
 
 import java.sql.Connection;
 import java.util.HashMap;

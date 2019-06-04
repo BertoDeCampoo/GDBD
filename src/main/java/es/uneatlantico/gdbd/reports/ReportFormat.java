@@ -1,4 +1,4 @@
-package es.uneatlantico.es.gdbd.reports;
+package es.uneatlantico.gdbd.reports;
 
 /**
  * Contains the values of the supported export document types of the application

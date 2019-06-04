@@ -1,4 +1,4 @@
-package es.uneatlantico.es.gdbd.reports;
+package es.uneatlantico.gdbd.reports;
 
 import java.io.File;
 import java.sql.Connection;

@@ -27,10 +27,10 @@ import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import javax.swing.DefaultComboBoxModel;
 
-import es.uneatlantico.es.gdbd.reports.FactoryReport;
-import es.uneatlantico.es.gdbd.reports.IReport;
-import es.uneatlantico.es.gdbd.reports.ReportFormat;
 import es.uneatlantico.gdbd.persistence.SQLiteManager;
+import es.uneatlantico.gdbd.reports.FactoryReport;
+import es.uneatlantico.gdbd.reports.IReport;
+import es.uneatlantico.gdbd.reports.ReportFormat;
 import es.uneatlantico.gdbd.util.FileNameCleaner;
 
 import javax.swing.border.EmptyBorder;
