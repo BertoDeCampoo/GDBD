@@ -14,7 +14,6 @@ import javax.swing.table.DefaultTableModel;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import es.uneatlantico.gdbd.entities.Column;
 import es.uneatlantico.gdbd.entities.Database;
 import es.uneatlantico.gdbd.entities.Table;
@@ -104,7 +103,7 @@ public class SQLiteManager {
                 sql.append ("  NOMBRE      varchar(255) NOT NULL, ");
                 sql.append ("  DESCRIPCION varchar(255), ");
                 sql.append ("  ID_BBDD     integer(10) NOT NULL, ");
-                sql.append ("  FOREIGN KEY(ID_BBDD) REFERENCES BBDD(ID));");
+                sql.append ("  FOREIGN KEY(ID_BBDD) REFERENCES BBDD(ID) ON DELETE CASCADE);");
                 
                 sql.append ("CREATE TABLE IF NOT EXISTS COLUMNAS (");
                 sql.append ("  ID          INTEGER NOT NULL PRIMARY KEY, ");
@@ -113,10 +112,10 @@ public class SQLiteManager {
                 sql.append ("  TAM_DATO    integer(10) NOT NULL, ");
                 sql.append ("  DESCRIPCION varchar(255), ");
                 sql.append ("  ID_TABLA    integer(10) NOT NULL, ");
-                sql.append ("  FOREIGN KEY(ID_TABLA) REFERENCES TABLAS(ID));");
+                sql.append ("  FOREIGN KEY(ID_TABLA) REFERENCES TABLAS(ID) ON DELETE CASCADE);");
                 
-                sql.append ("CREATE UNIQUE INDEX IF NOT EXISTS BBDD_ID ");
-                sql.append ("  ON BBDD (ID);");
+//                sql.append ("CREATE UNIQUE INDEX IF NOT EXISTS BBDD_ID ");
+//                sql.append ("  ON BBDD (ID);");
                 	
                 stmt.executeUpdate(sql.toString());
                 
@@ -139,6 +138,62 @@ public class SQLiteManager {
 	public void addNewDatabase(Database db) throws SQLException
 	{
 		createDatabase(db);
+	}
+	
+	/** 
+	 * Removes the selected database from the list
+	 * @param databaseID  the ID of the database to remove
+	 * @throws SQLException  if the database can't be deleted
+	 */
+	public void deleteDatabase(int databaseID) throws SQLException
+	{
+		Connection connection;
+		
+    	connection = DriverManager.getConnection(getDatabaseUrl());
+    	
+        pragmaEnabled();
+        	
+        
+    	String sql = "PRAGMA foreign_keys = ON";
+    	PreparedStatement pstmt = connection.prepareStatement(sql);
+    	pstmt.executeUpdate();   
+    	pragmaEnabled();
+    	
+    	sql = "DELETE From BBDD where ID = ?";
+    	pstmt = connection.prepareStatement(sql);
+        pstmt.setInt(1, databaseID);
+        
+        pstmt.executeUpdate();
+        
+        pstmt.close();
+        connection.close();
+	}
+	
+	private boolean pragmaEnabled() throws SQLException
+	{
+		Connection connection;
+		
+    	connection = DriverManager.getConnection(getDatabaseUrl());
+		String p = "PRAGMA foreign_keys";
+        PreparedStatement pr = connection.prepareStatement(p);
+        ResultSet rs = pr.executeQuery();
+		
+		if (rs.next()) {
+			String s = rs.getString(1);
+			if (s == "0")
+			{
+				System.out.println("foreign_keys OFF");
+				return false;
+			}
+			else
+			{
+				System.out.println("foreign_keys ON");
+				return true;
+			}
+		}
+        pr.close();
+        connection.close();
+        return false;
 	}
 	
 	/**
