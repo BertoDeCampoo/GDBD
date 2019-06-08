@@ -73,7 +73,7 @@ public class ExportReportDialog extends JDialog {
 		setModal(true);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ExportReportDialog.class.getResource("/net/sf/jasperreports/view/images/print.GIF")));
 		setTitle("Exportar documentaci\u00F3n");
-		setBounds(100, 100, 450, 190);
+		setBounds(100, 100, 512, 200);
 		getContentPane().add(getPnControls(), BorderLayout.SOUTH);
 		getContentPane().add(getPnCenter(), BorderLayout.CENTER);
 	}
@@ -91,9 +91,9 @@ public class ExportReportDialog extends JDialog {
 			pnCenter = new JPanel();
 			pnCenter.setBorder(new EmptyBorder(5, 5, 5, 5));
 			GridBagLayout gbl_pnCenter = new GridBagLayout();
-			gbl_pnCenter.columnWidths = new int[]{200, 0, 0};
+			gbl_pnCenter.columnWidths = new int[]{198, 264, 0};
 			gbl_pnCenter.rowHeights = new int[]{24, 0, 0, 0, 0};
-			gbl_pnCenter.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+			gbl_pnCenter.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
 			gbl_pnCenter.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 			pnCenter.setLayout(gbl_pnCenter);
 			GridBagConstraints gbc_lblFormat = new GridBagConstraints();
