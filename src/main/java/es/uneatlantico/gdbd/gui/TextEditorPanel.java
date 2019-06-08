@@ -20,6 +20,8 @@ import java.awt.event.ActionEvent;
 import java.awt.Font;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class TextEditorPanel extends JPanel implements DocumentListener {
 
@@ -67,9 +69,57 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 		}
 		return scrlEditor;
 	}
+	
+	int i=17;
+    int j=90;
+    boolean s1=false;
+    boolean s2=false;
+	
 	private JTextArea getTxtEditor() {
 		if (txtEditor == null) {
 			txtEditor = new JTextArea();
+			txtEditor.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyPressed(KeyEvent e) {
+					System.out.println("pre"+e.getKeyCode());
+					
+					System.out.println("17 = control?" + (i==KeyEvent.VK_CONTROL));
+					System.out.println("90 = control?" + (j==KeyEvent.VK_CONTROL));
+			        if(i==e.getKeyCode())
+			        {
+			            s1=true;
+			        }
+
+			        if(j==e.getKeyCode())
+			        {
+			            s2=true;
+			        }
+
+			        if(s1==true && s2==true)
+			        {
+			        	if(TextEditorPanel.this.undoManager.canUndo())
+						{
+							TextEditorPanel.this.undoManager.undo();
+							// Enable depending on whether you can undo again
+							TextEditorPanel.this.getBtnUndo().setEnabled(TextEditorPanel.this.undoManager.canUndo());
+						}
+			        }
+				}
+				
+				public void keyReleased(KeyEvent e) {
+			        //System.out.println("re"+e.getKeyChar());
+
+			        if(i==e.getKeyCode())
+			        {
+			            s1=false;
+			        }
+
+			        if(j==e.getKeyCode())
+			        {
+			            s2=false;
+			        }
+			    }
+			});
 			txtEditor.setLineWrap(true);
 			txtEditor.setFont(new Font("Consolas", Font.PLAIN, 16));
 			txtEditor.getDocument().addUndoableEditListener(undoManager);

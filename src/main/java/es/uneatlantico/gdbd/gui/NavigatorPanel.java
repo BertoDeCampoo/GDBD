@@ -360,7 +360,10 @@ public class NavigatorPanel extends JPanel {
 	public void reload()
 	{
 		loadServers();
-		loadDatabases(getCbServers().getSelectedItem().toString());
+		if (getCbServers().getSelectedItem() == null)
+			return;
+		String selectedServer = getCbServers().getSelectedItem().toString();
+		loadDatabases(selectedServer);
 		textEditorPanel.reset();
 	}
 	
