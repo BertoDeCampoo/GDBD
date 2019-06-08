@@ -32,6 +32,7 @@ import es.uneatlantico.gdbd.reports.FactoryReport;
 import es.uneatlantico.gdbd.reports.IReport;
 import es.uneatlantico.gdbd.reports.ReportFormat;
 import es.uneatlantico.gdbd.util.FileNameCleaner;
+import es.uneatlantico.gdbd.util.PathResolver;
 
 import javax.swing.border.EmptyBorder;
 import java.awt.Toolkit;
@@ -180,7 +181,7 @@ public class ExportReportDialog extends JDialog {
 			txtPath = new JTextField();
 			txtPath.setToolTipText("Ruta en la que guardar el archivo");
 			txtPath.setEditable(false);
-			txtPath.setText("No seleccionada");
+			txtPath.setText(PathResolver.getCurrentDirectory());
 			txtPath.setColumns(10);
 		}
 		return txtPath;
