@@ -72,8 +72,9 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 	
 	int i=17;
     int j=90;
-    boolean s1=false;
-    boolean s2=false;
+    boolean ctrlPressed=false;
+    boolean zPressed=false;
+    boolean yPressed=false;
 	
 	private JTextArea getTxtEditor() {
 		if (txtEditor == null) {
@@ -82,20 +83,22 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 				@Override
 				public void keyPressed(KeyEvent e) {
 					System.out.println("pre"+e.getKeyCode());
-					
-					System.out.println("17 = control?" + (i==KeyEvent.VK_CONTROL));
-					System.out.println("90 = control?" + (j==KeyEvent.VK_CONTROL));
-			        if(i==e.getKeyCode())
+			        if(e.getKeyCode() == KeyEvent.VK_CONTROL)
 			        {
-			            s1=true;
+			            ctrlPressed=true;
 			        }
 
-			        if(j==e.getKeyCode())
+			        if(e.getKeyCode() == KeyEvent.VK_Z)
 			        {
-			            s2=true;
+			            zPressed=true;
+			        }
+			        
+			        if(e.getKeyCode() == KeyEvent.VK_Y)
+			        {
+			            yPressed=true;
 			        }
 
-			        if(s1==true && s2==true)
+			        if(ctrlPressed && zPressed)
 			        {
 			        	if(TextEditorPanel.this.undoManager.canUndo())
 						{
@@ -104,19 +107,33 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 							TextEditorPanel.this.getBtnUndo().setEnabled(TextEditorPanel.this.undoManager.canUndo());
 						}
 			        }
+			        if(ctrlPressed && yPressed)
+			        {
+			        	if(TextEditorPanel.this.undoManager.canRedo())
+						{
+							TextEditorPanel.this.undoManager.redo();
+							// Enable depending on whether you can undo again
+							TextEditorPanel.this.getBtnRedo().setEnabled(TextEditorPanel.this.undoManager.canRedo());
+						}
+			        }
 				}
 				
 				public void keyReleased(KeyEvent e) {
 			        //System.out.println("re"+e.getKeyChar());
 
-			        if(i==e.getKeyCode())
+			        if(e.getKeyCode() == KeyEvent.VK_CONTROL)
 			        {
-			            s1=false;
+			            ctrlPressed=false;
 			        }
 
-			        if(j==e.getKeyCode())
+			        if(e.getKeyCode() == KeyEvent.VK_Z)
 			        {
-			            s2=false;
+			            zPressed=false;
+			        }
+			        
+			        if(e.getKeyCode() == KeyEvent.VK_Y)
+			        {
+			            zPressed=false;
 			        }
 			    }
 			});
@@ -175,6 +192,7 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 	private JButton getBtnUndo() {
 		if (btnUndo == null) {
 			btnUndo = new JButton("");
+			btnUndo.setToolTipText("Deshacer (Ctrl+Z)");
 			btnUndo.setEnabled(false);
 			btnUndo.setIcon(new ImageIcon(TextEditorPanel.class.getResource("/com/sun/javafx/scene/web/skin/Undo_16x16_JFX.png")));
 			btnUndo.addActionListener(new ActionListener() {
@@ -193,6 +211,7 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 	private JButton getBtnRedo() {
 		if (btnRedo == null) {
 			btnRedo = new JButton("");
+			btnRedo.setToolTipText("Rehacer (Ctrl+Y)");
 			btnRedo.setEnabled(false);
 			btnRedo.setIcon(new ImageIcon(TextEditorPanel.class.getResource("/com/sun/javafx/scene/web/skin/Redo_16x16_JFX.png")));
 			btnRedo.addActionListener(new ActionListener() {
