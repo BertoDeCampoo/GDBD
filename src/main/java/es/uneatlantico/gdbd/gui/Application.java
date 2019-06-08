@@ -6,7 +6,10 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import javax.swing.UIManager;
 
@@ -16,6 +19,7 @@ import es.uneatlantico.gdbd.util.UITuner;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import javax.swing.ImageIcon;
 
 public class Application {
 
@@ -30,6 +34,8 @@ public class Application {
 	private TextEditorPanel pnEditor;	
 	private JMenuItem mntmExportarAArchivo;
 	private JMenuItem mntmAcercaDe;
+	private JMenuItem mntmExit;
+	private JMenuItem mntmRemoveDatabase;
 
 	/**
 	 * Launch the application.
@@ -94,6 +100,7 @@ public class Application {
 	private JMenu getMnFile() {
 		if (mnFile == null) {
 			mnFile = new JMenu("Archivo");
+			mnFile.add(getMntmExit());
 		}
 		return mnFile;
 	}
@@ -101,6 +108,7 @@ public class Application {
 		if (mnDocumentation == null) {
 			mnDocumentation = new JMenu("Documentaci\u00F3n");
 			mnDocumentation.add(getMntmNewDatabase());
+			mnDocumentation.add(getMntmRemoveDatabase());
 			mnDocumentation.add(getMntmExportarAArchivo());
 		}
 		return mnDocumentation;
@@ -114,7 +122,8 @@ public class Application {
 	}
 	private JMenuItem getMntmNewDatabase() {
 		if (mntmNewDatabase == null) {
-			mntmNewDatabase = new JMenuItem("A\u00F1adir base de datos");
+			mntmNewDatabase = new JMenuItem("A\u00F1adir base de datos...");
+			mntmNewDatabase.setIcon(new ImageIcon(Application.class.getResource("/com/sun/javafx/scene/web/skin/IncreaseIndent_16x16_JFX.png")));
 			mntmNewDatabase.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg) {
 					LoginDialog databaseLogin = new LoginDialog(Application.this, Application.this.sqliteManager);
@@ -128,6 +137,7 @@ public class Application {
 	private JMenuItem getMntmExportarAArchivo() {
 		if (mntmExportarAArchivo == null) {
 			mntmExportarAArchivo = new JMenuItem("Exportar a archivo...");
+			mntmExportarAArchivo.setIcon(new ImageIcon(Application.class.getResource("/net/sf/jasperreports/view/images/print.GIF")));
 			mntmExportarAArchivo.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg) {
 					ExportReportDialog exportDialog = new ExportReportDialog(Application.this.sqliteManager);
@@ -166,6 +176,45 @@ public class Application {
 	
 	public void triggerRefreshNavigator()
 	{
-		this.pnNavigator.refreshServers();
+		this.getPnNavigator().reload();
+	}
+	private JMenuItem getMntmExit() {
+		if (mntmExit == null) {
+			mntmExit = new JMenuItem("Salir");
+			mntmExit.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					System.exit(0);
+				}
+			});
+		}
+		return mntmExit;
+	}
+	private JMenuItem getMntmRemoveDatabase() {
+		if (mntmRemoveDatabase == null) {
+			mntmRemoveDatabase = new JMenuItem("Eliminar base de datos");
+			mntmRemoveDatabase.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					try {
+						int selectedDatabaseID = Application.this.getPnNavigator().getSelectedDatabase();
+						if (selectedDatabaseID == 0)
+						{
+							JOptionPane.showMessageDialog(null, "No se ha seleccionado ninguna base de datos", "No se puede eliminar la base de datos", JOptionPane.ERROR_MESSAGE);
+							return;
+						}
+						String selectedDatabaseName = Application.this.sqliteManager.getDatabaseName(selectedDatabaseID);
+					
+						int response = JOptionPane.showConfirmDialog(null, "¿Está seguro que desea eliminar la base de datos '" + selectedDatabaseName + "' (De la aplicación)?", 
+								"Confirmar eliminación", JOptionPane.YES_NO_OPTION);
+						if (response == JOptionPane.YES_OPTION)
+							sqliteManager.deleteDatabase(selectedDatabaseID);
+						Application.this.triggerRefreshNavigator();
+					} catch (SQLException e1) {
+						JOptionPane.showMessageDialog(null, e1.getLocalizedMessage(), "No se puede eliminar la base de datos", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			});
+			mntmRemoveDatabase.setIcon(new ImageIcon(Application.class.getResource("/com/sun/javafx/scene/web/skin/DecreaseIndent_16x16_JFX.png")));
+		}
+		return mntmRemoveDatabase;
 	}
 }

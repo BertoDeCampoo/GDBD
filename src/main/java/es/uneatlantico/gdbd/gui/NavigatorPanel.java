@@ -32,6 +32,7 @@ public class NavigatorPanel extends JPanel {
 
 	private SQLiteManager sqliteManager;
 	private TextEditorPanel textEditorPanel;
+	private int selectedDatabase;
 	
 	// Swing components
 	private JPanel pnServers, pnServer, pnDatabases, pnTables, pnColumns;
@@ -196,6 +197,7 @@ public class NavigatorPanel extends JPanel {
 					
 					NavigatorPanel.this.loadTables(databaseID);
 					textEditorPanel.editDatabase(databaseID);
+					NavigatorPanel.this.selectedDatabase = databaseID;
 				}
 			});
 		}
@@ -355,8 +357,15 @@ public class NavigatorPanel extends JPanel {
         }.execute();
 	}
 	
-	public void refreshServers()
+	public void reload()
 	{
 		loadServers();
+		loadDatabases(getCbServers().getSelectedItem().toString());
+		textEditorPanel.reset();
+	}
+	
+	public int getSelectedDatabase()
+	{
+		return this.selectedDatabase;
 	}
 }

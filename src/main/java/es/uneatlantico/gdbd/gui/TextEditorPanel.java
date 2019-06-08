@@ -169,7 +169,7 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 	}
 	private JLabel getLblEditorDeDocumentacin() {
 		if (lblEditorDeDocumentacin == null) {
-			lblEditorDeDocumentacin = new JLabel("Editando: ");
+			lblEditorDeDocumentacin = new JLabel("Descripci\u00F3n de ");
 			lblEditorDeDocumentacin.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		}
 		return lblEditorDeDocumentacin;
@@ -200,7 +200,7 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 	}
 	private JLabel getLblCurrentElement() {
 		if (lblCurrentElement == null) {
-			lblCurrentElement = new JLabel("<No se ha seleccionado ning\u00FAn elemento>");
+			lblCurrentElement = new JLabel("<No se ha seleccionado ning\u00FAn elemento>                   ");
 			lblCurrentElement.setFont(new Font("Tahoma", Font.ITALIC, 15));
 		}
 		return lblCurrentElement;
@@ -219,7 +219,7 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 			this.currentText = newText;
 			this.currentElementType = "BBDD";
 			this.currentID = databaseID;
-			getLblCurrentElement().setText("Base de datos '" + sqliteManager.getDatabaseName(databaseID) + "'");
+			getLblCurrentElement().setText("Base de Datos \'" + sqliteManager.getDatabaseName(databaseID) + "\'  ");
 		}
 		else 
 		{
@@ -240,7 +240,7 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 			this.currentText = newText;
 			this.currentElementType = "TABLA";
 			this.currentID = tableID;
-			getLblCurrentElement().setText("Tabla '" + sqliteManager.getTableName(tableID) + "'");
+			getLblCurrentElement().setText("Tabla \'" + sqliteManager.getTableName(tableID) + "\'  ");
 		}
 		else
 		{
@@ -261,7 +261,7 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 			this.currentText = newText;
 			this.currentElementType = "COLUMNA";
 			this.currentID = columnID;
-			getLblCurrentElement().setText("Columna '" + sqliteManager.getColumnName(columnID) + "'");
+			getLblCurrentElement().setText("Columna \'" + sqliteManager.getColumnName(columnID) + "\'  ");
 		}
 		else 
 		{
@@ -289,6 +289,12 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 		}
 		return true;
 	}
+	
+	public void reset()
+	{
+		getLblCurrentElement().setText("<No se ha seleccionado ning\u00FAn elemento>");
+	}
+	
 	private void changeSelectedElement()
 	{
 		this.elementModified = false;
