@@ -11,7 +11,6 @@ public class FactoryDatabaseAccess {
 	 * @param databaseType  type of the database. It must be defined on the enum type <code>DBMS</code>
 	 * @param server  database server
 	 * @param port  database TCP port the connection will use
-	 * @param database  name of the database in the database server
 	 * @param username  username needed to get access to the database
 	 * @param password  password for the given username authentication
 	 * @return  The database instance

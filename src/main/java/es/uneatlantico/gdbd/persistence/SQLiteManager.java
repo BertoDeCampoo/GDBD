@@ -152,6 +152,7 @@ public class SQLiteManager {
 		
     	connection = DriverManager.getConnection(getDatabaseUrl());
     	
+    	// Enable the use of foreign keys (Default disabled on SQLite)
     	String sql = "PRAGMA foreign_keys = ON";
     	PreparedStatement pstmt = connection.prepareStatement(sql);
     	pstmt.executeUpdate();
@@ -424,7 +425,7 @@ public class SQLiteManager {
 	
 	/**
 	 * Obtains a DefaultTableModel (Used by JTables) containing the columns of the the given table
-	 * @param databaseID  identifier of the table
+	 * @param tableID  identifier of the table
 	 * @return  the DefaultTableModel
 	 */
 	public DefaultTableModel getColumns(int tableID)
@@ -580,7 +581,7 @@ public class SQLiteManager {
 	
 	/**
 	 * Obtains the name of the given database ID
-	 * @param tableID  ID of the database
+	 * @param databaseID  ID of the database
 	 * @return  the name of the database
 	 */
 	public String getDatabaseName(int databaseID)

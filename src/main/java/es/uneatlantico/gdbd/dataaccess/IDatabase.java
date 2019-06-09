@@ -40,7 +40,6 @@ public interface IDatabase {
 	
 	/**
 	 * Obtains the name of the tables on the given database
-	 * @param  databaseName  the name of the database from wich to get the tables
 	 * @return the name of the tables of the database
 	 * @throws SQLException  if it is not possible to get the tables of the selected database
 	 */
