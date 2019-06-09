@@ -109,6 +109,7 @@ public class NavigatorPanel extends JPanel {
 		if (cbServers == null) {
 			cModelServers = new DefaultComboBoxModel<String>();
 			cbServers = new JComboBox<String>(cModelServers);
+			cbServers.setToolTipText("Lista de servidores");
 			cbServers.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					loadDatabases(getCbServers().getSelectedItem().toString());
@@ -121,6 +122,7 @@ public class NavigatorPanel extends JPanel {
 	private JButton getBtnRefreshservers() {
 		if (btnRefreshservers == null) {
 			btnRefreshservers = new JButton("");
+			btnRefreshservers.setToolTipText("Recargar lista de servidores");
 			btnRefreshservers.setIcon(new ImageIcon(NavigatorPanel.class.getResource("/com/sun/javafx/scene/web/skin/Redo_16x16_JFX.png")));
 			btnRefreshservers.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -173,6 +175,7 @@ public class NavigatorPanel extends JPanel {
 	private JScrollPane getScrlPnDatabases() {
 		if (scrlPnDatabases == null) {
 			scrlPnDatabases = new JScrollPane(getTbDatabases());
+			scrlPnDatabases.setToolTipText("Lista de bases de datos");
     		scrlPnDatabases.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		}
 		return scrlPnDatabases;
@@ -214,6 +217,7 @@ public class NavigatorPanel extends JPanel {
 	private JScrollPane getScrlPnTables() {
 		if (scrlPnTables == null) {
 			scrlPnTables = new JScrollPane(getTbTables());
+			scrlPnTables.setToolTipText("Lista de tablas");
 		}
 		return scrlPnTables;
 	}
@@ -257,6 +261,7 @@ public class NavigatorPanel extends JPanel {
 	private JScrollPane getScrlPnColumns() {
 		if (scrlPnColumns == null) {
 			scrlPnColumns = new JScrollPane(getTbColumns());
+			scrlPnColumns.setToolTipText("Lista de columnas");
 		}
 		return scrlPnColumns;
 	}
