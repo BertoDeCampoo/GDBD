@@ -93,13 +93,14 @@ public class About extends JDialog {
 		
 		sb.append("<B>Gestor de Documentación para Bases de Datos</B> ");
 		sb.append("<BR><I>V");
-		sb.append("0.0.5");
+		sb.append("1.0.0");
 		sb.append(" ");
-		sb.append("ALPHA");
+		sb.append("BETA");
 		sb.append("</I>");
-		sb.append("<BR>Alberto Gutiérrez Arroyo");
+		sb.append("<BR>Alumno: Alberto Gutiérrez Arroyo");
+		sb.append("<BR>Tutor: Manuel Masías Vergara");
 		sb.append("<BR>Trabajo de Fin de Grado");
-		sb.append("<BR>Universidad Europea del Atlántico. 2019<BR>");
+		sb.append("<BR>Universidad Europea del Atlántico. Junio de 2019<BR>");
 		sb.append(readLicense());
 		sb.append("</CENTER></BODY></HTML>");
 		
