@@ -351,8 +351,6 @@ public class LoginDialog extends JDialog {
 		protected Void doInBackground() throws Exception {
 			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			okButton.setEnabled(false);
-			progressBar.setVisible(true);
-			lblProgressBar.setVisible(true);
 			
 			// Check if the connection is valid (In case the values of the fields have been altered after pressing Test)
 			IDatabase database = LoginDialog.this.selectedDatabase = connectToServer();
@@ -373,6 +371,7 @@ public class LoginDialog extends JDialog {
 			{
 				try {
 					addNewDatabase();
+					
 				} catch (SQLException e)
 				{
 					JOptionPane.showMessageDialog(contentPanel, e.getLocalizedMessage(), 
@@ -389,7 +388,6 @@ public class LoginDialog extends JDialog {
 			okButton.setEnabled(true);
 			progressBar.setVisible(false);
 			lblProgressBar.setVisible(false);
-			JOptionPane.showMessageDialog(contentPanel, "Base de datos añadida con éxito", "Operación finalizada", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 	
@@ -466,7 +464,35 @@ public class LoginDialog extends JDialog {
 	{
 		this.selectedDatabase.setName(cbDatabases.getSelectedItem().toString());
 		Database db = this.selectedDatabase.getDatabaseInformation();
+		int id = this.sqliteManager.databaseExists(db.getNombre(), db.getServidor(), db.getTipo());
+		if (id != -1)
+		{
+			String response = JOptionPane.showInputDialog(null, "¿Desea guardarla con otro nombre?", "La base de datos ya existe", JOptionPane.QUESTION_MESSAGE);
+			if(response == null || (response != null && ("".equals(response))))
+			{
+				throw new SQLException("Operación cancelada por el usuario");
+			}
+				
+			while (response.equals(db.getNombre()))
+			{
+				response = JOptionPane.showInputDialog(null, "Introduzca un nombre distinto a \"" + response + "\"", "Ha introducido el mismo nombre", JOptionPane.QUESTION_MESSAGE);
+				if(response == null || (response != null && ("".equals(response))))
+				{
+					throw new SQLException("Operación cancelada por el usuario");
+				}
+			}
+			
+			db.setNombre(response);	
+		}
+		progressBar.setVisible(true);
+		lblProgressBar.setVisible(true);
 		
 		sqliteManager.addNewDatabase(db);
+		
+		progressBar.setVisible(false);
+		lblProgressBar.setVisible(false);
+		setCursor(null);
+		JOptionPane.showMessageDialog(contentPanel, "Base de datos añadida con éxito", "Operación finalizada", JOptionPane.INFORMATION_MESSAGE);
+		
 	}
 }
