@@ -23,6 +23,11 @@ public class Database {
 	public String getNombre() {
 		return nombre;
 	}
+	
+	public void setNombre(String nombre)
+	{
+		this.nombre = nombre;
+	}
 
 	public String getServidor() {
 		return servidor;
