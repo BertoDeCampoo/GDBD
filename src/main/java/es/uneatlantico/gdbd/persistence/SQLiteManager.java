@@ -23,6 +23,7 @@ import es.uneatlantico.gdbd.util.StringDotsRemover;
 public class SQLiteManager {
 	
 	private static final Logger logger = LogManager.getLogger(SQLiteManager.class); 
+	private final static String Localhost = "localhost";
 	
 	private final static String Driver = "org.sqlite.JDBC";
 	/**
@@ -30,8 +31,6 @@ public class SQLiteManager {
 	 */
 	public final static String Default_Filename = es.uneatlantico.gdbd.util.Configuration.getDefaultSQLiteFilename();
 	private String filename;
-	
-	private Connection activeConnection;
 	
 	public SQLiteManager (String filename)
 	{
@@ -80,16 +79,17 @@ public class SQLiteManager {
 	 */
 	public void initializeDatabase()
 	{		
+		Connection conn = null;
 		Statement stmt = null;
         try  {
-        	activeConnection = getConnection();
-            if (activeConnection != null) {
-                DatabaseMetaData meta = activeConnection.getMetaData();
+        	conn = getConnection();
+            if (conn != null) {
+                DatabaseMetaData meta = conn.getMetaData();
                 logger.log(Level.INFO, "Modelo de persistencia: Base de datos SQLite");
                 logger.log(Level.INFO, "Nombre del driver a utilizar: " + meta.getDriverName());
                 logger.log(Level.INFO, getDatabaseUrl());
                 
-                stmt = activeConnection.createStatement();
+                stmt = conn.createStatement();
 
                 StringBuilder sql = new StringBuilder();
                 sql.append ("CREATE TABLE IF NOT EXISTS BBDD (");
@@ -115,13 +115,16 @@ public class SQLiteManager {
                 sql.append ("  ID_TABLA    integer(10) NOT NULL, ");
                 sql.append ("  FOREIGN KEY(ID_TABLA) REFERENCES TABLAS(ID) ON DELETE CASCADE);");
                 
+//                sql.append ("CREATE UNIQUE INDEX IF NOT EXISTS BBDD_ID ");
+//                sql.append ("  ON BBDD (ID);");
+                	
                 stmt.executeUpdate(sql.toString());
                 
                 stmt.close();
                 
                 logger.log(Level.INFO, "Base de datos inicializada con éxito");
-                
-                activeConnection.close();
+
+                conn.close();
             }
         } catch (SQLException e) {
             logger.log(Level.FATAL, e.getLocalizedMessage());
@@ -145,20 +148,22 @@ public class SQLiteManager {
 	 */
 	public void deleteDatabase(int databaseID) throws SQLException
 	{
-    	activeConnection = DriverManager.getConnection(getDatabaseUrl());
-    	     
+		Connection connection;
+		
+    	connection = DriverManager.getConnection(getDatabaseUrl());
+    	
     	String sql = "PRAGMA foreign_keys = ON";
-    	PreparedStatement pstmt = activeConnection.prepareStatement(sql);
+    	PreparedStatement pstmt = connection.prepareStatement(sql);
     	pstmt.executeUpdate();
     	
     	sql = "DELETE From BBDD where ID = ?";
-    	pstmt = activeConnection.prepareStatement(sql);
+    	pstmt = connection.prepareStatement(sql);
         pstmt.setInt(1, databaseID);
         
         pstmt.executeUpdate();
         
         pstmt.close();
-        activeConnection.close();
+        connection.close();
 	}
 	
 	/**
@@ -168,32 +173,33 @@ public class SQLiteManager {
 	 */
 	private void createDatabase(Database db) throws SQLException
 	{
+		Connection connection;
 		int nextAvailableID;
 		
-    	activeConnection = DriverManager.getConnection(getDatabaseUrl());
+    	connection = DriverManager.getConnection(getDatabaseUrl());
     	// Obtain next free ID for BBDD
     	nextAvailableID = getNextAvailableID("BBDD");
     	
     	String sql = "INSERT INTO BBDD (ID,NOMBRE,SERVIDOR,TIPO) VALUES(?,?,?,?)";
     	
-        PreparedStatement pstmt = activeConnection.prepareStatement(sql);
+        PreparedStatement pstmt = connection.prepareStatement(sql);
         
         pstmt.setInt(1, nextAvailableID);
         pstmt.setString(2, db.getNombre());
         if (!db.getServidor().equals(""))
         	pstmt.setString(3, db.getServidor());
         else
-        	pstmt.setString(3, "localhost");
+        	pstmt.setString(3, Localhost);
         pstmt.setString(4, db.getTipo());
         pstmt.executeUpdate();
         
         pstmt.close();
+        connection.close();
         
         for (Table table : db.getTables())
 		{
 			createTable(table, nextAvailableID);
 		}
-        activeConnection.close();
 	}
 	
 	/**
@@ -204,14 +210,16 @@ public class SQLiteManager {
 	 */
 	private void createTable(Table table, int ID_BBDD) throws SQLException
 	{
+		Connection connection;
 		int nextAvailableID = 0;
 		
+    	connection = DriverManager.getConnection(getDatabaseUrl());
     	// Obtain next free ID for TABLAS
     	nextAvailableID = getNextAvailableID("TABLAS");
     				
     	String sql = "INSERT INTO TABLAS (ID,NOMBRE,ID_BBDD) VALUES(?,?,?)";
     	
-        PreparedStatement pstmt = activeConnection.prepareStatement(sql);
+        PreparedStatement pstmt = connection.prepareStatement(sql);
         
         pstmt.setInt(1, nextAvailableID);
         pstmt.setString(2, table.getNombre());
@@ -219,6 +227,7 @@ public class SQLiteManager {
         pstmt.executeUpdate();
         
         pstmt.close();
+        connection.close();
         
         // for each column on the table, add it to the SQLite database
 		for (Column column : table.getColumns())
@@ -235,14 +244,16 @@ public class SQLiteManager {
 	 */
 	private void createColumn(Column column, int ID_TABLA) throws SQLException
 	{
+		Connection connection;
 		int nextID = 0;
 	
+    	connection = DriverManager.getConnection(getDatabaseUrl());
     	// Obtain last ID used on the database
     	nextID = getNextAvailableID("COLUMNAS");
 					
     	String sql = "INSERT INTO COLUMNAS (ID,NOMBRE,TIPO_DATO,TAM_DATO,ID_TABLA) VALUES(?,?,?,?,?)";
     	
-        PreparedStatement pstmt = activeConnection.prepareStatement(sql);
+        PreparedStatement pstmt = connection.prepareStatement(sql);
         
         pstmt.setInt(1, nextID);
         pstmt.setString(2, column.getNombre());
@@ -252,27 +263,47 @@ public class SQLiteManager {
         pstmt.executeUpdate();
         
         pstmt.close();
+        connection.close();
 	}
 	
 	/**
 	 * Obtains the next available ID (Primary key) for the given table
 	 * @param tableName  table to obtain the available ID
 	 * @return  next free ID on the given table
-	 * @throws SQLException  if the next ID can't be obtained 
 	 */
-	private int getNextAvailableID(String tableName) throws SQLException
+	private int getNextAvailableID(String tableName)
 	{
-		int lastID = 0;
-		String sql = "SELECT ID FROM " + tableName + " ORDER BY ID DESC LIMIT 1";
-    	
-        PreparedStatement pstmt = activeConnection.prepareStatement(sql);
+		Connection connection = null;
+		Statement stmt = null;
+		int lastID = 1;
+		String sql;
 		
-		ResultSet rs = pstmt.executeQuery();
-		
-		while (rs.next()) {
-			lastID = Integer.parseInt(rs.getString(1));
+    	try {
+			connection = DriverManager.getConnection(getDatabaseUrl());
+			// Obtain last ID used on the database by the given table
+			sql = "SELECT ID FROM " + tableName + " ORDER BY ID DESC LIMIT 1";
+			
+			stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			
+			while (rs.next()) {
+				lastID = Integer.parseInt(rs.getString(1));
+			}
+			lastID++;
+		} catch (SQLException e) {
+			logger.log(Level.ERROR, e.getLocalizedMessage());
+		} finally {
+	        try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (stmt != null) {
+					stmt.close();
+				}
+	        } catch (SQLException sqle) {
+	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
+	        }
 		}
-		lastID++;
     	return lastID;
 	}
 	
@@ -284,11 +315,12 @@ public class SQLiteManager {
 	{
 		List<String> servers = new ArrayList<String>();
 		
+		Connection connection = null;
 		Statement stmt = null;
 		try {
-    		activeConnection = this.getConnection();
+    		connection = this.getConnection();
             
-    		stmt = activeConnection.createStatement();
+    		stmt = connection.createStatement();
 
             ResultSet rs = stmt.executeQuery("SELECT DISTINCT SERVIDOR FROM 'BBDD'");
             while(rs.next())	
@@ -299,8 +331,8 @@ public class SQLiteManager {
 			logger.log(Level.ERROR, e.getLocalizedMessage());
 		} finally {
 	        try {
-				if (activeConnection != null) {
-					activeConnection.close();
+				if (connection != null) {
+					connection.close();
 				}
 				if (stmt != null) {
 					stmt.close();
@@ -319,13 +351,14 @@ public class SQLiteManager {
 	 */
 	public DefaultTableModel getDatabases(String server)
 	{
+		Connection connection = null;
 		ResultSet rs = null;
 		DefaultTableModel tableModelDatabases;
 
 		try {
-			activeConnection = getConnection();
+			connection = getConnection();
 
-			Statement stmt = activeConnection.createStatement();
+			Statement stmt = connection.createStatement();
 			String sqlQuery = "SELECT ID, NOMBRE AS 'Nombre de la base de datos' FROM 'BBDD' WHERE SERVIDOR = '" + server + "'";
 			
 			rs = stmt.executeQuery(sqlQuery);
@@ -337,8 +370,8 @@ public class SQLiteManager {
 			logger.log(Level.ERROR, e.getLocalizedMessage());
 		} finally {
 	        try {
-				if (activeConnection != null) {
-					activeConnection.close();
+				if (connection != null) {
+					connection.close();
 				}
 				if (rs != null) {
 					rs.close();
@@ -741,5 +774,38 @@ public class SQLiteManager {
 	        	logger.log(Level.FATAL, sqle.getLocalizedMessage());
 	        }
 		}
+	}
+	
+	/**
+	 * Checks if the database already exists (If the user added it on the past)
+	 * @param databaseName  the name of the database
+	 * @param databaseServer  the server of the given database
+	 * @param databaseType  the type of the database (Example: MySQL, MSSQL,...)
+	 * @return  the ID of the database if found. -1 if not found
+	 * @throws SQLException  if something goes wrong
+	 */
+	public int databaseExists(String databaseName, String databaseServer, String databaseType) throws SQLException
+	{
+		int databaseID = -1;
+		Connection connection = this.getConnection();
+		
+		if (databaseServer.equals(""))
+			databaseServer = Localhost;
+	    
+		String sql = "SELECT ID FROM BBDD WHERE NOMBRE = ? AND SERVIDOR = ? and TIPO = ?";
+    	PreparedStatement pstmt = connection.prepareStatement(sql);
+    	
+        pstmt.setString(1, databaseName);
+        pstmt.setString(2, databaseServer);
+        pstmt.setString(3, databaseType);
+        
+        ResultSet rs = pstmt.executeQuery();
+		
+        while(rs.next())
+        	databaseID = rs.getInt(1);
+		
+        pstmt.close();
+        connection.close();
+        return databaseID;
 	}
 }
