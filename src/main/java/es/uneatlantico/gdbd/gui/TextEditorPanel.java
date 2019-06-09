@@ -70,8 +70,6 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 		return scrlEditor;
 	}
 	
-	int i=17;
-    int j=90;
     boolean ctrlPressed=false;
     boolean zPressed=false;
     boolean yPressed=false;
@@ -269,7 +267,7 @@ public class TextEditorPanel extends JPanel implements DocumentListener {
 	}
 	private JLabel getLblCurrentElement() {
 		if (lblCurrentElement == null) {
-			lblCurrentElement = new JLabel("<No se ha seleccionado ning\u00FAn elemento>                   ");
+			lblCurrentElement = new JLabel("<No se ha seleccionado ning\u00FAn elemento>");
 			lblCurrentElement.setFont(new Font("Tahoma", Font.ITALIC, 15));
 		}
 		return lblCurrentElement;
